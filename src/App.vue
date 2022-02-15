@@ -99,7 +99,7 @@ body {
 
 .page-header {
   height: auto;
-  background: #3670FF;
+  background: #1967a9;
 }
 
 .main-logo {
@@ -112,7 +112,7 @@ body {
   height: 150px;
   padding: 32px;
   text-align: center;
-  background: rgba(206, 204, 199, 0.42);
+  background: rgba(222, 210, 181, 0.24);
 }
 
 .page-main {

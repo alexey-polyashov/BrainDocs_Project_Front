@@ -7,7 +7,9 @@
         :data="tableData"
         :default-sort="{ prop: 'id', order: 'ascending' }"
         style="width: 100%"
+        border
     >
+      <el-table-column type="selection" width="55" />
       <el-table-column prop="id" label="id" sortable width="90"/>
       <el-table-column prop="date" label="date" sortable width="180"/>
       <el-table-column prop="name" label="name" sortable width="180"/>

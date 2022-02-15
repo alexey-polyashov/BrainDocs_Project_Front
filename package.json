@@ -8,10 +8,11 @@
   },
   "dependencies": {
     "@tinymce/tinymce-vue": "^4.0.5",
+    "axios": "^0.26.0",
     "element-plus": "^2.0.1",
-    "vue": "^3.2.25",
-    "vue-router": "^4.0.12",
-    "pinia": "^2.0.11"
+    "pinia": "^2.0.11",
+    "vue": "^3.2.31",
+    "vue-router": "^4.0.12"
   },
   "devDependencies": {
     "@vitejs/plugin-vue": "^2.0.0",
