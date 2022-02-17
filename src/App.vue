@@ -78,14 +78,13 @@ body {
 
 .content-box {
   border-radius: 4px;
-  border: 1px solid var(--el-border-color-base);
+  border: 2px solid var(--el-border-color-base);
   padding: 16px;
   width: 70%;
   margin: 10% auto;
 }
 
-@media only screen and (max-width: 768px) {
-  /* For mobile phones: */
+@media only screen and (max-width: 1024px) {
   .content-box {
     width: 95%;
   }

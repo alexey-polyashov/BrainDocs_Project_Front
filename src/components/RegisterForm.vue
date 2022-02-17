@@ -33,10 +33,7 @@
       <el-input type="password" v-model="form.passwordRepeated"></el-input>
     </el-form-item>
     <el-form-item>
-      <transition name="el-fade-in-linear" mode="out-in">
-        <el-button v-if="!loading" type="primary" @click="onSubmit">Register</el-button>
-        <el-button v-else type="primary" loading>Register</el-button>
-      </transition>
+      <LoadingButton ref="loadingButton" @click="onSubmit" button-text="Register"></LoadingButton>
       <el-button @click="resetForm(formRef)">Reset</el-button>
     </el-form-item>
     <el-button @click="switchToLogin" type="text">Already have an account? Login instead</el-button>
@@ -44,17 +41,18 @@
 </template>
 
 <script lang="ts" setup>
-import { reactive, ref, watch } from 'vue'
-import { ElForm } from "element-plus"
-import { useRouter } from "vue-router"
-import { useStore } from "../store"
+import { reactive, ref, watch } from 'vue';
+import { ElForm } from "element-plus";
+import { useRouter } from "vue-router";
+import { useStore } from "../store";
+import LoadingButton from './LoadingButton.vue';
 
-const router = useRouter()
-const store = useStore()
-const organizationOptions = ['o1', 'o2', 'o3']
+const router = useRouter();
+const store = useStore();
+const organizationOptions = ['o1', 'o2', 'o3'];
+const loadingButton = ref();
 
-type FormInstance = InstanceType<typeof ElForm>
-const loading = ref(false)
+type FormInstance = InstanceType<typeof ElForm>;
 const form = reactive({
   fullName: '',
   password: '',
@@ -62,17 +60,17 @@ const form = reactive({
   organization: '',
   email: '',
   login: ''
-})
-const labelPosition = ref(store.checkWidthTypeFits('md') ? 'right' : 'top')
-const formRef = ref<FormInstance>()
+});
+const labelPosition = ref(store.checkWidthTypeFits('md') ? 'right' : 'top');
+const formRef = ref<FormInstance>();
 const onSubmit = () => {
-  loading.value = true;
-  setTimeout(() => loading.value = false, 1000)
+  loadingButton.value.loading = true;
+  setTimeout(() => loadingButton.value.loading = false, 1000);
 };
 const resetForm = (formEl: FormInstance | undefined) => {
-  formEl?.resetFields()
-}
+  formEl?.resetFields();
+};
 const switchToLogin = () => {
-  router.push({ name: 'login' })
-}
+  router.push({ name: 'login' });
+};
 </script>
