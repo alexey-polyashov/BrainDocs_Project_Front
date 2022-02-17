@@ -1,8 +1,9 @@
 import axios from "axios";
 
-const url = 'http://localhost:3003/braindocs/api/v1'
+const url = 'https://brain-docs.herokuapp.com'
+const context = '/api/v1'
 
 export default axios.create({
-  baseURL: url,
-  timeout: 5000,
+  baseURL: context,
+  timeout: 2000,
 })

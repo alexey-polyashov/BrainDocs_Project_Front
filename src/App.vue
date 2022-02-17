@@ -84,7 +84,7 @@ body {
   margin: 10% auto;
 }
 
-@media only screen and (max-width: 768px) {
+@media only screen and (max-width: 1024px) {
   /* For mobile phones: */
   .content-box {
     width: 95%;
