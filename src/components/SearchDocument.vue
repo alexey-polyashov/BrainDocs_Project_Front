@@ -134,7 +134,7 @@ interface SelectableDataType {
   [key: string]: SelectionType[]
 }
 
-const applyFiltersButton = ref<InstanceType<typeof LoadingButton>>(null);
+const applyFiltersButton = ref();
 const documents = ref<DocType[]>([]);
 const filterData = reactive<any>({});
 const filterFields = ref<FilterFieldsType[]>([]);

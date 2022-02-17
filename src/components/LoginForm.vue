@@ -23,7 +23,7 @@ import axiosInstance from "../net/axios-instance";
 import { useStore } from "../store";
 
 type FormInstance = InstanceType<typeof ElForm>;
-const loadingButton = ref<InstanceType<typeof LoadingButton>>();
+const loadingButton = ref();
 const router = useRouter();
 const store = useStore();
 const form = reactive({
