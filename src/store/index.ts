@@ -9,7 +9,11 @@ const widthMinMapping = {
 export const useStore = defineStore('main', {
   state: () => {
     return {
-      windowWidth: 0
+      windowWidth: 0,
+      userInfo: {
+        token: '',
+        authorized: false
+      }
     }
   },
   actions: {

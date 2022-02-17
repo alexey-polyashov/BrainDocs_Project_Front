@@ -1,54 +1,67 @@
 <template>
-  <el-form class="content-box" label-width="auto">
-    <h1>Filters</h1>
-    <template v-for="(field, index) in filterFields" :key="field.key">
-      <el-form-item
-          v-if="field.defaultOn"
-          :label="field.name"
-      >
-        <div class="filter-form-item">
-          <el-select
-              v-model="filterData[field.key]"
-              v-if="isInSelectableKeys(field.key)"
-              placeholder="Select">
-            <el-option
-                v-for="option in selectableData[field.key]"
-                :key="option.id"
-                :label="getSelectionTypeName(option)"
-                :value="option.id"
-            >
-            </el-option>
-          </el-select>
-          <el-date-picker
-              v-else-if="field.type === 'Date'"
-              v-model="filterData[field.key]"
-              type="daterange"
-              range-separator="-"
-              start-placeholder="Start date"
-              end-placeholder="End date"
-          />
-          <el-input v-else v-model="filterData[field.key]"/>
-          <el-button
-              @click="disableField(index)"
-              size="small"
-              style="margin-left: 16px"
+  <div class="content-box filter-box-parent">
+      <el-form class="grouping-box" label-width="auto">
+        <h1>Group by doctype</h1>
+        <el-scrollbar height="200px">
+          <el-check-tag
+              v-for="type in selectableData['documentType']"
+              style="margin-bottom: 8px; display: block"
           >
-            <span style="font-size: 1rem" class="material-icons-round">clear</span>
-          </el-button>
-        </div>
-      </el-form-item>
-    </template>
-    <el-button type="primary" @click="applyFilters">Apply filters</el-button>
-    <el-select @change="addFilterSelected" placeholder="Add filter" style="margin-left: 16px">
-      <el-option
-          v-for="item in nonActiveFields"
-          :key="item.key"
-          :label="item.name"
-          :value="item.key"
-      >
-      </el-option>
-    </el-select>
-  </el-form>
+            {{ type.name }}
+          </el-check-tag>
+        </el-scrollbar>
+      </el-form>
+    <el-form class="filter-box" label-width="auto">
+      <h1>Filters</h1>
+      <template v-for="(field, index) in filterFields" :key="field.key">
+        <el-form-item
+            v-if="field.defaultOn"
+            :label="field.name"
+        >
+          <div class="filter-form-item">
+            <el-select
+                v-model="filterData[field.key]"
+                v-if="isInSelectableKeys(field.key)"
+                placeholder="Select">
+              <el-option
+                  v-for="option in selectableData[field.key]"
+                  :key="option.id"
+                  :label="getSelectionTypeName(option)"
+                  :value="option.id"
+              >
+              </el-option>
+            </el-select>
+            <el-date-picker
+                v-else-if="field.type === 'Date'"
+                v-model="filterData[field.key]"
+                type="daterange"
+                range-separator="-"
+                start-placeholder="Start date"
+                end-placeholder="End date"
+            />
+            <el-input v-else v-model="filterData[field.key]"/>
+            <el-button
+                @click="disableField(index)"
+                size="small"
+                style="margin-left: 16px"
+            >
+              <span style="font-size: 1rem" class="material-icons-round">clear</span>
+            </el-button>
+          </div>
+        </el-form-item>
+      </template>
+      <LoadingButton ref="applyFiltersButton" button-text="Apply filters" @click="applyFilters"/>
+      <el-select @change="addFilterSelected" placeholder="Add filter" style="margin-left: 16px">
+        <el-option
+            v-for="item in nonActiveFields"
+            :key="item.key"
+            :label="item.name"
+            :value="item.key"
+        >
+        </el-option>
+      </el-select>
+    </el-form>
+  </div>
   <div class="content-box">
     <el-table
         :data="documents"
@@ -76,20 +89,21 @@
 <script lang="ts" setup>
 import axiosInstance from "../net/axios-instance";
 import { computed, onMounted, reactive, ref } from "vue";
+import LoadingButton from "./LoadingButton.vue";
 
 interface DocFilterRequest {
-  page: string;
-  recordsOnPage: string;
-  filter: Filter[];
+  page: string,
+  recordsOnPage: string,
+  filter: Filter[],
 }
 
 interface Filter {
-  key: string;
-  operation: string;
-  value: string;
+  key: string,
+  operation: string,
+  value: string,
 }
 
-type DocType = {
+interface DocType {
   id: number,
   documentType: string,
   documentDate: string,
@@ -101,7 +115,7 @@ type DocType = {
   files: string,
 }
 
-type FilterFieldsType = {
+interface FilterFieldsType {
   readonly key: string,
   name: string,
   source: string,
@@ -110,20 +124,21 @@ type FilterFieldsType = {
   defaultOn: boolean,
 }
 
-type SelectionType = {
+interface SelectionType {
   id: number,
   name?: string,
   shortname?: string
 }
 
-type SelectableDataType = {
+interface SelectableDataType {
   [key: string]: SelectionType[]
 }
 
-const documents = ref<DocType[]>([])
-const filterData = reactive<any>({})
-const filterFields = ref<FilterFieldsType[]>([])
-const selectableData = ref<SelectableDataType>({})
+const applyFiltersButton = ref<InstanceType<typeof LoadingButton>>(null);
+const documents = ref<DocType[]>([]);
+const filterData = reactive<any>({});
+const filterFields = ref<FilterFieldsType[]>([]);
+const selectableData = ref<SelectableDataType>({});
 // url request map to key of a field
 const selectableKeysMapping = {
   'users': 'author',
@@ -131,102 +146,110 @@ const selectableKeysMapping = {
   'organisations': 'organisation',
 }
 
-type SelectableKeysMappingType = keyof (typeof selectableKeysMapping)
+type SelectableKeysMappingType = keyof (typeof selectableKeysMapping);
 
 onMounted(() => {
-  getFieldsRequest()
-  getDocumentsInitialRequest()
+  getFieldsRequest();
+  getDocumentsInitialRequest();
   for (const key in selectableKeysMapping) {
-    getSelectionListBy(key as SelectableKeysMappingType)
+    getSelectionListBy(key as SelectableKeysMappingType);
   }
 })
 
 const nonActiveFields = computed<FilterFieldsType[]>(() => {
-  return filterFields.value.filter((value => !value.defaultOn))
+  return filterFields.value.filter((value => !value.defaultOn));
 })
 
 function addFilterSelected(selectedKey: string) {
-  const selectedFieldIndex = filterFields.value.findIndex(value => value.key === selectedKey)
-  if (selectedFieldIndex !== -1) filterFields.value[selectedFieldIndex].defaultOn = true
+  const selectedFieldIndex = filterFields.value.findIndex(value => value.key === selectedKey);
+  if (selectedFieldIndex !== -1) filterFields.value[selectedFieldIndex].defaultOn = true;
 }
 
 function processDate(filterRequest: DocFilterRequest) {
-  const dateObjIndex = filterRequest.filter.findIndex(value => value.key === 'documentDate')
+  const dateObjIndex = filterRequest.filter.findIndex(value => value.key === 'documentDate');
   if (dateObjIndex !== -1) {
-    const dateFrom = filterRequest.filter[dateObjIndex].value[0] as unknown as Date
-    const dateTo = filterRequest.filter[dateObjIndex].value[1] as unknown as Date
-    filterRequest.filter.splice(dateObjIndex, 1)
+    const dateFrom = filterRequest.filter[dateObjIndex].value[0] as unknown as Date;
+    const dateTo = filterRequest.filter[dateObjIndex].value[1] as unknown as Date;
+    filterRequest.filter.splice(dateObjIndex, 1);
     filterRequest.filter.push({
       key: 'documentDate',
       value: dateFrom.toISOString().split('T')[0],
       operation: '>'
-    })
+    });
     filterRequest.filter.push({
       key: 'documentDate',
       value: dateTo.toISOString().split('T')[0],
       operation: '<'
-    })
+    });
   }
 }
 
-function applyFilters() {
-  const filters: Filter[] = []
+function initFilters() {
+  const filters: Filter[] = [];
   for (const dataKey in filterData) {
     if (filterData[dataKey]) {
       filters.push({
         key: dataKey,
         value: filterData[dataKey],
         operation: ':'
-      })
+      });
     }
   }
   const filterRequest: DocFilterRequest = {
     page: '0',
     recordsOnPage: '10',
     filter: filters
-  }
-  console.log(filterRequest)
+  };
+  return filterRequest;
+}
+
+async function applyFilters() {
+  applyFiltersButton.value.loading = true;
+  const filterRequest = initFilters();
+  console.log(filterRequest);
   processDate(filterRequest);
 
-  axiosInstance.post('/documents/get_list', filterRequest)
+  await axiosInstance
+      .post('/documents/get_list', filterRequest)
       .then(res => {
         console.log(res.data)
         updateDocuments(res)
       })
       .catch(err => {
         console.log(err)
-      })
+      });
+  applyFiltersButton.value.loading = false;
 }
 
 function getSelectionTypeName(value: SelectionType) {
   if (value.name) {
-    return value.name
+    return value.name;
   } else if (value.shortname) {
-    return value.shortname
+    return value.shortname;
   } else {
-    throw Error('wrong type ' + value)
+    throw Error('wrong type ' + value);
   }
 }
 
 function disableField(fieldIndex: number) {
-  filterFields.value[fieldIndex].defaultOn = false
-  delete filterData[filterFields.value[fieldIndex].key]
+  filterFields.value[fieldIndex].defaultOn = false;
+  delete filterData[filterFields.value[fieldIndex].key];
 }
 
 function isInSelectableKeys(fieldKey: string) {
-  return Object.values(selectableKeysMapping).indexOf(fieldKey) !== -1
+  return Object.values(selectableKeysMapping).indexOf(fieldKey) !== -1;
 }
 
 function getFieldsRequest() {
   //TODO fix url typo
   axiosInstance
-      .get<FilterFieldsType[]>('/documents/get_fileds')
+      .get<FilterFieldsType[]>('/documents/get_fields')
       .then((res) => {
         for (const el of res.data) {
           filterData[el.key] = ''
         }
         filterFields.value = res.data
-      })
+      });
 }
 
 function updateDocuments(res: any) {
@@ -242,26 +265,26 @@ function updateDocuments(res: any) {
       author: doc.author.shortname,
       organisation: doc.organisation.name,
       files: doc.files.length,
-    })
-  })
+    });
+  });
 }
 
 function openFilesDialog(row: any) {
-  console.log(row)
+  console.log(row);
 }
 
 function getDocumentsInitialRequest() {
   axiosInstance
       .get('/documents/')
-      .then(updateDocuments)
+      .then(updateDocuments);
 }
 
 function getSelectionListBy(type: SelectableKeysMappingType) {
   axiosInstance
       .get<SelectionType[]>(`/${ type }/`)
       .then(res => {
-        selectableData.value[selectableKeysMapping[type]] = res.data
-      })
+        selectableData.value[selectableKeysMapping[type]] = res.data;
+      });
 }
 </script>
 
@@ -269,6 +292,19 @@ function getSelectionListBy(type: SelectableKeysMappingType) {
 .filter-form-item {
   display: flex;
   align-items: center;
+}
+
+.filter-box-parent {
+  display: flex;
+}
+
+.filter-box {
+  padding-left: 16px;
+}
+
+.grouping-box {
+  border-right: 1px solid var(--el-border-color-base);
+  padding-right: 16px;
 }
 
 .content-box {
