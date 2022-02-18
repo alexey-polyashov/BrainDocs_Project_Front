@@ -62,7 +62,7 @@
       </el-row>
     </el-header>
     <el-main class="page-main">
-      <router-view />
+      <router-view/>
     </el-main>
     <el-footer class="page-footer">
       <span>BrainDocs &copy;</span>
@@ -71,26 +71,30 @@
 </template>
 
 <script lang="ts" setup>
-import { useRouter } from "vue-router"
-import { computed, onMounted, onUnmounted, ref } from "vue"
+import { useRouter } from "vue-router";
+import { onMounted, onUnmounted, ref } from "vue";
 import { useStore } from "./store";
+import { useServerCheck } from "./net/server-check";
 
-const router = useRouter()
+const router = useRouter();
 const store = useStore();
 
-const onWidthChange = () => store.windowResize(window.innerWidth)
-onMounted(() => window.addEventListener('resize', onWidthChange))
-onUnmounted(() => window.removeEventListener('resize', onWidthChange))
-onWidthChange()
+const onWidthChange = () => store.windowResize(window.innerWidth);
+onMounted(() => {
+  window.addEventListener('resize', onWidthChange);
+  useServerCheck();
+});
+onUnmounted(() => window.removeEventListener('resize', onWidthChange));
+onWidthChange();
 
-const activeMenu = ref('')
+const activeMenu = ref('');
 
 const signIn = () => {
-  activeMenu.value = ''
-  router.push({ name: 'login' })
+  activeMenu.value = '';
+  router.push({ name: 'login' });
 }
 const menuClicked = (index: string) => {
-  activeMenu.value = index
+  activeMenu.value = index;
 }
 </script>
 

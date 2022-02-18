@@ -5,5 +5,5 @@ const urlLocal = 'http://localhost:8181/braindocs/api/v1'
 
 export default axios.create({
   baseURL: url,
-  timeout: 2000,
+  timeout: 10000,
 })
