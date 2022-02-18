@@ -4,106 +4,168 @@
       <h1>Group by doctype</h1>
       <el-scrollbar height="100%">
         <CheckTagWrapper
-            v-for="type in selectableData['documentType']"
-            :ref="(el) => groupTagInit(type.id, el)"
-            style="margin-bottom: 8px; display: block"
-            @change="groupTagChange(type.id)"
+          v-for="type in selectableData['documentType']"
+          :key="type.id"
+          :ref="(el) => groupTagInit(type.id, el)"
+          style="margin-bottom: 8px; display: block"
+          @change="groupTagChange(type.id)"
         >
           {{ type.name }}
         </CheckTagWrapper>
       </el-scrollbar>
     </div>
-    <div style="width: 100%">
-      <div class="content-box filter-box-item filter-fields-box">
+    <div style="min-width: 0;">
+      <div
+        style="border-bottom-width: 1px;"
+        class="filter-box-item filter-fields-box"
+      >
         <el-form label-width="auto">
           <h1>Filters</h1>
-          <template v-for="(field, index) in filterFields" :key="field.key">
+          <template
+            v-for="(field, index) in filterFields"
+            :key="field.key"
+          >
             <el-form-item
-                v-if="field.defaultOn"
-                :label="field.name"
+              v-if="field.defaultOn"
+              :label="field.name"
             >
               <div class="filter-form-item">
                 <el-select
-                    v-model="filterData[field.key]"
-                    v-if="isInSelectableKeys(field.key)"
-                    placeholder="Select">
+                  v-if="isInSelectableKeys(field.key)"
+                  v-model="filterData[field.key]"
+                  placeholder="Select"
+                >
                   <el-option
-                      v-for="option in selectableData[field.key]"
-                      :key="option.id"
-                      :label="getSelectionTypeName(option)"
-                      :value="option.id"
-                  >
-                  </el-option>
+                    v-for="option in selectableData[field.key]"
+                    :key="option.id"
+                    :label="getSelectionTypeName(option)"
+                    :value="option.id"
+                  />
                 </el-select>
                 <el-date-picker
-                    v-else-if="field.type === 'Date'"
-                    v-model="filterData[field.key]"
-                    type="daterange"
-                    range-separator="-"
-                    start-placeholder="Start date"
-                    end-placeholder="End date"
+                  v-else-if="field.type === 'Date'"
+                  v-model="filterData[field.key]"
+                  type="daterange"
+                  range-separator="-"
+                  start-placeholder="Start date"
+                  end-placeholder="End date"
                 />
-                <el-input v-else v-model="filterData[field.key]"/>
+                <el-input
+                  v-else
+                  v-model="filterData[field.key]"
+                />
                 <el-tooltip
-                    effect="dark"
-                    content="Clear field"
-                    placement="top-start"
+                  effect="dark"
+                  content="Clear field"
+                  placement="top-start"
                 >
                   <el-button
-                      @click="clearFilterField(index)"
-                      size="small"
-                      style="margin-left: 16px"
+                    size="small"
+                    style="margin-left: 16px"
+                    @click="clearFilterField(index)"
                   >
-                    <span style="font-size: 1rem" class="material-icons-round">clear</span>
+                    <span
+                      style="font-size: 1rem"
+                      class="material-icons-round"
+                    >clear</span>
                   </el-button>
                 </el-tooltip>
                 <el-tooltip
-                    effect="dark"
-                    content="Delete field"
-                    placement="top-start"
+                  effect="dark"
+                  content="Delete field"
+                  placement="top-start"
                 >
                   <el-button
-                      type="danger"
-                      @click="disableField(index)"
-                      size="small"
-                      style="margin-left: 16px"
+                    type="danger"
+                    size="small"
+                    style="margin-left: 16px"
+                    @click="disableField(index)"
                   >
-                    <span style="font-size: 1rem" class="material-icons-round">delete</span>
+                    <span
+                      style="font-size: 1rem"
+                      class="material-icons-round"
+                    >delete</span>
                   </el-button>
                 </el-tooltip>
               </div>
             </el-form-item>
           </template>
-          <LoadingButton ref="applyFiltersButton" button-text="Apply filters" @click="applyFilters"/>
-          <el-select @change="addFilterSelected" placeholder="Add filter" style="margin-left: 16px">
+          <LoadingButton
+            ref="applyFiltersButton"
+            button-text="Apply filters"
+            @click="applyFilters"
+          />
+          <el-select
+            placeholder="Add filter"
+            style="margin-left: 16px"
+            @change="addFilterSelected"
+          >
             <el-option
-                v-for="item in nonActiveFields"
-                :key="item.key"
-                :label="item.name"
-                :value="item.key"
-            >
-            </el-option>
+              v-for="item in nonActiveFields"
+              :key="item.key"
+              :label="item.name"
+              :value="item.key"
+            />
           </el-select>
         </el-form>
       </div>
-      <div class="content-box filter-box-item filter-box-table">
+      <div class="filter-box-item filter-box-table">
         <el-table
-            :data="documents"
-            :default-sort="{ prop: 'id', order: 'ascending' }"
-            style="width: 100%"
-            border
-            table-layout="auto"
+          :data="documents"
+          :default-sort="{ prop: 'id', order: 'ascending' }"
+          border
+          table-layout="auto"
         >
-          <el-table-column type="selection" width="55"/>
-          <el-table-column prop="id" label="id" sortable width="70"/>
-          <el-table-column prop="number" label="number" sortable width="100"/>
-          <el-table-column prop="documentDate" label="date" sortable width="120"/>
-          <el-table-column prop="heading" label="heading" sortable width="180"/>
-          <el-table-column prop="author" label="author" sortable width="180"/>
-          <el-table-column prop="organisation" label="organisation" sortable width="180"/>
-          <el-table-column prop="files" label="files" sortable width="90">
+          <el-table-column
+            type="selection"
+            width="55"
+          />
+          <el-table-column
+            prop="id"
+            label="id"
+            sortable
+            width="70"
+          />
+          <el-table-column
+            prop="number"
+            label="number"
+            sortable
+            width="100"
+          />
+          <el-table-column
+            prop="documentDate"
+            label="date"
+            sortable
+            width="120"
+          />
+          <el-table-column
+            prop="heading"
+            label="heading"
+            sortable
+            width="180"
+          />
+          <el-table-column
+            prop="author"
+            label="author"
+            sortable
+            width="180"
+          />
+          <el-table-column
+            prop="organisation"
+            label="organisation"
+            sortable
+            width="180"
+          />
+          <el-table-column
+            prop="files"
+            label="files"
+            sortable
+            width="90"
+          >
             <template #default="scope">
-              <el-button @click="openFilesDialog(scope.row)">Files</el-button>
+              <el-button @click="openFilesDialog(scope.row)">
+                Files
+              </el-button>
             </template>
           </el-table-column>
         </el-table>
@@ -114,56 +176,18 @@
 
 <script lang="ts" setup>
 import axiosInstance from "../../net/axios-instance";
-import { computed, onMounted, reactive, Ref, ref, watch } from "vue";
+import { computed, onMounted, reactive, ref } from "vue";
 import LoadingButton from "../LoadingButton.vue";
 import CheckTagWrapper from "../CheckTagWrapper.vue";
-
-interface DocFilterRequest {
-  page: string,
-  recordsOnPage: string,
-  filter: Filter[],
-}
-
-interface Filter {
-  key: string,
-  operation: string,
-  value: string,
-}
-
-interface DocType {
-  id: number,
-  documentType: string,
-  documentDate: string,
-  number: string,
-  heading: string,
-  responsible: string,
-  author: string,
-  organisation: string,
-  files: string,
-}
-
-interface FilterFieldsType {
-  readonly key: string,
-  name: string,
-  source: string,
-  validOperations: string[],
-  type: string,
-  defaultOn: boolean,
-}
-
-interface SelectionType {
-  id: number,
-  name?: string,
-  shortname?: string
-}
-
-interface SelectableDataType {
-  [key: string]: SelectionType[]
-}
-
-type FilterDataType = {
-  [key: string]: string | string[]
-};
+import {
+  DocFilterRequest,
+  DocType,
+  Filter,
+  FilterDataType,
+  FilterFieldsType,
+  SelectableDataType,
+  SelectionType
+} from "./types";
 
 const applyFiltersButton = ref();
 const documents = ref<DocType[]>([]);
@@ -363,6 +387,7 @@ function retrieveSessionFilters(): boolean {
     }
     return false;
   }
+
   parseData('filterData', filterData);
   return parseData('filterFields', filterFields.value);
 }
@@ -379,13 +404,14 @@ async function getSelectionListBy(type: SelectableKeysMappingType) {
 <style scoped>
 .filter-fields-box {
   border-bottom-right-radius: 0;
-  border-bottom-width: 1px;
 }
 
 .filter-box-item {
+  border: 2px solid var(--el-border-color-base);
   border-left: none;
   border-bottom-left-radius: 0;
   border-top-left-radius: 0;
+  padding: 16px;
 }
 
 .grouping-box {

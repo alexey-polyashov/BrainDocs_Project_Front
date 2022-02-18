@@ -1,6 +1,6 @@
 <template>
   <el-check-tag :checked="checked">
-    <slot/>
+    <slot />
   </el-check-tag>
 </template>
 
@@ -9,6 +9,7 @@ import { ref } from "vue";
 
 const checked = ref(false);
 
+// eslint-disable-next-line no-undef
 defineExpose({
   checked
 });

@@ -5,36 +5,72 @@
         <span>Add new document</span>
       </div>
     </template>
-    <el-form ref="formRef" :model="formData" label-width="auto">
-      <el-form-item required label="Reference number">
-        <el-input v-model="formData.number"></el-input>
+    <el-form
+      ref="formRef"
+      :model="formData"
+      label-width="auto"
+    >
+      <el-form-item
+        required
+        label="Reference number"
+      >
+        <el-input v-model="formData.number" />
       </el-form-item>
-      <el-form-item required label="Document type">
-        <el-input v-model="formData.documentType"></el-input>
+      <el-form-item
+        required
+        label="Document type"
+      >
+        <el-input v-model="formData.documentType" />
       </el-form-item>
-      <el-form-item required label="Document name">
-        <el-input v-model="formData.heading"></el-input>
+      <el-form-item
+        required
+        label="Document name"
+      >
+        <el-input v-model="formData.heading" />
       </el-form-item>
-      <el-form-item required label="Date">
+      <el-form-item
+        required
+        label="Date"
+      >
         <el-date-picker
-            v-model="formData.documentDate"
-            type="date"
-            placeholder="Pick a date"
-        ></el-date-picker>
+          v-model="formData.documentDate"
+          type="date"
+          placeholder="Pick a date"
+        />
       </el-form-item>
-      <el-form-item required label="Organization">
-        <el-input v-model="formData.organisation"></el-input>
+      <el-form-item
+        required
+        label="Organization"
+      >
+        <el-input v-model="formData.organisation" />
       </el-form-item>
-      <h2 style="text-align: center">Content</h2>
+      <h2 style="text-align: center">
+        Content
+      </h2>
       <editor
-          v-model="formData.content"
-          api-key='r8zqd3nkvkfr7t0s0r4qo107guk38q9xpact4xap39t1p0pe'
+        v-model="formData.content"
+        api-key="r8zqd3nkvkfr7t0s0r4qo107guk38q9xpact4xap39t1p0pe"
       />
-      <AttachedFilesDialog ref="filesDialog"/>
+      <AttachedFilesDialog ref="filesDialog" />
       <div class="button-group">
-        <el-button size="large" type="primary" class="button" @click="saveClick">Save</el-button>
-        <el-badge :value="15" class="button">
-          <el-button size="large" @click="toggleFileAttachDialog">Attach files</el-button>
+        <el-button
+          size="large"
+          type="primary"
+          class="button"
+          @click="saveClick"
+        >
+          Save
+        </el-button>
+        <el-badge
+          :value="15"
+          class="button"
+        >
+          <el-button
+            size="large"
+            @click="toggleFileAttachDialog"
+          >
+            Attach files
+          </el-button>
         </el-badge>
       </div>
     </el-form>
@@ -74,8 +110,6 @@ function saveClick() {
         pendingSaveMessage();
         setTimeout(completeMessage, 1000)
         //sendSaveRequest()
-      })
-      .catch(() => {
       })
 }
 

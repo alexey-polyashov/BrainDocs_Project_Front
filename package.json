@@ -4,7 +4,8 @@
   "scripts": {
     "dev": "vite",
     "build": "vue-tsc --noEmit && vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "lint": "eslint ./src/** --fix --ignore-pattern /src/assets/**"
   },
   "dependencies": {
     "@tinymce/tinymce-vue": "^4.0.5",
@@ -15,9 +16,14 @@
     "vue-router": "^4.0.12"
   },
   "devDependencies": {
+    "@typescript-eslint/eslint-plugin": "^5.12.0",
+    "@typescript-eslint/parser": "^5.12.0",
     "@vitejs/plugin-vue": "^2.0.0",
+    "eslint": "^8.9.0",
+    "eslint-plugin-vue": "^8.4.1",
     "typescript": "^4.4.4",
     "vite": "^2.7.2",
+    "vue-eslint-parser": "^8.2.0",
     "vue-tsc": "^0.29.8"
   }
 }

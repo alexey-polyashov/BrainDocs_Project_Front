@@ -1,19 +1,39 @@
 <template>
   <el-dialog
-      v-model="dialogVisible"
-      title="Files"
-      width="70%"
+    v-model="dialogVisible"
+    title="Files"
+    width="70%"
   >
-    <el-table :data="fileTableData" style="width: 100%" max-height="300">
-      <el-table-column prop="name" label="Name"/>
-      <el-table-column prop="author" label="Uploaded by"/>
-      <el-table-column prop="date" label="Upload date"/>
-      <el-table-column prop="fileType" label="File type"/>
-      <el-table-column fixed="right" label="Operations" width="120">
-        <template #default="scope">
+    <el-table
+      :data="fileTableData"
+      style="width: 100%"
+      max-height="300"
+    >
+      <el-table-column
+        prop="name"
+        label="Name"
+      />
+      <el-table-column
+        prop="author"
+        label="Uploaded by"
+      />
+      <el-table-column
+        prop="date"
+        label="Upload date"
+      />
+      <el-table-column
+        prop="fileType"
+        label="File type"
+      />
+      <el-table-column
+        fixed="right"
+        label="Operations"
+        width="120"
+      >
+        <template>
           <el-button
-              type="text"
-              size="small"
+            type="text"
+            size="small"
           >
             Remove
           </el-button>
@@ -21,10 +41,10 @@
       </el-table-column>
     </el-table>
     <el-upload
-        class="upload-box"
-        drag
-        action="https://jsonplaceholder.typicode.com/posts/"
-        multiple
+      class="upload-box"
+      drag
+      action="https://jsonplaceholder.typicode.com/posts/"
+      multiple
     >
       <span class="material-icons-round upload-icon">cloud_upload</span>
       <div class="el-upload__text">
@@ -38,7 +58,10 @@
     </el-upload>
     <template #footer>
       <span class="dialog-footer">
-        <el-button type="primary" @click="dialogVisible = false">Close</el-button>
+        <el-button
+          type="primary"
+          @click="dialogVisible = false"
+        >Close</el-button>
       </span>
     </template>
   </el-dialog>
@@ -66,6 +89,7 @@ const dialogVisible = ref(false)
 const toggleVisible = () => {
   dialogVisible.value = !dialogVisible.value
 }
+// eslint-disable-next-line no-undef
 defineExpose({
   toggleVisible
 });
