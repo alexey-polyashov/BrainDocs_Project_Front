@@ -31,7 +31,7 @@ const router = createRouter({
     {
       name: 'search-doc',
       path: '/search-doc',
-      component: () => import('../components/SearchDocument.vue')
+      component: () => import('../components/search-document/SearchDocument.vue')
     }
   ]
 })
