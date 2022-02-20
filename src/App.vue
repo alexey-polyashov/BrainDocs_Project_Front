@@ -1,38 +1,68 @@
 <template>
   <el-container>
     <el-header class="page-header">
-      <el-row justify="space-between" align="middle">
-        <el-col :span="10" class="logo-menu">
+      <el-row
+        justify="space-between"
+        align="middle"
+      >
+        <el-col
+          :span="10"
+          class="logo-menu"
+        >
           <div class="main-logo">
-            <span class="material-icons-round" style="font-size: 3em">source</span>&nbsp;
+            <span
+              class="material-icons-round"
+              style="font-size: 3em"
+            >source</span>&nbsp;
             <span class="logo-text">BrainDocs</span>
           </div>
           <el-menu
-              :default-active="activeMenu"
-              background-color="transparent"
-              text-color="white"
-              active-text-color="#DBB046"
-              class="el-menu-demo"
-              mode="horizontal"
-              style="border-bottom: none"
-              :ellipsis="false"
-              router
-              @select="menuClicked"
+            :default-active="activeMenu"
+            background-color="transparent"
+            text-color="white"
+            active-text-color="#DBB046"
+            class="el-menu-demo"
+            mode="horizontal"
+            style="border-bottom: none"
+            :ellipsis="false"
+            router
+            @select="menuClicked"
           >
-            <el-menu-item index="create-doc" class="menu-item">New document</el-menu-item>
-            <el-menu-item index="search-doc" class="menu-item">Search</el-menu-item>
-            <el-menu-item index="3" class="menu-item">Directories</el-menu-item>
+            <el-menu-item
+              index="create-doc"
+              class="menu-item"
+            >
+              New document
+            </el-menu-item>
+            <el-menu-item
+              index="search-doc"
+              class="menu-item"
+            >
+              Search
+            </el-menu-item>
+            <el-menu-item
+              index="3"
+              class="menu-item"
+            >
+              Directories
+            </el-menu-item>
           </el-menu>
         </el-col>
-        <el-col :span="3" style="text-align: end">
-          <el-button type="primary" @click="signIn">
+        <el-col
+          :span="3"
+          style="text-align: end"
+        >
+          <el-button
+            type="primary"
+            @click="signIn"
+          >
             <span class="material-icons-round">account_circle</span>&nbsp;Sign
           </el-button>
         </el-col>
       </el-row>
     </el-header>
     <el-main class="page-main">
-      <router-view></router-view>
+      <router-view />
     </el-main>
     <el-footer class="page-footer">
       <span>BrainDocs &copy;</span>
@@ -41,26 +71,30 @@
 </template>
 
 <script lang="ts" setup>
-import { useRouter } from "vue-router"
-import { computed, onMounted, onUnmounted, ref } from "vue"
+import { useRouter } from "vue-router";
+import { onMounted, onUnmounted, ref } from "vue";
 import { useStore } from "./store";
+import useServerCheck from "./net/server-check";
 
-const router = useRouter()
+const router = useRouter();
 const store = useStore();
 
-const onWidthChange = () => store.windowResize(window.innerWidth)
-onMounted(() => window.addEventListener('resize', onWidthChange))
-onUnmounted(() => window.removeEventListener('resize', onWidthChange))
-onWidthChange()
+const onWidthChange = () => store.windowResize(window.innerWidth);
+onMounted(() => {
+  window.addEventListener('resize', onWidthChange);
+  useServerCheck();
+});
+onUnmounted(() => window.removeEventListener('resize', onWidthChange));
+onWidthChange();
 
-const activeMenu = ref('')
+const activeMenu = ref('');
 
 const signIn = () => {
-  activeMenu.value = ''
-  router.push({ name: 'login' })
+  activeMenu.value = '';
+  router.push({ name: 'login' });
 }
 const menuClicked = (index: string) => {
-  activeMenu.value = index
+  activeMenu.value = index;
 }
 </script>
 

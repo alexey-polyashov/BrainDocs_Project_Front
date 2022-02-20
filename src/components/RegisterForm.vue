@@ -1,42 +1,82 @@
 <template>
   <el-form
-      ref="formRef"
-      class="content-box"
-      :model="form"
-      label-width="auto"
-      :label-position="labelPosition"
+    ref="formRef"
+    class="content-box"
+    :model="form"
+    label-width="auto"
+    :label-position="labelPosition"
   >
-    <el-form-item required label="Full name" prop="fullName">
-      <el-input v-model="form.fullName"></el-input>
+    <el-form-item
+      required
+      label="Full name"
+      prop="fullName"
+    >
+      <el-input v-model="form.fullName" />
     </el-form-item>
-    <el-form-item required label="Organization" prop="organization">
+    <el-form-item
+      required
+      label="Organization"
+      prop="organization"
+    >
       <el-select v-model="form.organization">
         <el-option
-            v-for="item in organizationOptions"
-            :key="item"
-            :label="item"
-            :value="item"
-        >
-        </el-option>
+          v-for="item in organizationOptions"
+          :key="item"
+          :label="item"
+          :value="item"
+        />
       </el-select>
     </el-form-item>
-    <el-form-item required label="Login" prop="login">
-      <el-input v-model="form.login"></el-input>
+    <el-form-item
+      required
+      label="Login"
+      prop="login"
+    >
+      <el-input v-model="form.login" />
     </el-form-item>
-    <el-form-item required label="Email" prop="email">
-      <el-input v-model="form.email"></el-input>
+    <el-form-item
+      required
+      label="Email"
+      prop="email"
+    >
+      <el-input v-model="form.email" />
     </el-form-item>
-    <el-form-item required label="Password" prop="password">
-      <el-input type="password" v-model="form.password"></el-input>
+    <el-form-item
+      required
+      label="Password"
+      prop="password"
+    >
+      <el-input
+        v-model="form.password"
+        type="password"
+      />
     </el-form-item>
-    <el-form-item required label="Repeat password" prop="passwordRepeated">
-      <el-input type="password" v-model="form.passwordRepeated"></el-input>
+    <el-form-item
+      required
+      label="Repeat password"
+      prop="passwordRepeated"
+    >
+      <el-input
+        v-model="form.passwordRepeated"
+        type="password"
+      />
     </el-form-item>
     <el-form-item>
-      <LoadingButton ref="loadingButton" @click="onSubmit" button-text="Register"></LoadingButton>
-      <el-button @click="resetForm(formRef)">Reset</el-button>
+      <LoadingButton
+        ref="loadingButton"
+        button-text="Register"
+        @click="onSubmit"
+      />
+      <el-button @click="resetForm(formRef)">
+        Reset
+      </el-button>
     </el-form-item>
-    <el-button @click="switchToLogin" type="text">Already have an account? Login instead</el-button>
+    <el-button
+      type="text"
+      @click="switchToLogin"
+    >
+      Already have an account? Login instead
+    </el-button>
   </el-form>
 </template>
 

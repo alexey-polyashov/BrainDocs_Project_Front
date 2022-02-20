@@ -6,62 +6,120 @@
       </div>
     </template>
     <el-descriptions
-        title="User Info"
-        border
-        :column="1"
+      title="User Info"
+      border
+      :column="1"
     >
       <template #extra>
-        <el-button type="primary" @click="fieldsEditable = !fieldsEditable">Edit mode {{ fieldsEditable ? 'on' : 'off' }}</el-button>
+        <el-button
+          type="primary"
+          @click="fieldsEditable = !fieldsEditable"
+        >
+          Edit mode {{ fieldsEditable ? 'on' : 'off' }}
+        </el-button>
       </template>
       <el-descriptions-item label="Avatar">
-        <el-avatar :size="80" :src="userInfo.avatarSrc">
-          <img src="https://cube.elemecdn.com/e/fd/0fc7d20532fdaf769a25683617711png.png"/>
+        <el-avatar
+          :size="80"
+          :src="userInfo.avatarSrc"
+        >
+          <img src="https://cube.elemecdn.com/e/fd/0fc7d20532fdaf769a25683617711png.png">
         </el-avatar>
       </el-descriptions-item>
       <el-descriptions-item label="Full name">
-        <el-input :readonly="!fieldsEditable" v-model="userInfo.fullName" />
+        <el-input
+          v-model="userInfo.fullName"
+          :readonly="!fieldsEditable"
+        />
       </el-descriptions-item>
       <el-descriptions-item label="Login">
-        <el-input :readonly="!fieldsEditable" v-model="userInfo.login" />
+        <el-input
+          v-model="userInfo.login"
+          :readonly="!fieldsEditable"
+        />
       </el-descriptions-item>
       <el-descriptions-item label="Email">
-        <el-input :readonly="!fieldsEditable" v-model="userInfo.email" />
+        <el-input
+          v-model="userInfo.email"
+          :readonly="!fieldsEditable"
+        />
       </el-descriptions-item>
       <el-descriptions-item label="Address">
-        <el-input :readonly="!fieldsEditable" v-model="userInfo.address" />
+        <el-input
+          v-model="userInfo.address"
+          :readonly="!fieldsEditable"
+        />
       </el-descriptions-item>
       <el-descriptions-item label="Phone">
-        <el-input :readonly="!fieldsEditable" v-model="userInfo.phone" />
+        <el-input
+          v-model="userInfo.phone"
+          :readonly="!fieldsEditable"
+        />
       </el-descriptions-item>
     </el-descriptions>
-    <el-button type="primary" :disabled="!fieldsModified" style="margin-top: 16px">Save changes</el-button>
-    <el-button style="margin-top: 16px" @click="passwordChangePrompt">Change password</el-button>
+    <el-button
+      type="primary"
+      :disabled="!fieldsModified"
+      style="margin-top: 16px"
+    >
+      Save changes
+    </el-button>
+    <el-button
+      style="margin-top: 16px"
+      @click="passwordChangePrompt"
+    >
+      Change password
+    </el-button>
   </el-card>
   <el-dialog
-      v-model="passChangeDialogVisible"
-      title="Change password"
-      width="30%"
+    v-model="passChangeDialogVisible"
+    title="Change password"
+    width="30%"
   >
     <el-form
-        ref="passChangeFormRef"
-        :model="passChangeForm"
-        label-width="150px"
-        :rules="passChangeRules"
+      ref="passChangeFormRef"
+      :model="passChangeForm"
+      label-width="150px"
+      :rules="passChangeRules"
     >
-      <el-form-item required label="Old password" prop="oldPass">
-        <el-input type="password" v-model="passChangeForm.oldPass"></el-input>
+      <el-form-item
+        required
+        label="Old password"
+        prop="oldPass"
+      >
+        <el-input
+          v-model="passChangeForm.oldPass"
+          type="password"
+        />
       </el-form-item>
-      <el-form-item required label="New password" prop="newPass">
-        <el-input type="password" v-model="passChangeForm.newPass"></el-input>
+      <el-form-item
+        required
+        label="New password"
+        prop="newPass"
+      >
+        <el-input
+          v-model="passChangeForm.newPass"
+          type="password"
+        />
       </el-form-item>
-      <el-form-item required label="Repeat" prop="newPassRepeated">
-        <el-input type="password" v-model="passChangeForm.newPassRepeated"></el-input>
+      <el-form-item
+        required
+        label="Repeat"
+        prop="newPassRepeated"
+      >
+        <el-input
+          v-model="passChangeForm.newPassRepeated"
+          type="password"
+        />
       </el-form-item>
     </el-form>
     <template #footer>
       <span class="dialog-footer">
         <el-button @click="passChangeDialogVisible = false">Cancel</el-button>
-        <el-button type="primary" @click="passwordChangeSubmit">Submit</el-button>
+        <el-button
+          type="primary"
+          @click="passwordChangeSubmit"
+        >Submit</el-button>
       </span>
     </template>
   </el-dialog>

@@ -1,16 +1,41 @@
 <template>
-  <el-form ref="formRef" class="content-box" :model="form" label-width="auto">
-    <el-form-item label="Login" prop="login">
-      <el-input v-model="form.username"></el-input>
+  <el-form
+    ref="formRef"
+    class="content-box"
+    :model="form"
+    label-width="auto"
+  >
+    <el-form-item
+      label="Login"
+      prop="login"
+    >
+      <el-input v-model="form.username" />
     </el-form-item>
-    <el-form-item label="Password" prop="password">
-      <el-input type="password" v-model="form.password"></el-input>
+    <el-form-item
+      label="Password"
+      prop="password"
+    >
+      <el-input
+        v-model="form.password"
+        type="password"
+      />
     </el-form-item>
     <el-form-item>
-      <LoadingButton ref="loadingButton" @click="loginRequest" buttonText="Login"></LoadingButton>
-      <el-button @click="resetForm(formRef)">Reset</el-button>
+      <LoadingButton
+        ref="loadingButton"
+        button-text="Login"
+        @click="loginRequest"
+      />
+      <el-button @click="resetForm(formRef)">
+        Reset
+      </el-button>
     </el-form-item>
-    <el-button @click="switchToRegister" type="text">Don't have an account yet? Register instead</el-button>
+    <el-button
+      type="text"
+      @click="switchToRegister"
+    >
+      Don't have an account yet? Register instead
+    </el-button>
   </el-form>
 </template>
 
