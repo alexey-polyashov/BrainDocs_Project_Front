@@ -10,6 +10,10 @@ export interface Filter {
   value: string,
 }
 
+export interface FilterFieldsViewType {
+  [id: number]: FilterFieldsType;
+}
+
 export interface DocType {
   id: number,
   documentType: string,

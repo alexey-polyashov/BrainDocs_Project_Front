@@ -16,159 +16,168 @@
     </div>
     <div style="min-width: 0;">
       <div
-        style="border-bottom-width: 1px;"
         class="filter-box-item filter-fields-box"
       >
-        <el-form label-width="auto">
-          <h1>Filters</h1>
-          <template
-            v-for="(field, index) in filterFields"
-            :key="field.key"
-          >
-            <el-form-item
-              v-if="field.defaultOn"
-              :label="field.name"
-            >
-              <div class="filter-form-item">
-                <el-select
-                  v-if="isInSelectableKeys(field.key)"
-                  v-model="filterData[field.key]"
-                  placeholder="Select"
-                >
-                  <el-option
-                    v-for="option in selectableData[field.key]"
-                    :key="option.id"
-                    :label="getSelectionTypeName(option)"
-                    :value="option.id"
-                  />
-                </el-select>
-                <el-date-picker
-                  v-else-if="field.type === 'Date'"
-                  v-model="filterData[field.key]"
-                  type="daterange"
-                  range-separator="-"
-                  start-placeholder="Start date"
-                  end-placeholder="End date"
-                />
-                <el-input
-                  v-else
-                  v-model="filterData[field.key]"
-                />
-                <el-tooltip
-                  effect="dark"
-                  content="Clear field"
-                  placement="top-start"
-                >
-                  <el-button
-                    size="small"
-                    style="margin-left: 16px"
-                    @click="clearFilterField(index)"
-                  >
-                    <span
-                      style="font-size: 1rem"
-                      class="material-icons-round"
-                    >clear</span>
-                  </el-button>
-                </el-tooltip>
-                <el-tooltip
-                  effect="dark"
-                  content="Delete field"
-                  placement="top-start"
-                >
-                  <el-button
-                    type="danger"
-                    size="small"
-                    style="margin-left: 16px"
-                    @click="disableField(index)"
-                  >
-                    <span
-                      style="font-size: 1rem"
-                      class="material-icons-round"
-                    >delete</span>
-                  </el-button>
-                </el-tooltip>
-              </div>
-            </el-form-item>
-          </template>
-          <LoadingButton
-            ref="applyFiltersButton"
-            button-text="Apply filters"
-            @click="applyFilters"
-          />
-          <el-select
-            placeholder="Add filter"
-            style="margin-left: 16px"
-            @change="addFilterSelected"
-          >
-            <el-option
-              v-for="item in nonActiveFields"
-              :key="item.key"
-              :label="item.name"
-              :value="item.key"
-            />
-          </el-select>
-        </el-form>
-      </div>
-      <div class="filter-box-item filter-box-table">
-        <el-table
-          :data="documents"
-          :default-sort="{ prop: 'id', order: 'ascending' }"
-          border
-          table-layout="auto"
+        <el-form
+          label-width="200px"
+          label-position="left"
         >
-          <el-table-column
-            type="selection"
-            width="55"
-          />
-          <el-table-column
-            prop="id"
-            label="id"
-            sortable
-            width="70"
-          />
-          <el-table-column
-            prop="number"
-            label="number"
-            sortable
-            width="100"
-          />
-          <el-table-column
-            prop="documentDate"
-            label="date"
-            sortable
-            width="120"
-          />
-          <el-table-column
-            prop="heading"
-            label="heading"
-            sortable
-            width="180"
-          />
-          <el-table-column
-            prop="author"
-            label="author"
-            sortable
-            width="180"
-          />
-          <el-table-column
-            prop="organisation"
-            label="organisation"
-            sortable
-            width="180"
-          />
-          <el-table-column
-            prop="files"
-            label="files"
-            sortable
-            width="100"
+          <h1>Filters</h1>
+          <TransitionGroup
+            tag="div"
+            name="list"
+            style="position: relative"
           >
-            <template #default="scope">
-              <el-button @click="openFilesDialog(scope.row)">
-                Files
-              </el-button>
+            <template
+              v-for="(field, filterFieldsArrIndex) in activeFieldsArray"
+              :key="field.key"
+            >
+              <el-form-item
+                :label="field.name"
+              >
+                <div class="filter-form-item">
+                  <el-select
+                    v-if="isInSelectableKeys(field.key)"
+                    v-model="filterData[field.key]"
+                    placeholder="Select"
+                  >
+                    <el-option
+                      v-for="option in selectableData[field.key]"
+                      :key="option.id"
+                      :label="getSelectionTypeName(option)"
+                      :value="option.id"
+                    />
+                  </el-select>
+                  <el-date-picker
+                    v-else-if="field.type === 'Date'"
+                    v-model="filterData[field.key]"
+                    type="daterange"
+                    range-separator="-"
+                    start-placeholder="Start date"
+                    end-placeholder="End date"
+                  />
+                  <el-input
+                    v-else
+                    v-model="filterData[field.key]"
+                  />
+                  <el-tooltip
+                    effect="dark"
+                    content="Clear field"
+                    placement="top-start"
+                  >
+                    <el-button
+                      size="small"
+                      style="margin-left: 16px"
+                      @click="clearFilterField(filterFieldsArrIndex)"
+                    >
+                      <span
+                        style="font-size: 1rem"
+                        class="material-icons-round"
+                      >clear</span>
+                    </el-button>
+                  </el-tooltip>
+                  <el-tooltip
+                    effect="dark"
+                    content="Delete field"
+                    placement="top-start"
+                  >
+                    <el-button
+                      type="danger"
+                      size="small"
+                      style="margin-left: 16px"
+                      @click="disableField(filterFieldsArrIndex)"
+                    >
+                      <span
+                        style="font-size: 1rem"
+                        class="material-icons-round"
+                      >delete</span>
+                    </el-button>
+                  </el-tooltip>
+                </div>
+              </el-form-item>
             </template>
-          </el-table-column>
-        </el-table>
+            <div key="optionsSection">
+              <LoadingButton
+                ref="applyFiltersButton"
+                button-text="Apply filters"
+                @click="applyFilters"
+              />
+              <el-select
+                placeholder="Add filter"
+                style="margin-left: 16px"
+                @change="addFilterSelected"
+              >
+                <el-option
+                  v-for="item in nonActiveFields"
+                  :key="item.key"
+                  :label="item.name"
+                  :value="item.key"
+                />
+              </el-select>
+            </div>
+            <div key="docTable" class="filter-box-item filter-box-table">
+              <el-table
+                :data="documents"
+                :default-sort="{ prop: 'id', order: 'ascending' }"
+                border
+                table-layout="auto"
+              >
+                <el-table-column
+                  type="selection"
+                  width="55"
+                />
+                <el-table-column
+                  prop="id"
+                  label="id"
+                  sortable
+                  width="70"
+                />
+                <el-table-column
+                  prop="number"
+                  label="number"
+                  sortable
+                  width="100"
+                />
+                <el-table-column
+                  prop="documentDate"
+                  label="date"
+                  sortable
+                  width="120"
+                />
+                <el-table-column
+                  prop="heading"
+                  label="heading"
+                  sortable
+                  width="180"
+                />
+                <el-table-column
+                  prop="author"
+                  label="author"
+                  sortable
+                  width="180"
+                />
+                <el-table-column
+                  prop="organisation"
+                  label="organisation"
+                  sortable
+                  width="180"
+                />
+                <el-table-column
+                  prop="files"
+                  label="files"
+                  sortable
+                  width="100"
+                >
+                  <template #default="scope">
+                    <el-button @click="openFilesDialog(scope.row)">
+                      Files
+                    </el-button>
+                  </template>
+                </el-table-column>
+              </el-table>
+            </div>
+          </TransitionGroup>
+        </el-form>
       </div>
     </div>
   </div>
@@ -187,7 +196,8 @@ import {
   FilterDataType,
   FilterFieldsType,
   SelectableDataType,
-  SelectionType
+  SelectionType,
+  FilterFieldsViewType
 } from "./types";
 import { AxiosResponse } from "axios";
 import AttachedFilesDialog from '../file-dialog/AttachedFilesDialog.vue'
@@ -198,6 +208,7 @@ const documents = ref<DocType[]>([]);
 const filterData = reactive<FilterDataType>({});
 const filterDataApplied = reactive<FilterDataType>({});
 const filterFields = ref<FilterFieldsType[]>([]);
+const activeFilterFieldIndices = ref<number[]>([]);
 const selectableData = ref<SelectableDataType>({});
 // url request map to key of a field
 const selectableKeysMapping = {
@@ -225,14 +236,30 @@ function groupTagChange(id: number) {
 
 type SelectableKeysMappingType = keyof (typeof selectableKeysMapping);
 
+function initActiveFields() {
+  filterFields.value.forEach((value, index) => {
+    if (value.defaultOn) {
+      activeFilterFieldIndices.value.push(index);
+    }
+  });
+}
+
 function initFilterFields() {
-  let filterFieldsPersist = false;
+  let sessionFiltersResult: ReturnType<typeof retrieveSessionFilters> | null = null;
   if (saveFiltersInSession) {
-    const sessionFiltersResult = retrieveSessionFilters();
-    filterFieldsPersist = sessionFiltersResult.filterFieldsPersist;
+    sessionFiltersResult = retrieveSessionFilters();
   }
-  if (!filterFieldsPersist) {
-    getFieldsRequest();
+
+  function initActiveFieldsIfNeeded() {
+    if (!sessionFiltersResult?.activeFilterFieldsPersist) initActiveFields();
+  }
+
+  if (!sessionFiltersResult?.filterFieldsPersist) {
+    getFieldsRequest().then(() => {
+      initActiveFieldsIfNeeded();
+    });
+  } else {
+    initActiveFieldsIfNeeded();
   }
 }
 
@@ -242,15 +269,21 @@ onMounted(() => {
     getSelectionListBy(key as SelectableKeysMappingType);
   }
   initFilterFields();
-})
+});
 
 const nonActiveFields = computed<FilterFieldsType[]>(() => {
-  return filterFields.value.filter((value => !value.defaultOn));
-})
+  return filterFields.value.filter(((value, index) => activeFilterFieldIndices.value.findIndex(activeVal => activeVal === index) === -1));
+});
+
+const activeFieldsArray = computed<FilterFieldsViewType>(() => {
+  const res: FilterFieldsViewType = {};
+  activeFilterFieldIndices.value.forEach(index => res[index] = filterFields.value[index]);
+  return res;
+});
 
 function addFilterSelected(selectedKey: string) {
   const selectedFieldIndex = filterFields.value.findIndex(value => value.key === selectedKey);
-  if (selectedFieldIndex !== -1) filterFields.value[selectedFieldIndex].defaultOn = true;
+  if (selectedFieldIndex !== -1) activeFilterFieldIndices.value.push(selectedFieldIndex);
 }
 
 function processDate(filterRequest: DocFilterRequest) {
@@ -325,8 +358,10 @@ function getSelectionTypeName(value: SelectionType) {
   }
 }
 
-function disableField(fieldIndex: number) {
-  filterFields.value[fieldIndex].defaultOn = false;
+function disableField(fieldIndex: number | string) {
+  fieldIndex = +fieldIndex;
+  const activeFieldIndex = activeFilterFieldIndices.value.findIndex(i => i === fieldIndex);
+  activeFilterFieldIndices.value.splice(activeFieldIndex, 1);
   clearFilterField(fieldIndex);
 }
 
@@ -334,8 +369,8 @@ function isInSelectableKeys(fieldKey: string) {
   return Object.values(selectableKeysMapping).indexOf(fieldKey) !== -1;
 }
 
-function getFieldsRequest() {
-  axiosInstance
+async function getFieldsRequest() {
+  await axiosInstance
     .get<FilterFieldsType[]>('/documents/fields')
     .then((res) => {
       filterFields.value = res.data
@@ -378,6 +413,7 @@ function getDocumentsInitialRequest() {
 function doSaveFiltersInSession() {
   sessionStorage.setItem('filterData', JSON.stringify(filterData));
   sessionStorage.setItem('filterFields', JSON.stringify(filterFields.value));
+  sessionStorage.setItem('filterActiveFields', JSON.stringify(activeFilterFieldIndices.value));
 }
 
 function retrieveSessionFilters() {
@@ -392,9 +428,11 @@ function retrieveSessionFilters() {
 
   const dataPersist = parseData('filterData', filterData);
   const filterFieldsPersist = parseData('filterFields', filterFields.value);
+  const activeFilterFieldsPersist = parseData('filterActiveFields', activeFilterFieldIndices.value);
   return {
     dataPersist,
-    filterFieldsPersist
+    filterFieldsPersist,
+    activeFilterFieldsPersist
   };
 }
 
@@ -409,7 +447,6 @@ async function getSelectionListBy(type: SelectableKeysMappingType) {
 
 <style scoped>
 .filter-fields-box {
-  border-bottom-right-radius: 0;
 }
 
 .filter-box-item {
@@ -434,13 +471,30 @@ async function getSelectionListBy(type: SelectableKeysMappingType) {
 }
 
 .filter-box-table {
-  border-top: none;
-  border-top-right-radius: 0;
-  margin-top: 0;
+  border: none;
+  margin-top: 8px;
 }
 
 .content-box {
   margin: 0;
   width: 95%;
+}
+
+.list-move, /* apply transition to moving elements */
+.list-enter-active,
+.list-leave-active {
+  transition: all 0.5s cubic-bezier(0.55, 0, 0.1, 1);
+}
+
+.list-enter-from,
+.list-leave-to {
+  opacity: 0;
+  transform: scaleY(0.01) translate(30px, 0);
+}
+
+/* ensure leaving items are taken out of layout flow so that moving
+   animations can be calculated correctly. */
+.list-leave-active {
+  position: absolute;
 }
 </style>
