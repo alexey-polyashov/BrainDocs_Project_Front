@@ -66,6 +66,7 @@ const props = defineProps<{
 }>();
 
 export interface FileDescriptionType {
+  [p: string]: string | { id: number },
   name: string,
   description: string,
   originalFilename: string,
@@ -91,6 +92,13 @@ function fileSelected(file: any) {
   fileForm.fileType = fileName.slice(fileName.lastIndexOf('.') + 1);
 }
 
+function clearFormData() {
+  for (const fileFormKey in fileForm) {
+    if (typeof fileForm[fileFormKey] === 'string') fileForm[fileFormKey] = '';
+  }
+  requestFile = null;
+}
+
 function upload() {
   console.log(props.docId)
   if (!requestFile) ElMessage.warning('please select file');
@@ -104,6 +112,7 @@ function upload() {
         ElMessage.success('Upload successful!');
         dialogVisible.value = false;
         props.updateView(props.docId);
+        clearFormData();
       })
       .catch(err => {
         console.log(err);

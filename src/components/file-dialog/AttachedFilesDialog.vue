@@ -2,7 +2,6 @@
   <el-dialog
     v-model="dialogVisible"
     title="Files"
-    width="70%"
   >
     <el-table
       :data="fileTableData"
@@ -104,6 +103,7 @@ const toggleVisible = () => {
 
 function updateView(id: number) {
   docId.value = id;
+  fileTableData.value = [];
   axiosInstance
     .get<FileType[]>(`/documents/${ id }/files`)
     .then(res => {

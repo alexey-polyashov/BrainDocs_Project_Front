@@ -294,9 +294,9 @@ function initFilters() {
 async function applyFilters() {
   applyFiltersButton.value.loading = true;
   const filterRequest = initFilters();
-  console.log(filterRequest);
   processDate(filterRequest);
 
+  console.log(filterRequest);
   await axiosInstance
     .post('/documents/search', filterRequest)
     .then(res => {
