@@ -160,7 +160,7 @@
             prop="files"
             label="files"
             sortable
-            width="90"
+            width="100"
           >
             <template #default="scope">
               <el-button @click="openFilesDialog(scope.row)">
@@ -172,11 +172,12 @@
       </div>
     </div>
   </div>
+  <AttachedFilesDialog ref="filesDialog"/>
 </template>
 
 <script lang="ts" setup>
 import axiosInstance from "../../net/axios-instance";
-import { computed, onMounted, reactive, ref } from "vue";
+import { computed, onMounted, provide, reactive, ref } from "vue";
 import LoadingButton from "../LoadingButton.vue";
 import CheckTagWrapper from "../CheckTagWrapper.vue";
 import {
@@ -188,7 +189,10 @@ import {
   SelectableDataType,
   SelectionType
 } from "./types";
+import { AxiosResponse } from "axios";
+import AttachedFilesDialog from '../file-dialog/AttachedFilesDialog.vue'
 
+const filesDialog = ref<InstanceType<typeof AttachedFilesDialog>>();
 const applyFiltersButton = ref();
 const documents = ref<DocType[]>([]);
 const filterData = reactive<FilterDataType>({});
@@ -224,7 +228,8 @@ type SelectableKeysMappingType = keyof (typeof selectableKeysMapping);
 function initFilterFields() {
   let filterFieldsPersist = false;
   if (saveFiltersInSession) {
-    filterFieldsPersist = retrieveSessionFilters();
+    const sessionFiltersResult = retrieveSessionFilters();
+    filterFieldsPersist = sessionFiltersResult.filterFieldsPersist;
   }
   if (!filterFieldsPersist) {
     getFieldsRequest();
@@ -293,20 +298,20 @@ async function applyFilters() {
   processDate(filterRequest);
 
   await axiosInstance
-      .post('/documents/get_list', filterRequest)
-      .then(res => {
-        console.log(res.data);
-        updateDocuments(res);
-        for (const resKey in filterData) {
-          filterDataApplied[resKey] = filterData[resKey];
-        }
-        if (saveFiltersInSession) {
-          doSaveFiltersInSession();
-        }
-      })
-      .catch(err => {
-        console.log(err)
-      });
+    .post('/documents/search', filterRequest)
+    .then(res => {
+      console.log(res.data);
+      updateDocuments(res);
+      for (const resKey in filterData) {
+        filterDataApplied[resKey] = filterData[resKey];
+      }
+      if (saveFiltersInSession) {
+        doSaveFiltersInSession();
+      }
+    })
+    .catch(err => {
+      console.log(err)
+    });
   applyFiltersButton.value.loading = false;
 }
 
@@ -331,13 +336,13 @@ function isInSelectableKeys(fieldKey: string) {
 
 function getFieldsRequest() {
   axiosInstance
-      .get<FilterFieldsType[]>('/documents/get_fields')
-      .then((res) => {
-        filterFields.value = res.data
-      });
+    .get<FilterFieldsType[]>('/documents/fields')
+    .then((res) => {
+      filterFields.value = res.data
+    });
 }
 
-function updateDocuments(res: any) {
+function updateDocuments(res: AxiosResponse) {
   documents.value = [];
   (res.data.content as Array<any>).forEach(doc => {
     documents.value.push({
@@ -354,8 +359,10 @@ function updateDocuments(res: any) {
   });
 }
 
-function openFilesDialog(row: any) {
+function openFilesDialog(row: DocType) {
   console.log(row);
+  filesDialog.value.updateView(row.id);
+  filesDialog.value.toggleVisible();
 }
 
 function clearFilterField(fieldIndex: number) {
@@ -364,8 +371,8 @@ function clearFilterField(fieldIndex: number) {
 
 function getDocumentsInitialRequest() {
   axiosInstance
-      .get('/documents/')
-      .then(updateDocuments);
+    .get('/documents/')
+    .then(updateDocuments);
 }
 
 function doSaveFiltersInSession() {
@@ -373,31 +380,30 @@ function doSaveFiltersInSession() {
   sessionStorage.setItem('filterFields', JSON.stringify(filterFields.value));
 }
 
-function retrieveSessionFilters(): boolean {
+function retrieveSessionFilters() {
   function parseData(item: string, data: unknown): boolean {
     const storedData = sessionStorage.getItem(item);
     if (storedData && storedData !== 'undefined') {
-      const parsedData = JSON.parse(storedData);
-      if (typeof data === 'object') {
-        Object.assign(data, parsedData);
-      } else if (Array.isArray(data)) {
-        data = storedData;
-      }
+      Object.assign(data, JSON.parse(storedData));
       return true;
     }
     return false;
   }
 
-  parseData('filterData', filterData);
-  return parseData('filterFields', filterFields.value);
+  const dataPersist = parseData('filterData', filterData);
+  const filterFieldsPersist = parseData('filterFields', filterFields.value);
+  return {
+    dataPersist,
+    filterFieldsPersist
+  };
 }
 
 async function getSelectionListBy(type: SelectableKeysMappingType) {
   await axiosInstance
-      .get<SelectionType[]>(`/${ type }/`)
-      .then(res => {
-        selectableData.value[selectableKeysMapping[type]] = res.data;
-      });
+    .get<SelectionType[]>(`/${ type }/`)
+    .then(res => {
+      selectableData.value[selectableKeysMapping[type]] = res.data;
+    });
 }
 </script>
 

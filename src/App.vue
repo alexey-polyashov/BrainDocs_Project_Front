@@ -62,7 +62,7 @@
       </el-row>
     </el-header>
     <el-main class="page-main">
-      <router-view/>
+      <router-view />
     </el-main>
     <el-footer class="page-footer">
       <span>BrainDocs &copy;</span>
@@ -74,7 +74,7 @@
 import { useRouter } from "vue-router";
 import { onMounted, onUnmounted, ref } from "vue";
 import { useStore } from "./store";
-import { useServerCheck } from "./net/server-check";
+import useServerCheck from "./net/server-check";
 
 const router = useRouter();
 const store = useStore();

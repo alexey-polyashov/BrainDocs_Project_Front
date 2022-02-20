@@ -1,6 +1,6 @@
 import { createRouter, createWebHistory } from "vue-router"
 
-const router = createRouter({
+export default createRouter({
   history: createWebHistory(),
   routes: [
     {
@@ -34,5 +34,4 @@ const router = createRouter({
       component: () => import('../components/search-document/SearchDocument.vue')
     }
   ]
-})
-export default router
+});

@@ -23,22 +23,22 @@
 <script lang="ts" setup>
 import { ref } from "vue";
 
-const loading = ref(false)
+const loading = ref(false);
 
 // eslint-disable-next-line no-undef
 defineExpose({
   loading
-})
+});
 
 // eslint-disable-next-line no-undef
 defineProps<{
   buttonText: string
-}>()
+}>();
 
 // eslint-disable-next-line no-undef
 defineEmits<{
   (event: 'click'): void
-}>()
+}>();
 </script>
 
 <style scoped>
