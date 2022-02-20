@@ -6,7 +6,7 @@
         <CheckTagWrapper
           v-for="type in selectableData['documentType']"
           :key="type.id"
-          :ref="(el) => groupTagInit(type.id, el)"
+          :ref="(el: any) => groupTagInit(type.id, el)"
           style="margin-bottom: 8px; display: block"
           @change="groupTagChange(type.id)"
         >
@@ -172,7 +172,7 @@
       </div>
     </div>
   </div>
-  <AttachedFilesDialog ref="filesDialog"/>
+  <AttachedFilesDialog ref="filesDialog" />
 </template>
 
 <script lang="ts" setup>
@@ -192,7 +192,7 @@ import {
 import { AxiosResponse } from "axios";
 import AttachedFilesDialog from '../file-dialog/AttachedFilesDialog.vue'
 
-const filesDialog = ref<InstanceType<typeof AttachedFilesDialog>>();
+const filesDialog = ref();
 const applyFiltersButton = ref();
 const documents = ref<DocType[]>([]);
 const filterData = reactive<FilterDataType>({});

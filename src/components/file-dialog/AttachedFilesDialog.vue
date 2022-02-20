@@ -96,7 +96,7 @@ interface FileType {
 
 const fileTableData = ref<FileType[]>([]);
 const docId = ref(0);
-const newFileDialog = ref<InstanceType<typeof NewFileDialog>>(null);
+const newFileDialog = ref();
 const dialogVisible = ref(false);
 const toggleVisible = () => {
   dialogVisible.value = !dialogVisible.value
@@ -122,7 +122,6 @@ function enableNewFilesDialog() {
   newFileDialog.value.dialogVisible = true;
 }
 
-// eslint-disable-next-line no-undef
 defineExpose({
   toggleVisible,
   updateView

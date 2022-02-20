@@ -115,7 +115,6 @@ function onLimitExceed(files: any, fileList: any) {
   fileList[0] = files[0];
 }
 
-// eslint-disable-next-line no-undef
 defineExpose({
   dialogVisible
 });
