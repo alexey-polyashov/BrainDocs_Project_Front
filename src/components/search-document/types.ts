@@ -1,17 +1,17 @@
-export interface DocFilterRequest {
+export type IndexedType<T extends number | string, U> = {
+  [id in T]: U;
+};
+
+export interface DocFilterRequestType {
   page: string,
   recordsOnPage: string,
-  filter: Filter[],
+  filter: FilterType[],
 }
 
-export interface Filter {
+export interface FilterType {
   key: string,
   operation: string,
   value: string,
-}
-
-export interface FilterFieldsViewType {
-  [id: number]: FilterFieldsType;
 }
 
 export interface DocType {
@@ -41,10 +41,8 @@ export interface SelectionType {
   shortname?: string
 }
 
-export interface SelectableDataType {
-  [key: string]: SelectionType[]
-}
+export type FilterFieldsViewType = IndexedType<number, FilterFieldsType>;
 
-export type FilterDataType = {
-  [key: string]: string | string[]
-};
+export type SelectableDataType = IndexedType<string, SelectionType[]>;
+
+export type FilterDataType = IndexedType<string, string | string[]>;

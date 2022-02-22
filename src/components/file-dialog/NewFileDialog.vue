@@ -1,8 +1,10 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 <template>
   <el-dialog
     v-model="dialogVisible"
     title="Add file"
     width="500px"
+    @close="clearFormData"
   >
     <el-form
       label-width="auto"
@@ -19,6 +21,19 @@
         prop="description"
       >
         <el-input v-model="fileForm.description" />
+      </el-form-item>
+      <el-form-item 
+        v-if="editFileInfo"
+        label="File link"
+      >
+        <el-link
+          :href="'https://brain-docs.herokuapp.com' + editFileInfo.link"
+          type="primary"
+          target="_blank"
+          download
+        >
+          download
+        </el-link>
       </el-form-item>
     </el-form>
     <el-upload
@@ -57,8 +72,9 @@
 
 <script lang="ts" setup>
 import { reactive, ref } from "vue";
-import axiosInstance from "../../net/axios-instance";
-import { ElMessage } from "element-plus";
+import axios from "axios";
+import { ElMessage, ElUpload } from "element-plus";
+import { FileType } from "./types";
 
 const props = defineProps<{
   docId: number,
@@ -74,7 +90,7 @@ interface FileDescriptionType {
   author: { id: number },
 }
 
-const uploadRef = ref();
+const uploadRef = ref<InstanceType<typeof ElUpload>>();
 const dialogVisible = ref(false);
 const fileForm = reactive<FileDescriptionType>({
   name: '',
@@ -84,6 +100,7 @@ const fileForm = reactive<FileDescriptionType>({
   author: { id: 1 },
 });
 let requestFile: File | null = null;
+const editFileInfo = ref<FileType | null>(null);
 
 function fileSelected(file: any) {
   console.log(file)
@@ -98,7 +115,8 @@ function clearFormData() {
     if (typeof fileForm[fileFormKey] === 'string') fileForm[fileFormKey] = '';
   }
   requestFile = null;
-  uploadRef.value.clearFiles();
+  uploadRef.value?.clearFiles();
+  editFileInfo.value = null;
 }
 
 function upload() {
@@ -108,9 +126,9 @@ function upload() {
     const formData = new FormData();
     formData.append('fileDescribe', JSON.stringify(fileForm));
     formData.append('file', requestFile);
-    axiosInstance
+    axios
       .post(`/documents/${ props.docId }/files/upload`, formData)
-      .then(res => {
+      .then(() => {
         ElMessage.success('Upload successful!');
         dialogVisible.value = false;
         props.updateView(props.docId);
@@ -122,12 +140,19 @@ function upload() {
   }
 }
 
+function editMode(fileInfo: FileType) {
+  editFileInfo.value = fileInfo;
+  fileForm.name = fileInfo.name;
+  fileForm.description = fileInfo.description;
+}
+
 function onLimitExceed(files: any, fileList: any) {
   fileList[0] = files[0];
 }
 
 defineExpose({
-  dialogVisible
+  dialogVisible,
+  editMode
 });
 </script>
 

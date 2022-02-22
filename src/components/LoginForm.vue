@@ -44,7 +44,7 @@ import { reactive, ref } from 'vue';
 import { ElForm, ElMessage } from "element-plus";
 import { useRouter } from "vue-router";
 import LoadingButton from './LoadingButton.vue'
-import axiosInstance from "../net/axios-instance";
+import axios from "axios";
 import { useStore } from "../store";
 
 type FormInstance = InstanceType<typeof ElForm>;
@@ -65,7 +65,7 @@ const switchToRegister = () => {
 
 async function loginRequest() {
   loadingButton.value.loading = true;
-  await axiosInstance
+  await axios
       .post<{ token: string }>('/auth', form)
       .then(res => {
         store.$state.userInfo.token = res.data.token;

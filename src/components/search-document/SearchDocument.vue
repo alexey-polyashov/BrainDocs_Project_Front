@@ -184,20 +184,21 @@
 </template>
 
 <script lang="ts">
-import axiosInstance from "../../net/axios-instance";
+import axios from "axios";
 import { computed, onMounted, reactive, ref } from "vue";
 import LoadingButton from "../LoadingButton.vue";
 import CheckTagWrapper from "../CheckTagWrapper.vue";
 import AttachedFilesDialog from '../file-dialog/AttachedFilesDialog.vue'
 import {
-  DocFilterRequest,
+  DocFilterRequestType,
   DocType,
-  Filter,
+  FilterType,
   FilterDataType,
   FilterFieldsType,
   SelectableDataType,
   SelectionType,
-  FilterFieldsViewType
+  FilterFieldsViewType,
+IndexedType
 } from "./types";
 import { AxiosResponse } from "axios";
 import { defineComponent } from "vue";
@@ -222,9 +223,7 @@ export default defineComponent({
       'documents/types': 'documentType',
       'organisations': 'organisation',
     };
-    const doctypeGroupTags = reactive<{
-      [id: number]: typeof CheckTagWrapper
-    }>({});
+    const doctypeGroupTags = reactive<IndexedType<number, typeof CheckTagWrapper>>({});
     let doctypeGroupTagCheckedId = -1;
     const saveFiltersInSession = true;
 
@@ -299,7 +298,7 @@ export default defineComponent({
       if (selectedFieldIndex !== -1) activeFilterFieldIndices.value.push(selectedFieldIndex);
     }
 
-    function processDate(filterRequest: DocFilterRequest) {
+    function processDate(filterRequest: DocFilterRequestType) {
       const dateObjIndex = filterRequest.filter.findIndex(value => value.key === 'documentDate');
       if (dateObjIndex !== -1) {
         const dateFrom = filterRequest.filter[dateObjIndex].value[0] as unknown as Date;
@@ -319,7 +318,7 @@ export default defineComponent({
     }
 
     function initFilters(filterTempData: FilterDataType) {
-      const filters: Filter[] = [];
+      const filters: FilterType[] = [];
       for (const dataKey in filterTempData) {
         if (filterTempData[dataKey]) {
           filters.push({
@@ -329,7 +328,7 @@ export default defineComponent({
           });
         }
       }
-      const filterRequest: DocFilterRequest = {
+      const filterRequest: DocFilterRequestType = {
         page: '0',
         recordsOnPage: '10',
         filter: filters
@@ -351,7 +350,7 @@ export default defineComponent({
       processDate(filterRequest);
 
       console.log(filterRequest);
-      await axiosInstance
+      await axios
         .post('/documents/search', filterRequest)
         .then(res => {
           console.log(res.data);
@@ -388,7 +387,7 @@ export default defineComponent({
     }
 
     async function getFieldsRequest() {
-      await axiosInstance
+      await axios
         .get<FilterFieldsType[]>('/documents/fields')
         .then((res) => {
           filterFields.value = res.data
@@ -423,7 +422,7 @@ export default defineComponent({
     }
 
     function getDocumentsInitialRequest() {
-      axiosInstance
+      axios
         .get('/documents/')
         .then(updateDocuments);
     }
@@ -455,7 +454,7 @@ export default defineComponent({
     }
 
     async function getSelectionListBy(type: SelectableKeysMappingType) {
-      await axiosInstance
+      await axios
         .get<SelectionType[]>(`/${type}/`)
         .then(res => {
           selectableData.value[selectableKeysMapping[type]] = res.data;

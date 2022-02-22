@@ -4,9 +4,9 @@
     "es2021": true
   },
   "extends": [
-      "eslint:recommended",
-      "plugin:vue/vue3-recommended",
-      "plugin:@typescript-eslint/recommended"
+    "eslint:recommended",
+    "plugin:vue/vue3-recommended",
+    "plugin:@typescript-eslint/recommended"
   ],
   "parser": "vue-eslint-parser",
   "parserOptions": {
@@ -14,11 +14,10 @@
     "sourceType": "module"
   },
   "plugins": [
-      "vue",
-      "@typescript-eslint"
+    "vue",
+    "@typescript-eslint"
   ],
-  "rules": {
-  },
+  "rules": {},
   "globals": {
     "defineProps": "readonly",
     "defineEmits": "readonly",

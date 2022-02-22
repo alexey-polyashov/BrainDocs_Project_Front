@@ -82,7 +82,7 @@ import { onMounted, reactive, ref } from "vue"
 import Editor from '@tinymce/tinymce-vue'
 import AttachedFilesDialog from "./file-dialog/AttachedFilesDialog.vue"
 import { ElMessage, ElMessageBox } from "element-plus";
-import axiosInstance from "../net/axios-instance";
+import axios from "axios";
 
 const filesDialog = ref()
 const formData = reactive({
@@ -148,7 +148,7 @@ type SaveDocRequest = {
 }
 
 async function sendSaveRequest(data: SaveDocRequest) {
-  await axiosInstance.post('/documents/save', { documentDTO: data })
+  await axios.post('/documents/save', { documentDTO: data })
       .then((res) => {
         console.log(res)
         completeMessage()

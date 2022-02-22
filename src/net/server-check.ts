@@ -1,5 +1,5 @@
 import { ElLoading } from "element-plus";
-import axiosInstance from "./axios-instance";
+import axios from "axios";
 
 export default function useServerCheck() {
   setInterval(testServerConnection, 1000 * 60 * 20);
@@ -15,11 +15,11 @@ export default function useServerCheck() {
         background: 'rgba(0, 0, 0, 0.7)',
       });
     }, 1000);
-    axiosInstance
+    axios
       .get('/test', {
         timeout: 0
       })
-      .then(res => {
+      .then(() => {
         loading?.close();
         clearTimeout(timeoutVal);
         console.log('server responded');
