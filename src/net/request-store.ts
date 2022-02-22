@@ -1,4 +1,4 @@
-import axiosInstance from "./axios-instance";
+import axios from "axios";
 
 type Organisation = {
   name: string,

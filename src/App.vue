@@ -150,6 +150,7 @@ body {
 
 .page-main {
   min-height: 100vh;
+  overflow: initial;
 }
 
 .menu-item {

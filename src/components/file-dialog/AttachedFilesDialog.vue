@@ -2,11 +2,13 @@
   <el-dialog
     v-model="dialogVisible"
     title="Files"
+    width="600px"
   >
     <el-table
       :data="fileTableData"
       style="width: 100%"
       max-height="300"
+      @row-click="rowClick"
     >
       <el-table-column
         prop="id"
@@ -71,51 +73,42 @@
 </template>
 
 <script lang="ts" setup>
-
 import { ref } from "vue";
 import NewFileDialog from "./NewFileDialog.vue";
-import axiosInstance from "../../net/axios-instance";
+import axios from "axios";
 import { ElMessage } from "element-plus";
-
-interface FileType {
-  id: number;
-  name: string;
-  storageType: number;
-  description: string;
-  fileSize: number;
-  author: {
-    id: number,
-    shortname: string
-  };
-  contentType: string;
-  originalFilename: string;
-  fileType: string;
-  link: string;
-}
+import { FileType } from "./types";
 
 const fileTableData = ref<FileType[]>([]);
 const docId = ref(0);
 const newFileDialog = ref();
 const dialogVisible = ref(false);
 const toggleVisible = () => {
-  dialogVisible.value = !dialogVisible.value
+  dialogVisible.value = !dialogVisible.value;
 };
 
 function updateView(id: number) {
   docId.value = id;
   fileTableData.value = [];
-  axiosInstance
+  axios
     .get<FileType[]>(`/documents/${ id }/files`)
     .then(res => {
       fileTableData.value = res.data;
     });
 }
 
+function rowClick(row: FileType) {
+	newFileDialog.value.dialogVisible = true;
+	newFileDialog.value.editMode(row);
+}
+
 function removeFile(row: FileType, index: number) {
-  axiosInstance.delete(`/documents/${docId.value}/files/${row.id}`).then(res => {
-    fileTableData.value.splice(index, 1);
-    ElMessage.warning('file deleted');
-  });
+  axios
+    .delete(`/documents/${docId.value}/files/${row.id}`)
+    .then(() => {
+      fileTableData.value.splice(index, 1);
+      ElMessage.warning('file deleted');
+    });
 }
 
 function enableNewFilesDialog() {
@@ -129,5 +122,4 @@ defineExpose({
 </script>
 
 <style scoped>
-
 </style>

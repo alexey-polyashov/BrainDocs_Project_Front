@@ -4,20 +4,18 @@
       <h1>Group by doctype</h1>
       <el-scrollbar height="100%">
         <CheckTagWrapper
-          v-for="type in selectableData['documentType']"
-          :key="type.id"
-          :ref="(el: any) => groupTagInit(type.id, el)"
-          style="margin-bottom: 8px; display: block"
-          @change="groupTagChange(type.id)"
+          v-for="docType in selectableData['documentType']"
+          :key="docType.id"
+          :ref="(el: any) => groupTagInit(docType.id, el)"
+          style="margin-bottom: 8px; display: block;"
+          @change="groupTagChange(docType.id)"
         >
-          {{ type.name }}
+          {{ docType.name }}
         </CheckTagWrapper>
       </el-scrollbar>
     </div>
     <div style="min-width: 0;">
-      <div
-        class="filter-box-item filter-fields-box"
-      >
+      <div class="filter-box-item filter-fields-box">
         <el-form
           label-width="200px"
           label-position="left"
@@ -29,12 +27,10 @@
             style="position: relative"
           >
             <template
-              v-for="(field, filterFieldsArrIndex) in activeFieldsArray"
+              v-for="(field, filterFieldsArrIndex) in activeFieldsObject"
               :key="field.key"
             >
-              <el-form-item
-                :label="field.name"
-              >
+              <el-form-item :label="field.name">
                 <div class="filter-form-item">
                   <el-select
                     v-if="isInSelectableKeys(field.key)"
@@ -100,7 +96,7 @@
               <LoadingButton
                 ref="applyFiltersButton"
                 button-text="Apply filters"
-                @click="applyFilters"
+                @click="applyFiltersClick"
               />
               <el-select
                 placeholder="Add filter"
@@ -115,7 +111,10 @@
                 />
               </el-select>
             </div>
-            <div key="docTable" class="filter-box-item filter-box-table">
+            <div
+              key="docTable"
+              class="filter-box-item filter-box-table"
+            >
               <el-table
                 :data="documents"
                 :default-sort="{ prop: 'id', order: 'ascending' }"
@@ -184,271 +183,308 @@
   <AttachedFilesDialog ref="filesDialog" />
 </template>
 
-<script lang="ts" setup>
-import axiosInstance from "../../net/axios-instance";
-import { computed, onMounted, provide, reactive, ref } from "vue";
+<script lang="ts">
+import axios from "axios";
+import { computed, onMounted, reactive, ref } from "vue";
 import LoadingButton from "../LoadingButton.vue";
 import CheckTagWrapper from "../CheckTagWrapper.vue";
+import AttachedFilesDialog from '../file-dialog/AttachedFilesDialog.vue'
 import {
-  DocFilterRequest,
+  DocFilterRequestType,
   DocType,
-  Filter,
+  FilterType,
   FilterDataType,
   FilterFieldsType,
   SelectableDataType,
   SelectionType,
-  FilterFieldsViewType
+  FilterFieldsViewType,
+IndexedType
 } from "./types";
 import { AxiosResponse } from "axios";
-import AttachedFilesDialog from '../file-dialog/AttachedFilesDialog.vue'
+import { defineComponent } from "vue";
 
-const filesDialog = ref();
-const applyFiltersButton = ref();
-const documents = ref<DocType[]>([]);
-const filterData = reactive<FilterDataType>({});
-const filterDataApplied = reactive<FilterDataType>({});
-const filterFields = ref<FilterFieldsType[]>([]);
-const activeFilterFieldIndices = ref<number[]>([]);
-const selectableData = ref<SelectableDataType>({});
-// url request map to key of a field
-const selectableKeysMapping = {
-  'users': 'author',
-  'doc_types': 'documentType',
-  'organisations': 'organisation',
-};
-const doctypeGroupTags = reactive<{
-  [id: number]: typeof CheckTagWrapper
-}>({});
-let doctypeGroupTagCheckedId = -1;
-const saveFiltersInSession = true;
+export default defineComponent({
+  components: {
+    AttachedFilesDialog,
+    LoadingButton,
+    CheckTagWrapper
+  },
+  setup() {
+    const filesDialog = ref();
+    const applyFiltersButton = ref();
+    const documents = ref<DocType[]>([]);
+    const filterData = reactive<FilterDataType>({});
+    const filterFields = ref<FilterFieldsType[]>([]);
+    const activeFilterFieldIndices = ref<number[]>([]);
+    const selectableData = ref<SelectableDataType>({});
+    // url request map to key of a field
+    const selectableKeysMapping = {
+      'users': 'author',
+      'documents/types': 'documentType',
+      'organisations': 'organisation',
+    };
+    const doctypeGroupTags = reactive<IndexedType<number, typeof CheckTagWrapper>>({});
+    let doctypeGroupTagCheckedId = -1;
+    const saveFiltersInSession = true;
 
-function groupTagInit(id: number, el: typeof CheckTagWrapper) {
-  doctypeGroupTags[id] = el;
-}
-
-function groupTagChange(id: number) {
-  if (doctypeGroupTagCheckedId >= 0 && doctypeGroupTagCheckedId !== id) {
-    doctypeGroupTags[doctypeGroupTagCheckedId].checked = false;
-  }
-  doctypeGroupTags[id].checked = !doctypeGroupTags[id].checked;
-  doctypeGroupTagCheckedId = id;
-}
-
-type SelectableKeysMappingType = keyof (typeof selectableKeysMapping);
-
-function initActiveFields() {
-  filterFields.value.forEach((value, index) => {
-    if (value.defaultOn) {
-      activeFilterFieldIndices.value.push(index);
+    function groupTagInit(id: number, el: typeof CheckTagWrapper) {
+      doctypeGroupTags[id] = el;
     }
-  });
-}
 
-function initFilterFields() {
-  let sessionFiltersResult: ReturnType<typeof retrieveSessionFilters> | null = null;
-  if (saveFiltersInSession) {
-    sessionFiltersResult = retrieveSessionFilters();
-  }
+    function groupTagChange(id: number) {
+      if (doctypeGroupTagCheckedId >= 0 && doctypeGroupTagCheckedId !== id) {
+        doctypeGroupTags[doctypeGroupTagCheckedId].checked = false;
+      }
+      doctypeGroupTags[id].checked = !doctypeGroupTags[id].checked;
+      doctypeGroupTagCheckedId = id;
+      if (doctypeGroupTags[id].checked) {
+        applyFilters({
+          documentType: `${id}`
+        });
+      } else {
+        applyFilters({});
+      }
+    }
 
-  function initActiveFieldsIfNeeded() {
-    if (!sessionFiltersResult?.activeFilterFieldsPersist) initActiveFields();
-  }
+    type SelectableKeysMappingType = keyof (typeof selectableKeysMapping);
 
-  if (!sessionFiltersResult?.filterFieldsPersist) {
-    getFieldsRequest().then(() => {
-      initActiveFieldsIfNeeded();
+    function initFilterFields() {
+      let sessionFiltersResult: ReturnType<typeof retrieveSessionFilters> | null = null;
+      if (saveFiltersInSession) {
+        sessionFiltersResult = retrieveSessionFilters();
+      }
+
+      function initActiveFields() {
+        filterFields.value.forEach((value, index) => {
+          if (value.defaultOn) {
+            activeFilterFieldIndices.value.push(index);
+          }
+        });
+      }
+
+      function initActiveFieldsIfNeeded() {
+        if (!sessionFiltersResult?.activeFilterFieldsPersist) initActiveFields();
+      }
+
+      if (!sessionFiltersResult?.filterFieldsPersist) {
+        getFieldsRequest().then(() => {
+          initActiveFieldsIfNeeded();
+        });
+      } else {
+        initActiveFieldsIfNeeded();
+      }
+    }
+
+    onMounted(() => {
+      getDocumentsInitialRequest();
+      for (const key in selectableKeysMapping) {
+        getSelectionListBy(key as SelectableKeysMappingType);
+      }
+      initFilterFields();
     });
-  } else {
-    initActiveFieldsIfNeeded();
-  }
-}
 
-onMounted(() => {
-  getDocumentsInitialRequest();
-  for (const key in selectableKeysMapping) {
-    getSelectionListBy(key as SelectableKeysMappingType);
-  }
-  initFilterFields();
-});
-
-const nonActiveFields = computed<FilterFieldsType[]>(() => {
-  return filterFields.value.filter(((value, index) => activeFilterFieldIndices.value.findIndex(activeVal => activeVal === index) === -1));
-});
-
-const activeFieldsArray = computed<FilterFieldsViewType>(() => {
-  const res: FilterFieldsViewType = {};
-  activeFilterFieldIndices.value.forEach(index => res[index] = filterFields.value[index]);
-  return res;
-});
-
-function addFilterSelected(selectedKey: string) {
-  const selectedFieldIndex = filterFields.value.findIndex(value => value.key === selectedKey);
-  if (selectedFieldIndex !== -1) activeFilterFieldIndices.value.push(selectedFieldIndex);
-}
-
-function processDate(filterRequest: DocFilterRequest) {
-  const dateObjIndex = filterRequest.filter.findIndex(value => value.key === 'documentDate');
-  if (dateObjIndex !== -1) {
-    const dateFrom = filterRequest.filter[dateObjIndex].value[0] as unknown as Date;
-    const dateTo = filterRequest.filter[dateObjIndex].value[1] as unknown as Date;
-    filterRequest.filter.splice(dateObjIndex, 1);
-    filterRequest.filter.push({
-      key: 'documentDate',
-      value: dateFrom.toISOString().split('T')[0],
-      operation: '>'
+    const nonActiveFields = computed<FilterFieldsType[]>(() => {
+      return filterFields.value.filter(((value, index) => activeFilterFieldIndices.value.indexOf(index) === -1));
     });
-    filterRequest.filter.push({
-      key: 'documentDate',
-      value: dateTo.toISOString().split('T')[0],
-      operation: '<'
-    });
-  }
-}
 
-function initFilters() {
-  const filters: Filter[] = [];
-  for (const dataKey in filterData) {
-    if (filterData[dataKey]) {
-      filters.push({
-        key: dataKey,
-        value: filterData[dataKey] as string,
-        operation: ':'
+    const activeFieldsObject = computed<FilterFieldsViewType>(() => {
+      const res: FilterFieldsViewType = {};
+      activeFilterFieldIndices.value.forEach(index => res[index] = filterFields.value[index]);
+      return res;
+    });
+
+    function addFilterSelected(selectedKey: string) {
+      const selectedFieldIndex = filterFields.value.findIndex(value => value.key === selectedKey);
+      if (selectedFieldIndex !== -1) activeFilterFieldIndices.value.push(selectedFieldIndex);
+    }
+
+    function processDate(filterRequest: DocFilterRequestType) {
+      const dateObjIndex = filterRequest.filter.findIndex(value => value.key === 'documentDate');
+      if (dateObjIndex !== -1) {
+        const dateFrom = filterRequest.filter[dateObjIndex].value[0] as unknown as Date;
+        const dateTo = filterRequest.filter[dateObjIndex].value[1] as unknown as Date;
+        filterRequest.filter.splice(dateObjIndex, 1);
+        filterRequest.filter.push({
+          key: 'documentDate',
+          value: dateFrom.toISOString().split('T')[0],
+          operation: '>'
+        });
+        filterRequest.filter.push({
+          key: 'documentDate',
+          value: dateTo.toISOString().split('T')[0],
+          operation: '<'
+        });
+      }
+    }
+
+    function initFilters(filterTempData: FilterDataType) {
+      const filters: FilterType[] = [];
+      for (const dataKey in filterTempData) {
+        if (filterTempData[dataKey]) {
+          filters.push({
+            key: dataKey,
+            value: filterTempData[dataKey] as string,
+            operation: ':'
+          });
+        }
+      }
+      const filterRequest: DocFilterRequestType = {
+        page: '0',
+        recordsOnPage: '10',
+        filter: filters
+      };
+      return filterRequest;
+    }
+
+    function applyFiltersClick() {
+      applyFilters();
+      if (doctypeGroupTagCheckedId !== -1) {
+        doctypeGroupTags[doctypeGroupTagCheckedId].checked = false;
+        doctypeGroupTagCheckedId = -1;
+      }
+    }
+
+    async function applyFilters(filterTempData: FilterDataType = filterData) {
+      applyFiltersButton.value.loading = true;
+      const filterRequest = initFilters(filterTempData);
+      processDate(filterRequest);
+
+      console.log(filterRequest);
+      await axios
+        .post('/documents/search', filterRequest)
+        .then(res => {
+          console.log(res.data);
+          updateDocuments(res);
+          if (saveFiltersInSession) {
+            doSaveFiltersInSession();
+          }
+        })
+        .catch(err => {
+          console.log(err)
+        });
+      applyFiltersButton.value.loading = false;
+    }
+
+    function getSelectionTypeName(value: SelectionType) {
+      if (value.name) {
+        return value.name;
+      } else if (value.shortname) {
+        return value.shortname;
+      } else {
+        throw Error('wrong type ' + value);
+      }
+    }
+
+    function disableField(fieldIndex: number | string) {
+      fieldIndex = Number(fieldIndex);
+      const activeFieldIndex = activeFilterFieldIndices.value.indexOf(fieldIndex);
+      activeFilterFieldIndices.value.splice(activeFieldIndex, 1);
+      clearFilterField(fieldIndex);
+    }
+
+    function isInSelectableKeys(fieldKey: string) {
+      return Object.values(selectableKeysMapping).indexOf(fieldKey) !== -1;
+    }
+
+    async function getFieldsRequest() {
+      await axios
+        .get<FilterFieldsType[]>('/documents/fields')
+        .then((res) => {
+          filterFields.value = res.data
+        });
+    }
+
+    function updateDocuments(res: AxiosResponse) {
+      documents.value = [];
+      (res.data.content as Array<any>).forEach(doc => {
+        documents.value.push({
+          id: doc.id,
+          documentType: doc.documentType.name,
+          documentDate: doc.documentDate,
+          number: doc.number,
+          heading: doc.heading,
+          responsible: doc.responsible.shortname,
+          author: doc.author.shortname,
+          organisation: doc.organisation.name,
+          files: doc.files.length,
+        });
       });
     }
-  }
-  const filterRequest: DocFilterRequest = {
-    page: '0',
-    recordsOnPage: '10',
-    filter: filters
-  };
-  return filterRequest;
-}
 
-async function applyFilters() {
-  applyFiltersButton.value.loading = true;
-  const filterRequest = initFilters();
-  processDate(filterRequest);
-
-  console.log(filterRequest);
-  await axiosInstance
-    .post('/documents/search', filterRequest)
-    .then(res => {
-      console.log(res.data);
-      updateDocuments(res);
-      for (const resKey in filterData) {
-        filterDataApplied[resKey] = filterData[resKey];
-      }
-      if (saveFiltersInSession) {
-        doSaveFiltersInSession();
-      }
-    })
-    .catch(err => {
-      console.log(err)
-    });
-  applyFiltersButton.value.loading = false;
-}
-
-function getSelectionTypeName(value: SelectionType) {
-  if (value.name) {
-    return value.name;
-  } else if (value.shortname) {
-    return value.shortname;
-  } else {
-    throw Error('wrong type ' + value);
-  }
-}
-
-function disableField(fieldIndex: number | string) {
-  fieldIndex = +fieldIndex;
-  const activeFieldIndex = activeFilterFieldIndices.value.findIndex(i => i === fieldIndex);
-  activeFilterFieldIndices.value.splice(activeFieldIndex, 1);
-  clearFilterField(fieldIndex);
-}
-
-function isInSelectableKeys(fieldKey: string) {
-  return Object.values(selectableKeysMapping).indexOf(fieldKey) !== -1;
-}
-
-async function getFieldsRequest() {
-  await axiosInstance
-    .get<FilterFieldsType[]>('/documents/fields')
-    .then((res) => {
-      filterFields.value = res.data
-    });
-}
-
-function updateDocuments(res: AxiosResponse) {
-  documents.value = [];
-  (res.data.content as Array<any>).forEach(doc => {
-    documents.value.push({
-      id: doc.id,
-      documentType: doc.documentType.name,
-      documentDate: doc.documentDate,
-      number: doc.number,
-      heading: doc.heading,
-      responsible: doc.responsible.shortname,
-      author: doc.author.shortname,
-      organisation: doc.organisation.name,
-      files: doc.files.length,
-    });
-  });
-}
-
-function openFilesDialog(row: DocType) {
-  console.log(row);
-  filesDialog.value.updateView(row.id);
-  filesDialog.value.toggleVisible();
-}
-
-function clearFilterField(fieldIndex: number) {
-  delete filterData[filterFields.value[fieldIndex].key];
-}
-
-function getDocumentsInitialRequest() {
-  axiosInstance
-    .get('/documents/')
-    .then(updateDocuments);
-}
-
-function doSaveFiltersInSession() {
-  sessionStorage.setItem('filterData', JSON.stringify(filterData));
-  sessionStorage.setItem('filterFields', JSON.stringify(filterFields.value));
-  sessionStorage.setItem('filterActiveFields', JSON.stringify(activeFilterFieldIndices.value));
-}
-
-function retrieveSessionFilters() {
-  function parseData(item: string, data: unknown): boolean {
-    const storedData = sessionStorage.getItem(item);
-    if (storedData && storedData !== 'undefined') {
-      Object.assign(data, JSON.parse(storedData));
-      return true;
+    function openFilesDialog(row: DocType) {
+      console.log(row);
+      filesDialog.value.updateView(row.id);
+      filesDialog.value.toggleVisible();
     }
-    return false;
+
+    function clearFilterField(fieldIndex: number) {
+      delete filterData[filterFields.value[fieldIndex].key];
+    }
+
+    function getDocumentsInitialRequest() {
+      axios
+        .get('/documents/')
+        .then(updateDocuments);
+    }
+
+    function doSaveFiltersInSession() {
+      sessionStorage.setItem('filterData', JSON.stringify(filterData));
+      sessionStorage.setItem('filterFields', JSON.stringify(filterFields.value));
+      sessionStorage.setItem('filterActiveFields', JSON.stringify(activeFilterFieldIndices.value));
+    }
+
+    function retrieveSessionFilters() {
+      function parseData(item: string, data: unknown): boolean {
+        const storedData = sessionStorage.getItem(item);
+        if (storedData && storedData !== 'undefined') {
+          Object.assign(data, JSON.parse(storedData));
+          return true;
+        }
+        return false;
+      }
+
+      const dataPersist = parseData('filterData', filterData);
+      const filterFieldsPersist = parseData('filterFields', filterFields.value);
+      const activeFilterFieldsPersist = parseData('filterActiveFields', activeFilterFieldIndices.value);
+      return {
+        dataPersist,
+        filterFieldsPersist,
+        activeFilterFieldsPersist
+      };
+    }
+
+    async function getSelectionListBy(type: SelectableKeysMappingType) {
+      await axios
+        .get<SelectionType[]>(`/${type}/`)
+        .then(res => {
+          selectableData.value[selectableKeysMapping[type]] = res.data;
+        });
+    }
+
+    return {
+      selectableData,
+      activeFieldsObject,
+      filesDialog,
+      applyFiltersButton,
+      documents,
+      filterData,
+      nonActiveFields,
+      applyFiltersClick,
+      openFilesDialog,
+      groupTagInit,
+      groupTagChange,
+      addFilterSelected,
+      applyFilters,
+      getSelectionTypeName,
+      disableField,
+      isInSelectableKeys,
+      clearFilterField
+    };
   }
-
-  const dataPersist = parseData('filterData', filterData);
-  const filterFieldsPersist = parseData('filterFields', filterFields.value);
-  const activeFilterFieldsPersist = parseData('filterActiveFields', activeFilterFieldIndices.value);
-  return {
-    dataPersist,
-    filterFieldsPersist,
-    activeFilterFieldsPersist
-  };
-}
-
-async function getSelectionListBy(type: SelectableKeysMappingType) {
-  await axiosInstance
-    .get<SelectionType[]>(`/${ type }/`)
-    .then(res => {
-      selectableData.value[selectableKeysMapping[type]] = res.data;
-    });
-}
+});
 </script>
 
 <style scoped>
-.filter-fields-box {
-}
-
 .filter-box-item {
   border: 2px solid var(--el-border-color-base);
   border-left: none;
@@ -483,7 +519,7 @@ async function getSelectionListBy(type: SelectableKeysMappingType) {
 .list-move, /* apply transition to moving elements */
 .list-enter-active,
 .list-leave-active {
-  transition: all 0.5s cubic-bezier(0.55, 0, 0.1, 1);
+  transition: all 0.2s cubic-bezier(0.55, 0, 0.1, 1);
 }
 
 .list-enter-from,
