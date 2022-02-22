@@ -2,6 +2,7 @@
   <el-dialog
     v-model="dialogVisible"
     title="Files"
+    width="600px"
   >
     <el-table
       :data="fileTableData"

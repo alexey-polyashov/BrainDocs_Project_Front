@@ -22,6 +22,7 @@
       </el-form-item>
     </el-form>
     <el-upload
+      ref="uploadRef"
       class="upload-box"
       drag
       action=""
@@ -59,13 +60,12 @@ import { reactive, ref } from "vue";
 import axiosInstance from "../../net/axios-instance";
 import { ElMessage } from "element-plus";
 
-// eslint-disable-next-line no-undef
 const props = defineProps<{
   docId: number,
   updateView: (id: number) => void,
 }>();
 
-export interface FileDescriptionType {
+interface FileDescriptionType {
   [p: string]: string | { id: number },
   name: string,
   description: string,
@@ -74,6 +74,7 @@ export interface FileDescriptionType {
   author: { id: number },
 }
 
+const uploadRef = ref();
 const dialogVisible = ref(false);
 const fileForm = reactive<FileDescriptionType>({
   name: '',
@@ -97,6 +98,7 @@ function clearFormData() {
     if (typeof fileForm[fileFormKey] === 'string') fileForm[fileFormKey] = '';
   }
   requestFile = null;
+  uploadRef.value.clearFiles();
 }
 
 function upload() {
