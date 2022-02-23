@@ -8,7 +8,6 @@
       :data="fileTableData"
       style="width: 100%"
       max-height="300"
-      @row-click="rowClick"
     >
       <el-table-column
         prop="id"
@@ -32,6 +31,13 @@
         width="120"
       >
         <template #default="scope">
+          <el-button
+            type="text"
+            size="small"
+            @click="editFileClick(scope.row)"
+          >
+            Edit
+          </el-button>
           <el-popconfirm
             title="Are you sure to delete this?"
             @confirm="removeFile(scope.row, scope.$index)"
@@ -97,7 +103,7 @@ function updateView(id: number) {
     });
 }
 
-function rowClick(row: FileType) {
+function editFileClick(row: FileType) {
 	newFileDialog.value.dialogVisible = true;
 	newFileDialog.value.editMode(row);
 }
