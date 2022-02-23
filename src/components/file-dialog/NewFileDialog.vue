@@ -24,13 +24,26 @@
       </el-form-item>
       <el-form-item 
         v-if="editFileInfo"
+        label="Preview file"
+      >
+        <el-link
+          :href="`https://brain-docs.herokuapp.com/api/v1/documents/${$props.docId}/files/${editFileInfo.id}/data`"
+          type="primary"
+          target="_blank"
+          :download="editFileInfo.originalFilename"
+        >
+          preview
+        </el-link>
+      </el-form-item>
+      <el-form-item 
+        v-if="editFileInfo"
         label="File link"
       >
         <el-link
-          :href="'https://brain-docs.herokuapp.com' + editFileInfo.link"
+          :href="`https://brain-docs.herokuapp.com/api/v1/documents/${$props.docId}/files/${editFileInfo.id}/download`"
           type="primary"
           target="_blank"
-          download
+          :download="editFileInfo.originalFilename"
         >
           download
         </el-link>
@@ -71,7 +84,7 @@
 </template>
 
 <script lang="ts" setup>
-import { reactive, ref } from "vue";
+import { reactive, ref, watch } from "vue";
 import axios from "axios";
 import { ElMessage, ElUpload } from "element-plus";
 import { FileType } from "./types";
@@ -85,7 +98,6 @@ interface FileDescriptionType {
   [p: string]: string | { id: number },
   name: string,
   description: string,
-  originalFilename: string,
   fileType: string,
   author: { id: number },
 }
@@ -95,19 +107,22 @@ const dialogVisible = ref(false);
 const fileForm = reactive<FileDescriptionType>({
   name: '',
   description: '',
-  originalFilename: '',
   fileType: '',
   author: { id: 1 },
 });
 let requestFile: File | null = null;
 const editFileInfo = ref<FileType | null>(null);
+let editModeEnabled = false;
+
+watch(editFileInfo, (newVal) => {
+  editModeEnabled = newVal != null;
+});
 
 function fileSelected(file: any) {
-  console.log(file)
+  console.log(file);
   requestFile = file.raw;
-  fileForm.originalFilename = file.name;
-  const fileName = file.name as string;
-  fileForm.fileType = fileName.slice(fileName.lastIndexOf('.') + 1);
+  fileForm.name = file.name;
+  fileForm.fileType = fileForm.name.slice(fileForm.name.lastIndexOf('.') + 1);
 }
 
 function clearFormData() {
@@ -119,17 +134,17 @@ function clearFormData() {
   editFileInfo.value = null;
 }
 
-function upload() {
-  console.log(props.docId)
-  if (!requestFile) ElMessage.warning('please select file');
-  else {
+function upload() {  
+  if (!editModeEnabled && !requestFile) {
+    ElMessage.warning('Выберите файл');
+  } else {
     const formData = new FormData();
     formData.append('fileDescribe', JSON.stringify(fileForm));
-    formData.append('file', requestFile);
+    if (requestFile) formData.append('file', requestFile);
     axios
-      .post(`/documents/${ props.docId }/files/upload`, formData)
+      .post(`/documents/${ props.docId }/files/${ editModeEnabled ? editFileInfo.value?.id : 'upload' }`, formData)
       .then(() => {
-        ElMessage.success('Upload successful!');
+        ElMessage.success('Загрузка прошла успешно!');
         dialogVisible.value = false;
         props.updateView(props.docId);
         clearFormData();

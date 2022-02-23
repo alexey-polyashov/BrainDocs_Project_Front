@@ -238,11 +238,11 @@ export default defineComponent({
       doctypeGroupTags[id].checked = !doctypeGroupTags[id].checked;
       doctypeGroupTagCheckedId = id;
       if (doctypeGroupTags[id].checked) {
-        applyFilters({
-          documentType: `${id}`
-        });
+        filterData.documentType = `${id}`;
+        applyFilters();
       } else {
-        applyFilters({});
+        delete filterData.documentType;
+        applyFilters();
       }
     }
 
@@ -338,10 +338,6 @@ export default defineComponent({
 
     function applyFiltersClick() {
       applyFilters();
-      if (doctypeGroupTagCheckedId !== -1) {
-        doctypeGroupTags[doctypeGroupTagCheckedId].checked = false;
-        doctypeGroupTagCheckedId = -1;
-      }
     }
 
     async function applyFilters(filterTempData: FilterDataType = filterData) {
