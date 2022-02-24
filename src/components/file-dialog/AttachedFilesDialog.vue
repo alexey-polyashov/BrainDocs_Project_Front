@@ -10,25 +10,21 @@
       max-height="300"
     >
       <el-table-column
-        prop="id"
-        label="id"
-      />
-      <el-table-column
         prop="name"
-        label="Name"
+        label="Имя"
       />
       <el-table-column
         prop="author.shortname"
-        label="Uploaded by"
+        label="Автор"
       />
       <el-table-column
         prop="fileType"
-        label="File type"
+        label="Тип файла"
       />
       <el-table-column
         fixed="right"
-        label="Operations"
-        width="120"
+        label="Операции"
+        width="150"
       >
         <template #default="scope">
           <el-button
@@ -36,7 +32,7 @@
             size="small"
             @click="editFileClick(scope.row)"
           >
-            Edit
+            Изменить
           </el-button>
           <el-popconfirm
             title="Уверены, что хотите удалить?"
@@ -47,7 +43,7 @@
                 type="text"
                 size="small"
               >
-                Remove
+                Удалить
               </el-button>
             </template>
           </el-popconfirm>
@@ -113,7 +109,7 @@ function removeFile(row: FileType, index: number) {
     .delete(`/documents/${docId.value}/files/${row.id}`)
     .then(() => {
       fileTableData.value.splice(index, 1);
-      ElMessage.warning('file deleted');
+      ElMessage.warning('Файл удален');
     });
 }
 

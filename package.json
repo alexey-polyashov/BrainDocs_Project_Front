@@ -1,6 +1,7 @@
 {
   "name": "braindocs_front",
-  "version": "0.0.0",
+  "version": "0.0.1",
+  "private": "true",
   "scripts": {
     "dev": "vite",
     "build": "vue-tsc --noEmit && vite build",
@@ -10,7 +11,7 @@
   "dependencies": {
     "@tinymce/tinymce-vue": "^4.0.5",
     "axios": "^0.26.0",
-    "element-plus": "^2.0.1",
+    "element-plus": "^2.0.2",
     "pinia": "^2.0.11",
     "vue": "^3.2.31",
     "vue-router": "^4.0.12"

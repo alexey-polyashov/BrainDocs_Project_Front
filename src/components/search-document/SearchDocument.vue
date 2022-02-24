@@ -1,5 +1,5 @@
 <template>
-  <el-card style="width: fit-content; margin: 0 auto;">
+  <el-card style="max-width: fit-content; margin: 0 auto;">
     <div style="display: flex; justify-content: center;">
       <div class="grouping-box content-box">
         <h1>Группировка по виду документа</h1>
@@ -94,7 +94,7 @@
                 <LoadingButton
                   ref="applyFiltersButton"
                   button-text="Применить"
-                  @click="applyFiltersClick"
+                  @click="applyFilters"
                 />
                 <el-select
                   placeholder="Добавить фильтр"
@@ -109,72 +109,19 @@
                   />
                 </el-select>
               </div>
-              <div
+              <SearchDocumentTable
                 key="docTable"
+                :document-filter-data="documentsResponseData"
+                :documents-view="shownDocuments"
                 class="filter-box-item filter-box-table"
-              >
-                <el-table
-                  :data="documents"
-                  :default-sort="{ prop: 'id', order: 'ascending' }"
-                  border
-                  table-layout="auto"
-                >
-                  <el-table-column
-                    type="selection"
-                    width="55"
-                  />
-                  <el-table-column
-                    prop="number"
-                    label="Номер"
-                    sortable
-                    width="100"
-                  />
-                  <el-table-column
-                    prop="documentDate"
-                    label="Дата"
-                    sortable
-                    width="120"
-                  />
-                  <el-table-column
-                    prop="heading"
-                    label="Название"
-                    sortable
-                    width="180"
-                  />
-                  <el-table-column
-                    prop="author"
-                    label="Автор"
-                    sortable
-                    width="180"
-                  />
-                  <el-table-column
-                    prop="organisation"
-                    label="Организация"
-                    sortable
-                    width="180"
-                  />
-                  <el-table-column
-                    prop="files"
-                    label="Файлы"
-                    sortable
-                    width="110"
-                  >
-                    <template #default="scope">
-                      <el-button @click="openFilesDialog(scope.row)">
-                        Файлы
-                      </el-button>
-                    </template>
-                  </el-table-column>
-                </el-table>
-              </div>
+                @current-page-change="onPageChange"
+              />
             </TransitionGroup>
           </el-form>
         </div>
       </div>
     </div>
   </el-card>
-
-  <AttachedFilesDialog ref="filesDialog" />
 </template>
 
 <script lang="ts">
@@ -182,31 +129,32 @@ import axios from "axios";
 import { computed, onMounted, reactive, ref } from "vue";
 import LoadingButton from "../LoadingButton.vue";
 import CheckTagWrapper from "../CheckTagWrapper.vue";
-import AttachedFilesDialog from '../file-dialog/AttachedFilesDialog.vue'
 import {
   DocFilterRequestType,
-  DocType,
+  DocTypeView,
   FilterType,
   FilterDataType,
   FilterFieldsType,
   SelectableDataType,
-  SelectionType,
+  NamedSelectionType,
   FilterFieldsViewType,
-IndexedType
+  DocFilterResponse,
+  IndexedType
 } from "./types";
 import { AxiosResponse } from "axios";
 import { defineComponent } from "vue";
+import SearchDocumentTable from "./SearchDocumentTable.vue";
 
 export default defineComponent({
   components: {
-    AttachedFilesDialog,
     LoadingButton,
-    CheckTagWrapper
+    CheckTagWrapper,
+    SearchDocumentTable
   },
   setup() {
-    const filesDialog = ref();
     const applyFiltersButton = ref();
-    const documents = ref<DocType[]>([]);
+    const shownDocuments = ref<DocTypeView[]>([]);
+    const documentsResponseData = ref<DocFilterResponse>();
     const filterData = reactive<FilterDataType>({});
     const filterFields = ref<FilterFieldsType[]>([]);
     const activeFilterFieldIndices = ref<number[]>([]);
@@ -220,6 +168,10 @@ export default defineComponent({
     const doctypeGroupTags = reactive<IndexedType<number, typeof CheckTagWrapper>>({});
     let doctypeGroupTagCheckedId = -1;
     const saveFiltersInSession = true;
+    const filterPagingInfo = {
+        page: '0',
+        recordsOnPage: '2',
+    };
 
     function groupTagInit(id: number, el: typeof CheckTagWrapper) {
       doctypeGroupTags[id] = el;
@@ -323,27 +275,19 @@ export default defineComponent({
         }
       }
       const filterRequest: DocFilterRequestType = {
-        page: '0',
-        recordsOnPage: '10',
+        ...filterPagingInfo,
         filter: filters
       };
       return filterRequest;
-    }
-
-    function applyFiltersClick() {
-      applyFilters();
     }
 
     async function applyFilters(filterTempData: FilterDataType = filterData) {
       applyFiltersButton.value.loading = true;
       const filterRequest = initFilters(filterTempData);
       processDate(filterRequest);
-
-      console.log(filterRequest);
       await axios
-        .post('/documents/search', filterRequest)
+        .post<DocFilterResponse>('/documents/search', filterRequest)
         .then(res => {
-          console.log(res.data);
           updateDocuments(res);
           if (saveFiltersInSession) {
             doSaveFiltersInSession();
@@ -355,7 +299,12 @@ export default defineComponent({
       applyFiltersButton.value.loading = false;
     }
 
-    function getSelectionTypeName(value: SelectionType) {
+    function onPageChange(num: number) {
+      filterPagingInfo.page = (num - 1).toString();
+      applyFilters();
+    }
+
+    function getSelectionTypeName(value: NamedSelectionType) {
       if (value.name) {
         return value.name;
       } else if (value.shortname) {
@@ -384,27 +333,22 @@ export default defineComponent({
         });
     }
 
-    function updateDocuments(res: AxiosResponse) {
-      documents.value = [];
-      (res.data.content as Array<any>).forEach(doc => {
-        documents.value.push({
+    function updateDocuments(res: AxiosResponse<DocFilterResponse>) {
+      documentsResponseData.value = res.data;
+      shownDocuments.value = [];
+      res.data.content.forEach(doc => {
+        shownDocuments.value.push({
           id: doc.id,
           documentType: doc.documentType.name,
           documentDate: doc.documentDate,
           number: doc.number,
           heading: doc.heading,
-          responsible: doc.responsible.shortname,
-          author: doc.author.shortname,
+          responsible: doc.responsible.shortname as string,
+          author: doc.author.shortname as string,
           organisation: doc.organisation.name,
-          files: doc.files.length,
+          files: doc.files.length.toString(),
         });
       });
-    }
-
-    function openFilesDialog(row: DocType) {
-      console.log(row);
-      filesDialog.value.updateView(row.id);
-      filesDialog.value.toggleVisible();
     }
 
     function clearFilterField(fieldIndex: number) {
@@ -445,7 +389,7 @@ export default defineComponent({
 
     async function getSelectionListBy(type: SelectableKeysMappingType) {
       await axios
-        .get<SelectionType[]>(`/${type}/`)
+        .get<NamedSelectionType[]>(`/${type}/`)
         .then(res => {
           selectableData.value[selectableKeysMapping[type]] = res.data;
         });
@@ -454,21 +398,20 @@ export default defineComponent({
     return {
       selectableData,
       activeFieldsObject,
-      filesDialog,
       applyFiltersButton,
-      documents,
       filterData,
       nonActiveFields,
-      applyFiltersClick,
-      openFilesDialog,
+      shownDocuments,
+      documentsResponseData,
+      applyFilters,
       groupTagInit,
       groupTagChange,
       addFilterSelected,
-      applyFilters,
       getSelectionTypeName,
       disableField,
       isInSelectableKeys,
-      clearFilterField
+      clearFilterField,
+      onPageChange
     };
   }
 });

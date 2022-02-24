@@ -1,13 +1,12 @@
+import { NamedSelectionType } from "../search-document/types";
+
 export interface FileType {
 	id: number;
 	name: string;
 	storageType: number;
 	description: string;
 	fileSize: number;
-	author: {
-		id: number,
-		shortname: string
-	};
+	author: NamedSelectionType;
 	contentType: string;
 	originalFilename: string;
 	fileType: string;
