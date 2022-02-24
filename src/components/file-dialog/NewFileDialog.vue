@@ -2,7 +2,7 @@
 <template>
   <el-dialog
     v-model="dialogVisible"
-    title="Add file"
+    title="Добавление файла"
     width="500px"
     @close="clearFormData"
   >
@@ -11,39 +11,38 @@
       :model="fileForm"
     >
       <el-form-item
-        label="File name"
+        label="Имя файла"
         prop="name"
       >
         <el-input v-model="fileForm.name" />
       </el-form-item>
       <el-form-item
-        label="Short description"
+        label="Описание"
         prop="description"
       >
         <el-input v-model="fileForm.description" />
       </el-form-item>
-      <el-form-item 
+      <el-form-item
         v-if="editFileInfo"
-        label="Preview file"
+        label="Просмотр файла"
       >
         <el-link
           :href="`https://brain-docs.herokuapp.com/api/v1/documents/${$props.docId}/files/${editFileInfo.id}/data`"
           type="primary"
           target="_blank"
-          :download="editFileInfo.originalFilename"
         >
           preview
         </el-link>
       </el-form-item>
-      <el-form-item 
+      <el-form-item
         v-if="editFileInfo"
-        label="File link"
+        label="Ссылка файла"
       >
         <el-link
           :href="`https://brain-docs.herokuapp.com/api/v1/documents/${$props.docId}/files/${editFileInfo.id}/download`"
           type="primary"
           target="_blank"
-          :download="editFileInfo.originalFilename"
+          :download="editFileInfo.name"
         >
           download
         </el-link>
@@ -61,11 +60,12 @@
     >
       <span class="material-icons-round upload-icon">cloud_upload</span>
       <div class="el-upload__text">
-        Drop file here or <em>click to upload</em>
+        Положите файл сюда или
+        <em>нажмите для загрузки</em>
       </div>
       <template #tip>
         <div class="el-upload__tip">
-          any file type with size less than 500kb
+          любое расширение, размер до 500kb
         </div>
       </template>
     </el-upload>
@@ -74,10 +74,10 @@
         type="primary"
         @click="upload"
       >
-        Save
+        Сохранить
       </el-button>
       <el-button @click="dialogVisible = false">
-        Cancel
+        Отмена
       </el-button>
     </template>
   </el-dialog>
@@ -87,20 +87,12 @@
 import { reactive, ref, watch } from "vue";
 import axios from "axios";
 import { ElMessage, ElUpload } from "element-plus";
-import { FileType } from "./types";
+import { FileDescriptionType, FileType } from "./types";
 
 const props = defineProps<{
   docId: number,
   updateView: (id: number) => void,
 }>();
-
-interface FileDescriptionType {
-  [p: string]: string | { id: number },
-  name: string,
-  description: string,
-  fileType: string,
-  author: { id: number },
-}
 
 const uploadRef = ref<InstanceType<typeof ElUpload>>();
 const dialogVisible = ref(false);
@@ -134,15 +126,13 @@ function clearFormData() {
   editFileInfo.value = null;
 }
 
-function upload() {  
-  if (!editModeEnabled && !requestFile) {
-    ElMessage.warning('Выберите файл');
-  } else {
+function upload() {
+  if (editModeEnabled || requestFile) {
     const formData = new FormData();
     formData.append('fileDescribe', JSON.stringify(fileForm));
     if (requestFile) formData.append('file', requestFile);
     axios
-      .post(`/documents/${ props.docId }/files/${ editModeEnabled ? editFileInfo.value?.id : 'upload' }`, formData)
+      .post(`/documents/${props.docId}/files/${editModeEnabled ? editFileInfo.value?.id : 'upload'}`, formData)
       .then(() => {
         ElMessage.success('Загрузка прошла успешно!');
         dialogVisible.value = false;
@@ -152,6 +142,8 @@ function upload() {
       .catch(err => {
         console.log(err);
       });
+  } else {
+    ElMessage.warning('Выберите файл');
   }
 }
 

@@ -1,5 +1,5 @@
 <template>
-  <el-container>
+  <el-container class="page-container">
     <el-header class="page-header">
       <el-row
         justify="space-between"
@@ -12,9 +12,11 @@
           <div class="main-logo">
             <span
               class="material-icons-round"
-              style="font-size: 3em"
-            >source</span>&nbsp;
-            <span class="logo-text">BrainDocs</span>
+              style="font-size: 3em; color: #ffd400; margin-right: 8px;"
+            >
+              filter_drama
+            </span>
+            <span class="logo-text"><span style="color: #88deff;">B</span>rain<span style="color: #88deff;">D</span>ocs</span>
           </div>
           <el-menu
             :default-active="activeMenu"
@@ -32,19 +34,19 @@
               index="create-doc"
               class="menu-item"
             >
-              New document
+              Новый документ
             </el-menu-item>
             <el-menu-item
               index="search-doc"
               class="menu-item"
             >
-              Search
+              Поиск
             </el-menu-item>
             <el-menu-item
               index="3"
               class="menu-item"
             >
-              Directories
+              Справочники
             </el-menu-item>
           </el-menu>
         </el-col>
@@ -56,7 +58,7 @@
             type="primary"
             @click="signIn"
           >
-            <span class="material-icons-round">account_circle</span>&nbsp;Sign
+            <span class="material-icons-round">account_circle</span>&nbsp;Войти
           </el-button>
         </el-col>
       </el-row>
@@ -101,13 +103,15 @@ const menuClicked = (index: string) => {
 <style>
 @import url('https://fonts.googleapis.com/icon?family=Material+Icons+Round');
 @import url('https://fonts.googleapis.com/css2?family=Ubuntu:wght@400&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400&display=swap');
 
 body {
   margin: 0;
+  background-color: #f4eeff;
 }
 
 * {
-  font-family: 'Ubuntu', sans-serif;
+  font-family: 'Roboto', 'Ubuntu', sans-serif;
 }
 
 .content-box {
@@ -132,7 +136,7 @@ body {
 
 .page-header {
   height: auto;
-  background: #1967a9;
+  background: #311587;
 }
 
 .main-logo {
@@ -145,12 +149,26 @@ body {
   height: 150px;
   padding: 32px;
   text-align: center;
-  background: rgba(222, 210, 181, 0.24);
+  background: #bbbbbb3d;
 }
 
 .page-main {
   min-height: 100vh;
   overflow: initial;
+}
+
+.page-container:before {
+  content: '';
+  display: block;
+  position: fixed;
+  width: 100%;
+  height: 100%;
+  opacity: 0.3;
+  background-image: url('assets/bg-min.png');
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: cover;
+  z-index: -10;
 }
 
 .menu-item {

@@ -13,3 +13,11 @@ export interface FileType {
 	fileType: string;
 	link: string;
 }
+
+export interface FileDescriptionType {
+	[p: string]: string | { id: number },
+	name: string,
+	description: string,
+	fileType: string,
+	author: { id: number },
+}

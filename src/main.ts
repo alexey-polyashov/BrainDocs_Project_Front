@@ -3,6 +3,7 @@ import { createPinia } from "pinia";
 import App from './App.vue';
 import router from './router';
 import ElementPlus from 'element-plus';
+import ru from 'element-plus/es/locale/lang/ru';
 import 'element-plus/dist/index.css';
 import axios from 'axios';
 
@@ -13,7 +14,9 @@ axios.defaults.baseURL = url;
 axios.defaults.timeout = 10000;
 
 createApp(App)
-  .use(ElementPlus)
+  .use(ElementPlus, {
+    locale: ru
+  })
   .use(createPinia())
   .use(router)
   .mount('#app');
