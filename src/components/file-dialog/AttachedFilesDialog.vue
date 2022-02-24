@@ -55,7 +55,7 @@
         <el-button
           type="primary"
           @click="dialogVisible = false"
-        >Close</el-button>
+        >Закрыть</el-button>
       </span>
     </template>
     <div style="margin-top: 16px; text-align: center">
@@ -63,7 +63,7 @@
         type="primary"
         @click="enableNewFilesDialog"
       >
-        New File
+        Новый файл
       </el-button>
     </div>
   </el-dialog>

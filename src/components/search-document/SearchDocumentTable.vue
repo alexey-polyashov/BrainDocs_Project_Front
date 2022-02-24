@@ -80,7 +80,7 @@ const emit = defineEmits<{
 }>();
 
 const currentPage = ref(1);
-const filesDialog = ref<InstanceType<typeof AttachedFilesDialog>>();
+const filesDialog = ref();
 
 function curPageUpdate(newPageNum: number) {
   currentPage.value = newPageNum;
