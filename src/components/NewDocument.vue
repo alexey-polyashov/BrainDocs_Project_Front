@@ -12,25 +12,25 @@
     >
       <el-form-item
         required
-        label="Reference number"
+        label="Номер"
       >
         <el-input v-model="formData.number" />
       </el-form-item>
       <el-form-item
         required
-        label="Document type"
+        label="Тип"
       >
         <el-input v-model="formData.documentType" />
       </el-form-item>
       <el-form-item
         required
-        label="Document name"
+        label="Название"
       >
         <el-input v-model="formData.heading" />
       </el-form-item>
       <el-form-item
         required
-        label="Date"
+        label="Дата"
       >
         <el-date-picker
           v-model="formData.documentDate"
@@ -40,12 +40,12 @@
       </el-form-item>
       <el-form-item
         required
-        label="Organization"
+        label="Организация"
       >
         <el-input v-model="formData.organisation" />
       </el-form-item>
       <h2 style="text-align: center">
-        Content
+        Содержание
       </h2>
       <editor
         v-model="formData.content"
@@ -59,7 +59,7 @@
           class="button"
           @click="saveClick"
         >
-          Save
+          Сохранить
         </el-button>
         <el-badge
           :value="15"
@@ -69,7 +69,7 @@
             size="large"
             @click="toggleFileAttachDialog"
           >
-            Attach files
+            Файлы
           </el-button>
         </el-badge>
       </div>
@@ -78,106 +78,82 @@
 </template>
 
 <script lang="ts" setup>
-import { onMounted, reactive, ref } from "vue"
-import Editor from '@tinymce/tinymce-vue'
-import AttachedFilesDialog from "./file-dialog/AttachedFilesDialog.vue"
+import { reactive, ref } from "vue";
+import Editor from '@tinymce/tinymce-vue';
+import AttachedFilesDialog from "./file-dialog/AttachedFilesDialog.vue";
 import { ElMessage, ElMessageBox } from "element-plus";
 import axios from "axios";
 
-const filesDialog = ref()
+const filesDialog = ref();
 const formData = reactive({
-  documentType: '',
-  number: '',
-  organisation: '',
-  documentDate: new Date(),
-  heading: '',
-  author: 'this',
-  content: ''
-})
+	documentType: '',
+	number: '',
+	organisation: '',
+	documentDate: new Date(),
+	heading: '',
+	author: 'this',
+	content: ''
+});
 
 const toggleFileAttachDialog = () => {
-  filesDialog.value?.toggleVisible()
-}
+	filesDialog.value?.toggleVisible()
+};
 
 function saveClick() {
-  ElMessageBox.confirm(
-      'Confirm saving this document',
-      'Save',
-      {
-        type: 'warning',
-      })
-      .then(() => {
-        pendingSaveMessage();
-        setTimeout(completeMessage, 1000)
-        //sendSaveRequest()
-      })
+	ElMessageBox.confirm(
+		'Сохранить этот документ?',
+		{
+			type: 'warning',
+		})
+		.then(() => {
+			ElMessage.info('Идет сохранение...');
+			setTimeout(() => ElMessage.success('Сохранение успешно!'), 1000);
+			//sendSaveRequest()
+		})
 }
 
-function pendingSaveMessage() {
-  ElMessage({
-    type: 'info',
-    message: 'Pending save...',
-  })
-}
-
-function completeMessage() {
-  ElMessage({
-    type: 'success',
-    message: 'Save completed successfully!',
-  })
-}
-
-function errorMessage(error: string) {
-  ElMessage({
-    type: 'error',
-    message: error,
-  })
-}
-
-type Id = { id: number }
+type Id = { id: number };
 
 type SaveDocRequest = {
-  number: string,
-  documentDate: string,
-  heading: string,
-  content?: string,
-  documentType: Id,
-  author: Id,
-  organisation: Id,
-  responsible?: Id,
-}
+	number: string,
+	documentDate: string,
+	heading: string,
+	content?: string,
+	documentType: Id,
+	author: Id,
+	organisation: Id,
+	responsible?: Id,
+};
 
 async function sendSaveRequest(data: SaveDocRequest) {
-  await axios.post('/documents/save', { documentDTO: data })
-      .then((res) => {
-        console.log(res)
-        completeMessage()
-      })
-      .catch((error) => {
-        console.log(error);
-        errorMessage('error')
-      })
+	await axios.post('/documents/save', { documentDTO: data })
+		.then((res) => {
+			ElMessage.success('Сохранение успешно!');
+		})
+		.catch((error) => {
+			console.log(error);
+			ElMessage.error('error');
+		})
 }
 </script>
 
 <style scoped>
-
 .button-group {
-  display: flex;
-  justify-content: end;
+	display: flex;
+	justify-content: end;
 }
 
 .button {
-  margin-top: 16px;
-  margin-right: 16px;
+	margin-top: 16px;
+	margin-right: 16px;
 }
 
 .content-box {
-  margin-top: 0;
+	margin-top: 0;
 }
 
 .card-header {
-  font-size: x-large;
-  font-weight: bold;
+	font-size: x-large;
+	font-weight: bold;
 }
 </style>
