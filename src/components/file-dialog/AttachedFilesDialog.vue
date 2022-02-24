@@ -39,7 +39,7 @@
             Edit
           </el-button>
           <el-popconfirm
-            title="Are you sure to delete this?"
+            title="Уверены, что хотите удалить?"
             @confirm="removeFile(scope.row, scope.$index)"
           >
             <template #reference>
@@ -97,15 +97,15 @@ function updateView(id: number) {
   docId.value = id;
   fileTableData.value = [];
   axios
-    .get<FileType[]>(`/documents/${ id }/files`)
+    .get<FileType[]>(`/documents/${docId.value}/files`)
     .then(res => {
       fileTableData.value = res.data;
     });
 }
 
-function editFileClick(row: FileType) {
+function editFileClick(fileInfo: FileType) {
 	newFileDialog.value.dialogVisible = true;
-	newFileDialog.value.editMode(row);
+	newFileDialog.value.editMode(fileInfo);
 }
 
 function removeFile(row: FileType, index: number) {

@@ -1,185 +1,179 @@
 <template>
-  <div style="display: flex">
-    <div class="grouping-box content-box">
-      <h1>Group by doctype</h1>
-      <el-scrollbar height="100%">
-        <CheckTagWrapper
-          v-for="docType in selectableData['documentType']"
-          :key="docType.id"
-          :ref="(el: any) => groupTagInit(docType.id, el)"
-          style="margin-bottom: 8px; display: block;"
-          @change="groupTagChange(docType.id)"
-        >
-          {{ docType.name }}
-        </CheckTagWrapper>
-      </el-scrollbar>
-    </div>
-    <div style="min-width: 0;">
-      <div class="filter-box-item filter-fields-box">
-        <el-form
-          label-width="200px"
-          label-position="left"
-        >
-          <h1>Filters</h1>
-          <TransitionGroup
-            tag="div"
-            name="list"
-            style="position: relative"
+  <el-card style="width: fit-content; margin: 0 auto;">
+    <div style="display: flex; justify-content: center;">
+      <div class="grouping-box content-box">
+        <h1>Группировка по виду документа</h1>
+        <el-scrollbar height="100%">
+          <CheckTagWrapper
+            v-for="docType in selectableData['documentType']"
+            :key="docType.id"
+            :ref="(el: any) => groupTagInit(docType.id, el)"
+            style="margin-bottom: 8px; display: block;"
+            @change="groupTagChange(docType.id)"
           >
-            <template
-              v-for="(field, filterFieldsArrIndex) in activeFieldsObject"
-              :key="field.key"
+            {{ docType.name }}
+          </CheckTagWrapper>
+        </el-scrollbar>
+      </div>
+      <div style="min-width: 0;">
+        <div class="filter-box-item filter-fields-box">
+          <el-form
+            label-width="200px"
+            label-position="left"
+          >
+            <h1>Фильтры</h1>
+            <TransitionGroup
+              tag="div"
+              name="list"
+              style="position: relative"
             >
-              <el-form-item :label="field.name">
-                <div class="filter-form-item">
-                  <el-select
-                    v-if="isInSelectableKeys(field.key)"
-                    v-model="filterData[field.key]"
-                    placeholder="Select"
-                  >
-                    <el-option
-                      v-for="option in selectableData[field.key]"
-                      :key="option.id"
-                      :label="getSelectionTypeName(option)"
-                      :value="option.id"
+              <template
+                v-for="(field, filterFieldsArrIndex) in activeFieldsObject"
+                :key="field.key"
+              >
+                <el-form-item :label="field.name">
+                  <div class="filter-form-item">
+                    <el-select
+                      v-if="isInSelectableKeys(field.key)"
+                      v-model="filterData[field.key]"
+                      placeholder="Выберите"
+                    >
+                      <el-option
+                        v-for="option in selectableData[field.key]"
+                        :key="option.id"
+                        :label="getSelectionTypeName(option)"
+                        :value="option.id"
+                      />
+                    </el-select>
+                    <el-date-picker
+                      v-else-if="field.type === 'Date'"
+                      v-model="filterData[field.key]"
+                      type="date"
                     />
-                  </el-select>
-                  <el-date-picker
-                    v-else-if="field.type === 'Date'"
-                    v-model="filterData[field.key]"
-                    type="daterange"
-                    range-separator="-"
-                    start-placeholder="Start date"
-                    end-placeholder="End date"
-                  />
-                  <el-input
-                    v-else
-                    v-model="filterData[field.key]"
-                  />
-                  <el-tooltip
-                    effect="dark"
-                    content="Clear field"
-                    placement="top-start"
-                  >
-                    <el-button
-                      size="small"
-                      style="margin-left: 16px"
-                      @click="clearFilterField(filterFieldsArrIndex)"
+                    <el-input
+                      v-else
+                      v-model="filterData[field.key]"
+                    />
+                    <el-tooltip
+                      effect="dark"
+                      content="Очистить поле"
+                      placement="top-start"
                     >
-                      <span
-                        style="font-size: 1rem"
-                        class="material-icons-round"
-                      >clear</span>
-                    </el-button>
-                  </el-tooltip>
-                  <el-tooltip
-                    effect="dark"
-                    content="Delete field"
-                    placement="top-start"
-                  >
-                    <el-button
-                      type="danger"
-                      size="small"
-                      style="margin-left: 16px"
-                      @click="disableField(filterFieldsArrIndex)"
+                      <el-button
+                        size="small"
+                        style="margin-left: 16px"
+                        @click="clearFilterField(filterFieldsArrIndex)"
+                      >
+                        <span
+                          style="font-size: 1rem"
+                          class="material-icons-round"
+                        >clear</span>
+                      </el-button>
+                    </el-tooltip>
+                    <el-tooltip
+                      effect="dark"
+                      content="Удалить поле"
+                      placement="top-start"
                     >
-                      <span
-                        style="font-size: 1rem"
-                        class="material-icons-round"
-                      >delete</span>
-                    </el-button>
-                  </el-tooltip>
-                </div>
-              </el-form-item>
-            </template>
-            <div key="optionsSection">
-              <LoadingButton
-                ref="applyFiltersButton"
-                button-text="Apply filters"
-                @click="applyFiltersClick"
-              />
-              <el-select
-                placeholder="Add filter"
-                style="margin-left: 16px"
-                @change="addFilterSelected"
-              >
-                <el-option
-                  v-for="item in nonActiveFields"
-                  :key="item.key"
-                  :label="item.name"
-                  :value="item.key"
+                      <el-button
+                        type="danger"
+                        size="small"
+                        style="margin-left: 16px"
+                        @click="disableField(filterFieldsArrIndex)"
+                      >
+                        <span
+                          style="font-size: 1rem"
+                          class="material-icons-round"
+                        >delete</span>
+                      </el-button>
+                    </el-tooltip>
+                  </div>
+                </el-form-item>
+              </template>
+              <div key="optionsSection">
+                <LoadingButton
+                  ref="applyFiltersButton"
+                  button-text="Применить"
+                  @click="applyFiltersClick"
                 />
-              </el-select>
-            </div>
-            <div
-              key="docTable"
-              class="filter-box-item filter-box-table"
-            >
-              <el-table
-                :data="documents"
-                :default-sort="{ prop: 'id', order: 'ascending' }"
-                border
-                table-layout="auto"
-              >
-                <el-table-column
-                  type="selection"
-                  width="55"
-                />
-                <el-table-column
-                  prop="id"
-                  label="id"
-                  sortable
-                  width="70"
-                />
-                <el-table-column
-                  prop="number"
-                  label="number"
-                  sortable
-                  width="100"
-                />
-                <el-table-column
-                  prop="documentDate"
-                  label="date"
-                  sortable
-                  width="120"
-                />
-                <el-table-column
-                  prop="heading"
-                  label="heading"
-                  sortable
-                  width="180"
-                />
-                <el-table-column
-                  prop="author"
-                  label="author"
-                  sortable
-                  width="180"
-                />
-                <el-table-column
-                  prop="organisation"
-                  label="organisation"
-                  sortable
-                  width="180"
-                />
-                <el-table-column
-                  prop="files"
-                  label="files"
-                  sortable
-                  width="100"
+                <el-select
+                  placeholder="Добавить фильтр"
+                  style="margin-left: 16px"
+                  @change="addFilterSelected"
                 >
-                  <template #default="scope">
-                    <el-button @click="openFilesDialog(scope.row)">
-                      Files
-                    </el-button>
-                  </template>
-                </el-table-column>
-              </el-table>
-            </div>
-          </TransitionGroup>
-        </el-form>
+                  <el-option
+                    v-for="item in nonActiveFields"
+                    :key="item.key"
+                    :label="item.name"
+                    :value="item.key"
+                  />
+                </el-select>
+              </div>
+              <div
+                key="docTable"
+                class="filter-box-item filter-box-table"
+              >
+                <el-table
+                  :data="documents"
+                  :default-sort="{ prop: 'id', order: 'ascending' }"
+                  border
+                  table-layout="auto"
+                >
+                  <el-table-column
+                    type="selection"
+                    width="55"
+                  />
+                  <el-table-column
+                    prop="number"
+                    label="Номер"
+                    sortable
+                    width="100"
+                  />
+                  <el-table-column
+                    prop="documentDate"
+                    label="Дата"
+                    sortable
+                    width="120"
+                  />
+                  <el-table-column
+                    prop="heading"
+                    label="Название"
+                    sortable
+                    width="180"
+                  />
+                  <el-table-column
+                    prop="author"
+                    label="Автор"
+                    sortable
+                    width="180"
+                  />
+                  <el-table-column
+                    prop="organisation"
+                    label="Организация"
+                    sortable
+                    width="180"
+                  />
+                  <el-table-column
+                    prop="files"
+                    label="Файлы"
+                    sortable
+                    width="110"
+                  >
+                    <template #default="scope">
+                      <el-button @click="openFilesDialog(scope.row)">
+                        Файлы
+                      </el-button>
+                    </template>
+                  </el-table-column>
+                </el-table>
+              </div>
+            </TransitionGroup>
+          </el-form>
+        </div>
       </div>
     </div>
-  </div>
+  </el-card>
+
   <AttachedFilesDialog ref="filesDialog" />
 </template>
 
@@ -386,7 +380,7 @@ export default defineComponent({
       await axios
         .get<FilterFieldsType[]>('/documents/fields')
         .then((res) => {
-          filterFields.value = res.data
+          filterFields.value = res.data;
         });
     }
 
@@ -483,6 +477,7 @@ export default defineComponent({
 <style scoped>
 .filter-box-item {
   border: 2px solid var(--el-border-color-base);
+  border-radius: 8px;
   border-left: none;
   border-bottom-left-radius: 0;
   border-top-left-radius: 0;
@@ -492,6 +487,7 @@ export default defineComponent({
 .grouping-box {
   min-width: 150px;
   max-width: 150px;
+  border-radius: 8px;
   border-top-right-radius: 0;
   border-bottom-right-radius: 0;
   border-right-width: 1px;

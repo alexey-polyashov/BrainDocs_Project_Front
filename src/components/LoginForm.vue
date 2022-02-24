@@ -6,13 +6,13 @@
     label-width="auto"
   >
     <el-form-item
-      label="Login"
+      label="Логин"
       prop="login"
     >
       <el-input v-model="form.username" />
     </el-form-item>
     <el-form-item
-      label="Password"
+      label="Пароль"
       prop="password"
     >
       <el-input
@@ -23,18 +23,18 @@
     <el-form-item>
       <LoadingButton
         ref="loadingButton"
-        button-text="Login"
+        button-text="Войти"
         @click="loginRequest"
       />
       <el-button @click="resetForm(formRef)">
-        Reset
+        Сброс
       </el-button>
     </el-form-item>
     <el-button
       type="text"
       @click="switchToRegister"
     >
-      Don't have an account yet? Register instead
+      Регистрация
     </el-button>
   </el-form>
 </template>

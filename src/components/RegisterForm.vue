@@ -8,14 +8,14 @@
   >
     <el-form-item
       required
-      label="Full name"
+      label="Полное имя"
       prop="fullName"
     >
       <el-input v-model="form.fullName" />
     </el-form-item>
     <el-form-item
       required
-      label="Organization"
+      label="Организация"
       prop="organization"
     >
       <el-select v-model="form.organization">
@@ -29,21 +29,21 @@
     </el-form-item>
     <el-form-item
       required
-      label="Login"
+      label="Логин"
       prop="login"
     >
       <el-input v-model="form.login" />
     </el-form-item>
     <el-form-item
       required
-      label="Email"
+      label="Почта"
       prop="email"
     >
       <el-input v-model="form.email" />
     </el-form-item>
     <el-form-item
       required
-      label="Password"
+      label="Пароль"
       prop="password"
     >
       <el-input
@@ -53,7 +53,7 @@
     </el-form-item>
     <el-form-item
       required
-      label="Repeat password"
+      label="Повтор пароля"
       prop="passwordRepeated"
     >
       <el-input
@@ -64,18 +64,18 @@
     <el-form-item>
       <LoadingButton
         ref="loadingButton"
-        button-text="Register"
+        button-text="Регистрация"
         @click="onSubmit"
       />
       <el-button @click="resetForm(formRef)">
-        Reset
+        Сброс
       </el-button>
     </el-form-item>
     <el-button
       type="text"
       @click="switchToLogin"
     >
-      Already have an account? Login instead
+      Войти
     </el-button>
   </el-form>
 </template>
