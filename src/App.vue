@@ -11,8 +11,7 @@
         >
           <div class="main-logo">
             <span
-              class="material-icons-round"
-              style="font-size: 3em; color: #ffd400; margin-right: 8px;"
+              class="material-icons-round main-logo-icon"
             >
               filter_drama
             </span>
@@ -155,6 +154,12 @@ body {
 .page-main {
   min-height: 100vh;
   overflow: initial;
+}
+
+.main-logo-icon {
+  font-size: 3em; 
+  color: #ffd400; 
+  margin-right: 8px;
 }
 
 .page-container:before {
