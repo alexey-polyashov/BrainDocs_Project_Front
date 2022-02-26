@@ -4,7 +4,7 @@ import App from './App.vue';
 import router from './router';
 import ElementPlus from 'element-plus';
 import ru from 'element-plus/es/locale/lang/ru';
-import 'element-plus/dist/index.css';
+import './assets/my-styles.scss';
 import axios from 'axios';
 
 const url = 'https://brain-docs.herokuapp.com/api/v1';
