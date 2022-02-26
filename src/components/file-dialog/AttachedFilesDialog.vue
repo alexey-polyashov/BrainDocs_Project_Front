@@ -71,6 +71,8 @@
     ref="newFileDialog"
     :doc-id="docId"
     :update-view="updateView"
+    :should-send-requests-on-change="shouldSendRequestsOnChange"
+    @file-saved="updateTableEntry"
   />
 </template>
 
@@ -79,47 +81,87 @@ import { ref } from "vue";
 import NewFileDialog from "./NewFileDialog.vue";
 import axios from "axios";
 import { ElMessage } from "element-plus";
-import { FileType } from "./types";
+import { FileDescriptionType, FullFileType } from "./types";
+import { uploadFileToExistingDocument } from "../../net/common-requests";
+import _ from "lodash";
 
-const fileTableData = ref<FileType[]>([]);
+const props = withDefaults(defineProps<{
+  shouldSendRequestsOnChange?: boolean
+}>(), {
+  shouldSendRequestsOnChange: false
+});
+
+const fileTableData = ref<FileDescriptionType[]>([]);
 const docId = ref(0);
 const newFileDialog = ref();
 const dialogVisible = ref(false);
 const toggleVisible = () => {
   dialogVisible.value = !dialogVisible.value;
 };
+let localEntryId = 0;
 
-function updateView(id: number) {
-  docId.value = id;
-  fileTableData.value = [];
-  axios
-    .get<FileType[]>(`/documents/${docId.value}/files`)
-    .then(res => {
-      fileTableData.value = res.data;
-    });
+function updateTableEntry(fileInfo: FileDescriptionType) {
+  const clonedInfo = _.clone(fileInfo);
+  clonedInfo.author = { id: fileInfo.author.id };
+  if (clonedInfo.id) {
+    const index = fileTableData.value.findIndex(val => val.id === clonedInfo.id);
+    fileTableData.value[index] = clonedInfo;
+  } else {
+    clonedInfo.id = localEntryId;
+    localEntryId++;
+    fileTableData.value.push(clonedInfo);
+  }
 }
 
-function editFileClick(fileInfo: FileType) {
+function updateView(id: number) {
+  if (props.shouldSendRequestsOnChange) {
+    docId.value = id;
+    fileTableData.value = [];
+    axios
+      .get<FullFileType[]>(`/documents/${docId.value}/files`)
+      .then(res => {
+        fileTableData.value = res.data;
+      });
+  }
+}
+
+function editFileClick(fileInfo: FileDescriptionType) {
 	newFileDialog.value.dialogVisible = true;
 	newFileDialog.value.editMode(fileInfo);
 }
 
-function removeFile(row: FileType, index: number) {
-  axios
-    .delete(`/documents/${docId.value}/files/${row.id}`)
-    .then(() => {
-      fileTableData.value.splice(index, 1);
-      ElMessage.warning('Файл удален');
-    });
+function removeFile(row: FileDescriptionType, index: number) {
+  if (props.shouldSendRequestsOnChange) {
+    axios
+      .delete(`/documents/${docId.value}/files/${row.id}`)
+      .then(() => {
+        fileTableData.value.splice(index, 1);
+        ElMessage.warning('Файл удален');
+      });
+  } else {
+    fileTableData.value.splice(index, 1);
+  }
 }
 
 function enableNewFilesDialog() {
   newFileDialog.value.dialogVisible = true;
 }
 
+async function sendStoredFilesToDocument(docId: number) {
+  let promises: Promise<FullFileType>[] = [];
+  fileTableData.value.forEach(element => {
+    delete element.id;
+    promises.push(uploadFileToExistingDocument(docId, element));
+  });
+  Promise.all(promises).then(() => {
+    ElMessage.success('Загрузка файлов прошла успешно!');
+  })
+}
+
 defineExpose({
   toggleVisible,
-  updateView
+  updateView,
+  sendStoredFilesToDocument
 });
 </script>
 

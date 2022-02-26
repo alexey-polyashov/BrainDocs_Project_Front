@@ -2,7 +2,7 @@
   <el-card class="content-box">
     <template #header>
       <div class="card-header">
-        <span>Add new document</span>
+        <span>Добавить новый документ</span>
       </div>
     </template>
     <el-form
@@ -13,22 +13,52 @@
       <el-form-item
         required
         label="Номер"
+        prop="number"
       >
         <el-input v-model="formData.number" />
       </el-form-item>
       <el-form-item
         required
-        label="Тип"
-      >
-        <el-input v-model="formData.documentType" />
-      </el-form-item>
-      <el-form-item
-        required
         label="Название"
+        prop="heading"
       >
         <el-input v-model="formData.heading" />
       </el-form-item>
       <el-form-item
+        required
+        label="Тип"
+        prop="documentType"
+      >
+        <el-select
+          v-model="formData.documentType"
+          placeholder="Выберите"
+        >
+          <el-option
+            v-for="option in docTypeSelectable"
+            :key="option.id"
+            :label="option.name"
+            :value="option.id"
+          />
+        </el-select>
+      </el-form-item>
+      <el-form-item
+        required
+        label="Организация"
+        prop="organisation"
+      >
+        <el-select
+          v-model="formData.organisation"
+          placeholder="Выберите"
+        >
+          <el-option
+            v-for="option in orgSelectable"
+            :key="option.id"
+            :label="option.name"
+            :value="option.id"
+          />
+        </el-select>
+      </el-form-item>
+      <!-- <el-form-item
         required
         label="Дата"
       >
@@ -37,13 +67,7 @@
           type="date"
           placeholder="Pick a date"
         />
-      </el-form-item>
-      <el-form-item
-        required
-        label="Организация"
-      >
-        <el-input v-model="formData.organisation" />
-      </el-form-item>
+      </el-form-item> -->
       <h2 style="text-align: center">
         Содержание
       </h2>
@@ -61,99 +85,123 @@
         >
           Сохранить
         </el-button>
-        <el-badge
-          :value="15"
+        <el-button
           class="button"
+          size="large"
+          @click="toggleFileAttachDialog"
         >
-          <el-button
-            size="large"
-            @click="toggleFileAttachDialog"
-          >
-            Файлы
-          </el-button>
-        </el-badge>
+          Файлы
+        </el-button>
       </div>
     </el-form>
   </el-card>
 </template>
 
 <script lang="ts" setup>
-import { reactive, ref } from "vue";
+import { onMounted, reactive, ref } from "vue";
 import Editor from '@tinymce/tinymce-vue';
 import AttachedFilesDialog from "./file-dialog/AttachedFilesDialog.vue";
-import { ElMessage, ElMessageBox } from "element-plus";
+import { ElForm, ElMessage, ElMessageBox } from "element-plus";
 import axios from "axios";
-
-const filesDialog = ref();
-const formData = reactive({
-	documentType: '',
-	number: '',
-	organisation: '',
-	documentDate: new Date(),
-	heading: '',
-	author: 'this',
-	content: ''
-});
-
-const toggleFileAttachDialog = () => {
-	filesDialog.value?.toggleVisible()
-};
-
-function saveClick() {
-	ElMessageBox.confirm(
-		'Сохранить этот документ?',
-		{
-			type: 'warning',
-		})
-		.then(() => {
-			ElMessage.info('Идет сохранение...');
-			setTimeout(() => ElMessage.success('Сохранение успешно!'), 1000);
-			//sendSaveRequest()
-		})
-}
+import { NamedSelectionType } from "./search-document/types";
+import { getSelectableArray } from "../net/common-requests";
 
 type Id = { id: number };
 
 type SaveDocRequest = {
-	number: string,
-	documentDate: string,
-	heading: string,
-	content?: string,
-	documentType: Id,
-	author: Id,
-	organisation: Id,
-	responsible?: Id,
+  number: string,
+  documentDate: string,
+  heading: string,
+  documentType: Id,
+  author: Id,
+  organisation: Id,
+  content?: string,
+  responsible?: Id,
 };
 
+const formRef = ref<InstanceType<typeof ElForm>>();
+const filesDialog = ref();
+const formData = reactive({
+  number: '',
+  documentType: '',
+  organisation: '',
+  documentDate: new Date(),
+  heading: '',
+  content: ''
+});
+const docTypeSelectable = ref<NamedSelectionType[]>([]);
+const orgSelectable = ref<NamedSelectionType[]>([]);
+
+function initSelectables() {
+  getSelectableArray('docTypes').then(res => docTypeSelectable.value = res);
+  getSelectableArray('orgs').then(res => orgSelectable.value = res);
+}
+
+onMounted(() => {
+  initSelectables();
+})
+
+const toggleFileAttachDialog = () => {
+  filesDialog.value?.toggleVisible()
+};
+
+function saveClick() {
+  formRef.value?.validate((passed, failedFields) => {
+    if (passed) {
+      ElMessageBox.confirm(
+        'Сохранить этот документ?',
+        {
+          type: 'warning',
+        })
+        .then(() => {
+          ElMessage.info('Идет сохранение...');
+          sendSaveRequest({
+            number: formData.number,
+            documentDate: new Date().toISOString(),
+            heading: formData.heading,
+            content: formData.content,
+            documentType: { id: +formData.documentType },
+            organisation: { id: +formData.organisation },
+            author: { id: 1 }
+          });
+        });
+    } else {
+      ElMessage.warning('Некоторые поля заполнены неверно');
+    }
+  });
+}
+
 async function sendSaveRequest(data: SaveDocRequest) {
-	await axios.post('/documents/save', { documentDTO: data })
-		.then((res) => {
-			ElMessage.success('Сохранение успешно!');
-		})
-		.catch((error) => {
-			console.log(error);
-			ElMessage.error('error');
-		})
+  ElMessage.info('Документ отправлен...');
+  await axios.post<number>('/documents', data)
+    .then((res) => {
+      ElMessage.success('Сохранение успешно!');
+      filesDialog.value?.sendStoredFilesToDocument(res.data);
+    })
+    .catch((error) => {
+      console.log(error);
+      ElMessage.error('error');
+    })
 }
 </script>
 
 <style scoped>
 .button-group {
-	display: flex;
-	justify-content: end;
+  display: flex;
+  justify-content: end;
 }
 
 .button {
-	margin-top: 16px;
-	margin-right: 16px;
+  margin-top: 16px;
+  margin-right: 16px;
 }
 
 .content-box {
-	margin-top: 0;
+  margin-top: 0;
 }
 
 .card-header {
-	font-size: x-large;
-	font-weight: bold;
+  font-size: x-large;
+  font-weight: bold;
 }
 </style>

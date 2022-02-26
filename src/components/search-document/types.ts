@@ -1,4 +1,4 @@
-import { FileType } from "../file-dialog/types";
+import { FullFileType } from "../file-dialog/types";
 
 export type IndexedType<T extends number | string, U> = {
   [id in T]: U;
@@ -62,7 +62,7 @@ export interface DocFilterResponseContent {
   content: string;
   documentDate: string;
   documentType: DocumentType;
-  files: FileType[];
+  files: FullFileType[];
   heading: string;
   id: number;
   marked: boolean;

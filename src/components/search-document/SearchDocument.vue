@@ -144,6 +144,7 @@ import {
 import { AxiosResponse } from "axios";
 import { defineComponent } from "vue";
 import SearchDocumentTable from "./SearchDocumentTable.vue";
+import { getSelectableArray, selectableTypes, SelectableTypesAlias } from "../../net/common-requests";
 
 export default defineComponent({
   components: {
@@ -161,16 +162,16 @@ export default defineComponent({
     const selectableData = ref<SelectableDataType>({});
     // url request map to key of a field
     const selectableKeysMapping = {
-      'users': 'author',
-      'documents/types': 'documentType',
-      'organisations': 'organisation',
+      users: 'author',
+      docTypes: 'documentType',
+      orgs: 'organisation',
     };
     const doctypeGroupTags = reactive<IndexedType<number, typeof CheckTagWrapper>>({});
     let doctypeGroupTagCheckedId = -1;
     const saveFiltersInSession = true;
     const filterPagingInfo = {
-        page: '0',
-        recordsOnPage: '2',
+      page: '0',
+      recordsOnPage: '10',
     };
 
     function groupTagInit(id: number, el: typeof CheckTagWrapper) {
@@ -195,7 +196,7 @@ export default defineComponent({
     type SelectableKeysMappingType = keyof (typeof selectableKeysMapping);
 
     function initFilterFields() {
-      let sessionFiltersResult: ReturnType<typeof retrieveSessionFilters> | null = null;
+      let sessionFiltersResult: ReturnType<typeof retrieveSessionFilters> | undefined = undefined;
       if (saveFiltersInSession) {
         sessionFiltersResult = retrieveSessionFilters();
       }
@@ -223,9 +224,7 @@ export default defineComponent({
 
     onMounted(() => {
       getDocumentsInitialRequest();
-      for (const key in selectableKeysMapping) {
-        getSelectionListBy(key as SelectableKeysMappingType);
-      }
+      initSelectableArraysAsync();
       initFilterFields();
     });
 
@@ -238,6 +237,16 @@ export default defineComponent({
       activeFilterFieldIndices.value.forEach(index => res[index] = filterFields.value[index]);
       return res;
     });
+
+    async function initSelectableArraysAsync() {
+      const promises: Promise<void>[] = [];
+      for (const key in selectableTypes) {
+        promises.push(getSelectableArray(key as SelectableTypesAlias).then(data => {
+          selectableData.value[selectableKeysMapping[key as SelectableTypesAlias]] = data;
+        }));
+      }
+      return Promise.all(promises);
+    }
 
     function addFilterSelected(selectedKey: string) {
       const selectedFieldIndex = filterFields.value.findIndex(value => value.key === selectedKey);

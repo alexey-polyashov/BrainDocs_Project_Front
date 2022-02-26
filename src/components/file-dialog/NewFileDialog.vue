@@ -23,11 +23,11 @@
         <el-input v-model="fileForm.description" />
       </el-form-item>
       <el-form-item
-        v-if="editFileInfo"
+        v-if="shouldSendRequestsOnChange"
         label="Просмотр файла"
       >
         <el-link
-          :href="`https://brain-docs.herokuapp.com/api/v1/documents/${$props.docId}/files/${editFileInfo.id}/data`"
+          :href="`https://brain-docs.herokuapp.com/api/v1/documents/${$props.docId}/files/${fileForm.id}/data`"
           type="primary"
           target="_blank"
         >
@@ -35,14 +35,14 @@
         </el-link>
       </el-form-item>
       <el-form-item
-        v-if="editFileInfo"
+        v-if="shouldSendRequestsOnChange"
         label="Ссылка файла"
       >
         <el-link
-          :href="`https://brain-docs.herokuapp.com/api/v1/documents/${$props.docId}/files/${editFileInfo.id}/download`"
+          :href="`https://brain-docs.herokuapp.com/api/v1/documents/${$props.docId}/files/${fileForm.id}/download`"
           type="primary"
           target="_blank"
-          :download="editFileInfo.name"
+          :download="fileForm.name"
         >
           download
         </el-link>
@@ -52,7 +52,7 @@
       ref="uploadRef"
       class="upload-box"
       drag
-      action=""
+      action="blank"
       :auto-upload="false"
       :on-change="fileSelected"
       :on-exceed="onLimitExceed"
@@ -72,7 +72,7 @@
     <template #footer>
       <el-button
         type="primary"
-        @click="upload"
+        @click="save"
       >
         Сохранить
       </el-button>
@@ -84,14 +84,19 @@
 </template>
 
 <script lang="ts" setup>
-import { reactive, ref, watch } from "vue";
-import axios from "axios";
+import { reactive, ref } from "vue";
 import { ElMessage, ElUpload } from "element-plus";
-import { FileDescriptionType, FileType } from "./types";
+import { FileDescriptionType, FullFileType } from "./types";
+import { uploadFileToExistingDocument } from "../../net/common-requests";
 
 const props = defineProps<{
+  shouldSendRequestsOnChange: boolean,
   docId: number,
   updateView: (id: number) => void,
+}>();
+
+const emit = defineEmits<{
+  (event: 'fileSaved', fileInfo: FileDescriptionType): void,
 }>();
 
 const uploadRef = ref<InstanceType<typeof ElUpload>>();
@@ -102,54 +107,47 @@ const fileForm = reactive<FileDescriptionType>({
   fileType: '',
   author: { id: 1 },
 });
-let requestFile: File | null = null;
-const editFileInfo = ref<FileType | null>(null);
-let editModeEnabled = false;
-
-watch(editFileInfo, (newVal) => {
-  editModeEnabled = newVal != null;
-});
 
 function fileSelected(file: any) {
   console.log(file);
-  requestFile = file.raw;
+  fileForm.fileRaw = file.raw;
   fileForm.name = file.name;
   fileForm.fileType = fileForm.name.slice(fileForm.name.lastIndexOf('.') + 1);
 }
 
 function clearFormData() {
-  for (const fileFormKey in fileForm) {
-    if (typeof fileForm[fileFormKey] === 'string') fileForm[fileFormKey] = '';
-  }
-  requestFile = null;
+  fileForm.name = '';
+  fileForm.description = '';
+  fileForm.fileType = '';
+  delete fileForm.fileRaw;
   uploadRef.value?.clearFiles();
-  editFileInfo.value = null;
 }
 
-function upload() {
-  if (editModeEnabled || requestFile) {
-    const formData = new FormData();
-    formData.append('fileDescribe', JSON.stringify(fileForm));
-    if (requestFile) formData.append('file', requestFile);
-    axios
-      .post(`/documents/${props.docId}/files/${editModeEnabled ? editFileInfo.value?.id : 'upload'}`, formData)
-      .then(() => {
+function save() {
+  function uploadCleanUp() {
+    dialogVisible.value = false;
+    clearFormData();
+  }
+
+  if (fileForm.fileRaw || fileForm.id) {
+    if (props.shouldSendRequestsOnChange) {
+      uploadFileToExistingDocument(props.docId, fileForm).then(res => {
         ElMessage.success('Загрузка прошла успешно!');
-        dialogVisible.value = false;
         props.updateView(props.docId);
-        clearFormData();
-      })
-      .catch(err => {
-        console.log(err);
+        uploadCleanUp();
       });
+    } else {
+      emit('fileSaved', fileForm);
+      uploadCleanUp();
+    }
   } else {
     ElMessage.warning('Выберите файл');
   }
 }
 
-function editMode(fileInfo: FileType) {
-  editFileInfo.value = fileInfo;
+function editMode(fileInfo: FullFileType) {
   fileForm.name = fileInfo.name;
+  fileForm.id = fileInfo.id;
   fileForm.description = fileInfo.description;
 }
 

@@ -61,7 +61,10 @@
       :current-page="currentPage"
       @update:current-page="curPageUpdate"
     />
-    <AttachedFilesDialog ref="filesDialog" />
+    <AttachedFilesDialog
+      ref="filesDialog"
+      :should-send-requests-on-change="true" 
+    />
   </div>
 </template>
 
