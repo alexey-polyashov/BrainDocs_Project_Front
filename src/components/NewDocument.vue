@@ -154,7 +154,6 @@ function saveClick() {
           type: 'warning',
         })
         .then(() => {
-          ElMessage.info('Идет сохранение...');
           sendSaveRequest({
             number: formData.number,
             documentDate: new Date().toISOString(),
@@ -176,7 +175,7 @@ function saveClick() {
 }
 
 async function sendSaveRequest(data: SaveDocRequest) {
-  ElMessage.info('Документ отправлен...');
+  ElMessage.info('Идет сохранение...');
   await axios.post<number>('/documents', data)
     .then((res) => {
       ElMessage.success('Сохранение успешно!');
@@ -190,11 +189,7 @@ async function sendSaveRequest(data: SaveDocRequest) {
 }
 
 function clearForms() {
-  formData.number = '';
-  formData.heading = '';
-  formData.content = '';
-  formData.documentType = '';
-  formData.organisation = '';
+  formRef.value?.resetFields();
   filesDialog.value?.resetState();
 }
 </script>
