@@ -17,7 +17,9 @@
     "vue",
     "@typescript-eslint"
   ],
-  "rules": {},
+  "rules": {
+    "@typescript-eslint/no-explicit-any": "off"
+  },
   "globals": {
     "defineProps": "readonly",
     "defineEmits": "readonly",

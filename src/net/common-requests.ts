@@ -18,7 +18,7 @@ export async function uploadFileToExistingDocument(
   if (fileInfo.fileRaw) formData.append('file', fileInfo.fileRaw);
   return new Promise<FullFileType>((resolve, reject) => {
     axios
-      .post<FullFileType>(`/documents/${docId}/files/${fileInfo.id === undefined ? fileInfo.id : 'upload'}`, formData)
+      .post<FullFileType>(`/documents/${docId}/files/${fileInfo.id !== undefined ? fileInfo.id : 'upload'}`, formData)
       .then(res => resolve(res.data))
       .catch(err => {
         if (err.response) {

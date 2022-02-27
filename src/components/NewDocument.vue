@@ -67,7 +67,7 @@
           type="date"
           placeholder="Pick a date"
         />
-      </el-form-item> -->
+      </el-form-item>-->
       <h2 style="text-align: center">
         Содержание
       </h2>
@@ -162,11 +162,15 @@ function saveClick() {
             content: formData.content,
             documentType: { id: +formData.documentType },
             organisation: { id: +formData.organisation },
-            author: { id: 1 }
+            author: { id: 1 },
+            responsible: { id: 1 }
           });
         });
     } else {
-      ElMessage.warning('Некоторые поля заполнены неверно');
+      ElMessage.warning({
+        message: 'Некоторые поля заполнены неверно',
+        grouping: true,
+      });
     }
   });
 }
@@ -177,11 +181,21 @@ async function sendSaveRequest(data: SaveDocRequest) {
     .then((res) => {
       ElMessage.success('Сохранение успешно!');
       filesDialog.value?.sendStoredFilesToDocument(res.data);
+      clearForms();
     })
     .catch((error) => {
       console.log(error);
       ElMessage.error('error');
     })
+}
+
+function clearForms() {
+  formData.number = '';
+  formData.heading = '';
+  formData.content = '';
+  formData.documentType = '';
+  formData.organisation = '';
+  filesDialog.value?.resetState();
 }
 </script>
 

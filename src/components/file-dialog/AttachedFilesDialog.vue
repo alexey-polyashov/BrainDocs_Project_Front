@@ -95,9 +95,7 @@ const fileTableData = ref<FileDescriptionType[]>([]);
 const docId = ref(0);
 const newFileDialog = ref();
 const dialogVisible = ref(false);
-const toggleVisible = () => {
-  dialogVisible.value = !dialogVisible.value;
-};
+const toggleVisible = () => dialogVisible.value = !dialogVisible.value;
 let localEntryId = 0;
 
 function updateTableEntry(fileInfo: FileDescriptionType) {
@@ -147,7 +145,14 @@ function enableNewFilesDialog() {
   newFileDialog.value.dialogVisible = true;
 }
 
+function resetState() {
+  fileTableData.value = [];
+  localEntryId = 0;
+}
+
 async function sendStoredFilesToDocument(docId: number) {
+  if (props.shouldSendRequestsOnChange) return;
+  if (fileTableData.value.length === 0) return;
   let promises: Promise<FullFileType>[] = [];
   fileTableData.value.forEach(element => {
     delete element.id;
@@ -161,7 +166,8 @@ async function sendStoredFilesToDocument(docId: number) {
 defineExpose({
   toggleVisible,
   updateView,
-  sendStoredFilesToDocument
+  sendStoredFilesToDocument,
+  resetState
 });
 </script>
 
