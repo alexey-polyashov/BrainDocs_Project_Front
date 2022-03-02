@@ -29,45 +29,21 @@
         label="Тип"
         prop="documentType"
       >
-        <el-select
+        <SelectableField
           v-model="formData.documentType"
-          placeholder="Выберите"
-        >
-          <el-option
-            v-for="option in docTypeSelectable"
-            :key="option.id"
-            :label="option.name"
-            :value="option.id"
-          />
-        </el-select>
+          select-type="docTypes"
+        />
       </el-form-item>
       <el-form-item
         required
         label="Организация"
         prop="organisation"
       >
-        <el-select
+        <SelectableField
           v-model="formData.organisation"
-          placeholder="Выберите"
-        >
-          <el-option
-            v-for="option in orgSelectable"
-            :key="option.id"
-            :label="option.name"
-            :value="option.id"
-          />
-        </el-select>
-      </el-form-item>
-      <!-- <el-form-item
-        required
-        label="Дата"
-      >
-        <el-date-picker
-          v-model="formData.documentDate"
-          type="date"
-          placeholder="Pick a date"
+          select-type="orgs"
         />
-      </el-form-item>-->
+      </el-form-item>
       <h2 style="text-align: center">
         Содержание
       </h2>
@@ -105,6 +81,7 @@ import { ElForm, ElMessage, ElMessageBox } from "element-plus";
 import axios from "axios";
 import { NamedSelectionType } from "./search-document/types";
 import { getSelectableArray } from "../net/common-requests";
+import SelectableField from "./helpers/SelectableField.vue";
 
 type Id = { id: number };
 

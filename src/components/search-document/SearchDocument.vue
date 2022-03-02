@@ -1,20 +1,11 @@
 <template>
   <el-card style="max-width: fit-content; margin: 0 auto;">
     <div style="display: flex; justify-content: center;">
-      <div class="grouping-box content-box">
-        <h1>Группировка по виду документа</h1>
-        <el-scrollbar height="100%">
-          <CheckTagWrapper
-            v-for="docType in selectableData['documentType']"
-            :key="docType.id"
-            :ref="(el: any) => groupTagInit(docType.id, el)"
-            style="margin-bottom: 8px; display: block;"
-            @change="groupTagChange(docType.id)"
-          >
-            {{ docType.name }}
-          </CheckTagWrapper>
-        </el-scrollbar>
-      </div>
+      <DocTypeGroup
+        class="grouping-box content-box"
+        :doc-types="() => selectableData['documentType']"
+        @tag-checked="groupTagChange"
+      />
       <div style="min-width: 0;">
         <div class="filter-box-item filter-fields-box">
           <el-form
@@ -33,18 +24,11 @@
               >
                 <el-form-item :label="field.name">
                   <div class="filter-form-item">
-                    <el-select
+                    <SelectableField
                       v-if="isInSelectableKeys(field.key)"
                       v-model="filterData[field.key]"
-                      placeholder="Выберите"
-                    >
-                      <el-option
-                        v-for="option in selectableData[field.key]"
-                        :key="option.id"
-                        :label="getSelectionTypeName(option)"
-                        :value="option.id"
-                      />
-                    </el-select>
+                      :options="() => selectableData[field.key]"
+                    />
                     <el-date-picker
                       v-else-if="field.type === 'Date'"
                       v-model="filterData[field.key]"
@@ -127,8 +111,7 @@
 <script lang="ts">
 import axios from "axios";
 import { computed, onMounted, reactive, ref } from "vue";
-import LoadingButton from "../LoadingButton.vue";
-import CheckTagWrapper from "../CheckTagWrapper.vue";
+import LoadingButton from "../helpers/LoadingButton.vue";
 import {
   DocFilterRequestType,
   DocTypeView,
@@ -136,21 +119,22 @@ import {
   FilterDataType,
   FilterFieldsType,
   SelectableDataType,
-  NamedSelectionType,
   FilterFieldsViewType,
   DocFilterResponse,
-  IndexedType
 } from "./types";
 import { AxiosResponse } from "axios";
 import { defineComponent } from "vue";
 import SearchDocumentTable from "./SearchDocumentTable.vue";
 import { getSelectableArray, selectableTypes, SelectableTypesAlias } from "../../net/common-requests";
+import SelectableField from "../helpers/SelectableField.vue";
+import DocTypeGroup from "./DocTypeGroup.vue";
 
 export default defineComponent({
   components: {
     LoadingButton,
-    CheckTagWrapper,
-    SearchDocumentTable
+    SearchDocumentTable,
+    SelectableField,
+    DocTypeGroup
   },
   setup() {
     const applyFiltersButton = ref();
@@ -166,25 +150,14 @@ export default defineComponent({
       docTypes: 'documentType',
       orgs: 'organisation',
     };
-    const doctypeGroupTags = reactive<IndexedType<number, typeof CheckTagWrapper>>({});
-    let doctypeGroupTagCheckedId = -1;
     const saveFiltersInSession = true;
     const filterPagingInfo = {
       page: '0',
       recordsOnPage: '10',
     };
 
-    function groupTagInit(id: number, el: typeof CheckTagWrapper) {
-      doctypeGroupTags[id] = el;
-    }
-
-    function groupTagChange(id: number) {
-      if (doctypeGroupTagCheckedId >= 0 && doctypeGroupTagCheckedId !== id) {
-        doctypeGroupTags[doctypeGroupTagCheckedId].checked = false;
-      }
-      doctypeGroupTags[id].checked = !doctypeGroupTags[id].checked;
-      doctypeGroupTagCheckedId = id;
-      if (doctypeGroupTags[id].checked) {
+    function groupTagChange(id: number, isOn: boolean) {
+      if (isOn) {
         filterData.documentType = `${id}`;
         applyFilters();
       } else {
@@ -192,8 +165,6 @@ export default defineComponent({
         applyFilters();
       }
     }
-
-    type SelectableKeysMappingType = keyof (typeof selectableKeysMapping);
 
     function initFilterFields() {
       let sessionFiltersResult: ReturnType<typeof retrieveSessionFilters> | undefined = undefined;
@@ -293,7 +264,7 @@ export default defineComponent({
     async function applyFilters(filterTempData: FilterDataType = filterData) {
       applyFiltersButton.value.loading = true;
       const filterRequest = initFilters(filterTempData);
-      processDate(filterRequest);
+      //processDate(filterRequest);
       await axios
         .post<DocFilterResponse>('/documents/search', filterRequest)
         .then(res => {
@@ -313,16 +284,6 @@ export default defineComponent({
       applyFilters();
     }
 
-    function getSelectionTypeName(value: NamedSelectionType) {
-      if (value.name) {
-        return value.name;
-      } else if (value.shortname) {
-        return value.shortname;
-      } else {
-        throw Error('wrong type ' + value);
-      }
-    }
-
     function disableField(fieldIndex: number | string) {
       fieldIndex = Number(fieldIndex);
       const activeFieldIndex = activeFilterFieldIndices.value.indexOf(fieldIndex);
@@ -339,6 +300,27 @@ export default defineComponent({
         .get<FilterFieldsType[]>('/documents/fields')
         .then((res) => {
           filterFields.value = res.data;
+          const dateIndex = filterFields.value.findIndex(val => val.key === 'documentDate');
+          if (dateIndex !== -1) {
+            const dateItem = filterFields.value[dateIndex];
+            filterFields.value.splice(dateIndex, 1);
+            filterFields.value.push({
+              key: dateItem.key,
+              name: 'Дата с',
+              source: '',
+              validOperations: ['>'],
+              type: 'Date',
+              defaultOn: dateItem.defaultOn,
+            });
+            filterFields.value.push({
+              key: dateItem.key,
+              name: 'Дата до',
+              source: '',
+              validOperations: ['<'],
+              type: 'Date',
+              defaultOn: dateItem.defaultOn,
+            });
+          }
         });
     }
 
@@ -396,14 +378,6 @@ export default defineComponent({
       };
     }
 
-    async function getSelectionListBy(type: SelectableKeysMappingType) {
-      await axios
-        .get<NamedSelectionType[]>(`/${type}/`)
-        .then(res => {
-          selectableData.value[selectableKeysMapping[type]] = res.data;
-        });
-    }
-
     return {
       selectableData,
       activeFieldsObject,
@@ -413,10 +387,8 @@ export default defineComponent({
       shownDocuments,
       documentsResponseData,
       applyFilters,
-      groupTagInit,
       groupTagChange,
       addFilterSelected,
-      getSelectionTypeName,
       disableField,
       isInSelectableKeys,
       clearFilterField,

@@ -29,7 +29,7 @@ export interface DocTypeView {
 }
 
 export interface FilterFieldsType {
-  readonly key: string,
+  key: string,
   name: string,
   source: string,
   validOperations: string[],
@@ -37,10 +37,14 @@ export interface FilterFieldsType {
   defaultOn: boolean,
 }
 
+export interface UserResponseType {
+  id: number,
+  shortname: string,
+}
+
 export interface NamedSelectionType {
   id: number,
-  name?: string,
-  shortname?: string
+  name: string,
 }
 
 export interface DocFilterResponse {
@@ -58,7 +62,7 @@ export interface DocFilterResponse {
 }
 
 export interface DocFilterResponseContent {
-  author: NamedSelectionType;
+  author: UserResponseType;
   content: string;
   documentDate: string;
   documentType: DocumentType;
@@ -68,7 +72,7 @@ export interface DocFilterResponseContent {
   marked: boolean;
   number: string;
   organisation: DocumentType;
-  responsible: NamedSelectionType;
+  responsible: UserResponseType;
 }
 
 export interface DocFilterResponsePageable {

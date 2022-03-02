@@ -1,49 +1,50 @@
 <template>
-  <el-form
-    ref="formRef"
-    class="content-box"
-    :model="form"
-    label-width="auto"
-  >
-    <el-form-item
-      label="Логин"
-      prop="login"
+  <el-card class="content-box">
+    <el-form
+      ref="formRef"
+      :model="form"
+      label-width="auto"
     >
-      <el-input v-model="form.username" />
-    </el-form-item>
-    <el-form-item
-      label="Пароль"
-      prop="password"
-    >
-      <el-input
-        v-model="form.password"
-        type="password"
-      />
-    </el-form-item>
-    <el-form-item>
-      <LoadingButton
-        ref="loadingButton"
-        button-text="Войти"
-        @click="loginRequest"
-      />
-      <el-button @click="resetForm(formRef)">
-        Сброс
+      <el-form-item
+        label="Логин"
+        prop="login"
+      >
+        <el-input v-model="form.username" />
+      </el-form-item>
+      <el-form-item
+        label="Пароль"
+        prop="password"
+      >
+        <el-input
+          v-model="form.password"
+          type="password"
+        />
+      </el-form-item>
+      <el-form-item>
+        <LoadingButton
+          ref="loadingButton"
+          button-text="Войти"
+          @click="loginRequest"
+        />
+        <el-button @click="resetForm(formRef)">
+          Сброс
+        </el-button>
+      </el-form-item>
+      <el-button
+        type="text"
+        @click="switchToRegister"
+      >
+        Регистрация
       </el-button>
-    </el-form-item>
-    <el-button
-      type="text"
-      @click="switchToRegister"
-    >
-      Регистрация
-    </el-button>
-  </el-form>
+    </el-form>
+  </el-card>
 </template>
 
 <script lang="ts" setup>
 import { reactive, ref } from 'vue';
 import { ElForm, ElMessage } from "element-plus";
 import { useRouter } from "vue-router";
-import LoadingButton from './LoadingButton.vue'
+import LoadingButton from './helpers/LoadingButton.vue'
 import axios from "axios";
 import { useStore } from "../store";
 

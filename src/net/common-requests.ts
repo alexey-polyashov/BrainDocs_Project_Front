@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-empty-function */
 import axios from "axios";
 import { ElMessage } from "element-plus";
 import { FileDescriptionType, FullFileType } from "../components/file-dialog/types";
@@ -41,8 +40,13 @@ export type SelectableTypesAlias = keyof typeof selectableTypes;
 export async function getSelectableArray(type: SelectableTypesAlias): Promise<NamedSelectionType[]> {
   return new Promise<NamedSelectionType[]>((resolve, reject) => {
     axios
-      .get<NamedSelectionType[]>(selectableTypes[type])
+      .get<(NamedSelectionType & { shortname?: string })[]>(selectableTypes[type])
       .then(res => {
+        res.data.forEach((element, index, array) => {
+          if (element.shortname) {
+            array[index].name = element.shortname;
+          }
+        });
         resolve(res.data);
       }).catch(err => {
         console.error(err.response.message);
