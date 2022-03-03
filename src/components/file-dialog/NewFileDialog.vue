@@ -105,7 +105,7 @@ const fileForm = reactive<FileDescriptionType>({
   name: '',
   description: '',
   fileType: '',
-  author: { id: 1 },
+  author: { id: 1, name: '' },
 });
 
 function fileSelected(file: any) {

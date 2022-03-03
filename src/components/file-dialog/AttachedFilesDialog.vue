@@ -100,7 +100,7 @@ let localEntryId = 0;
 
 function updateTableEntry(fileInfo: FileDescriptionType) {
   const clonedInfo = _.clone(fileInfo);
-  clonedInfo.author = { id: fileInfo.author.id };
+  clonedInfo.author = { id: fileInfo.author.id, name: '' };
   if (clonedInfo.id) {
     const index = fileTableData.value.findIndex(val => val.id === clonedInfo.id);
     fileTableData.value[index] = clonedInfo;
