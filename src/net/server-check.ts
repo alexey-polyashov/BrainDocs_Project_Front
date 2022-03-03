@@ -12,7 +12,7 @@ export default function useServerCheck() {
       loading = ElLoading.service({
         lock: true,
         text: 'Waiting for server to load... It may take about 30 seconds, thanks.',
-        background: 'rgba(0, 0, 0, 0.7)',
+        background: 'rgba(0, 0, 0, 0.3)',
       });
     }, 1000);
     axios

@@ -1,27 +1,27 @@
 import { defineStore } from "pinia"
+import { UserInfoType } from "../types";
 
-const widthMinMapping = {
-  sm: 425,
-  md: 768,
-  lg: 1024,
+interface Store {
+  userInfo: {
+    token: string,
+    authorized: boolean,
+    userExtra: UserInfoType
+  }
 }
 
 export const useStore = defineStore('main', {
   state: () => {
-    return {
-      windowWidth: 0,
+    return ({
       userInfo: {
         token: '',
-        authorized: false
+        authorized: false,
+        userExtra: {}
       }
-    }
+    } as Store);
+  },
+  getters: {
+    getUserInfo: (state) => state.userInfo,
   },
   actions: {
-    windowResize(newWidth: number) {
-      this.windowWidth = newWidth
-    },
-    checkWidthTypeFits(widthType: keyof (typeof widthMinMapping)): boolean {
-      return this.windowWidth >= widthMinMapping[widthType]
-    }
   }
 })

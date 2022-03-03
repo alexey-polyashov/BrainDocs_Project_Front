@@ -1,51 +1,54 @@
 <template>
-  <el-form
-    ref="formRef"
-    class="content-box"
-    :model="form"
-    label-width="auto"
-  >
-    <el-form-item
-      label="Логин"
-      prop="login"
+  <el-card class="form-box">
+    <el-form
+      ref="formRef"
+      :model="form"
+      label-width="auto"
     >
-      <el-input v-model="form.username" />
-    </el-form-item>
-    <el-form-item
-      label="Пароль"
-      prop="password"
-    >
-      <el-input
-        v-model="form.password"
-        type="password"
-      />
-    </el-form-item>
-    <el-form-item>
-      <LoadingButton
-        ref="loadingButton"
-        button-text="Войти"
-        @click="loginRequest"
-      />
-      <el-button @click="resetForm(formRef)">
-        Сброс
+      <h2>Вход</h2>
+      <el-form-item
+        label="Логин"
+        prop="login"
+      >
+        <el-input v-model="form.username" />
+      </el-form-item>
+      <el-form-item
+        label="Пароль"
+        prop="password"
+      >
+        <el-input
+          v-model="form.password"
+          type="password"
+        />
+      </el-form-item>
+      <el-form-item>
+        <LoadingButton
+          ref="loadingButton"
+          button-text="Войти"
+          @click="loginRequest"
+        />
+        <el-button @click="resetForm(formRef)">
+          Сброс
+        </el-button>
+      </el-form-item>
+      <el-button
+        type="text"
+        @click="switchToRegister"
+      >
+        Регистрация
       </el-button>
-    </el-form-item>
-    <el-button
-      type="text"
-      @click="switchToRegister"
-    >
-      Регистрация
-    </el-button>
-  </el-form>
+    </el-form>
+  </el-card>
 </template>
 
 <script lang="ts" setup>
 import { reactive, ref } from 'vue';
 import { ElForm, ElMessage } from "element-plus";
 import { useRouter } from "vue-router";
-import LoadingButton from './LoadingButton.vue'
+import LoadingButton from './helpers/LoadingButton.vue'
 import axios from "axios";
 import { useStore } from "../store";
+import { NamedSelectionType, UserInfoType } from "../types";
 
 type FormInstance = InstanceType<typeof ElForm>;
 const loadingButton = ref();
@@ -66,16 +69,39 @@ const switchToRegister = () => {
 async function loginRequest() {
   loadingButton.value.loading = true;
   await axios
-      .post<{ token: string }>('/auth', form)
-      .then(res => {
-        store.$state.userInfo.token = res.data.token;
-        store.$state.userInfo.authorized = true;
-        ElMessage.success('Logged in!');
-      })
-      .catch(err => {
-        ElMessage.error(err.response.data.message);
-        console.log(err.response.data);
+    .post<{ token: string }>('/auth', form)
+    .then(res => {
+      store.$patch((state) => {
+        state.userInfo.token = res.data.token,
+        state.userInfo.authorized = true;
       });
+      axios.defaults.headers.common['Authorization'] = `Bearer ${res.data.token}`;
+      getUserData(res.data.token);
+    })
+    .catch(err => {
+      ElMessage.error(err.response.data.message);
+      console.log(err.response.data);
+    });
   loadingButton.value.loading = false;
 }
+
+function getUserData(token: string) {
+  axios
+    .get<UserInfoType>('/users/authorized')
+    .then(res => {
+      store.$state.userInfo.userExtra = res.data;
+      ElMessage.success('Вы вошли в систему!');
+      router.push({ name: 'search-doc' })
+    })
+    .catch(err => {
+      ElMessage.warning('Произошла ошибка');
+    })
+}
 </script>
+
+<style scoped>
+.form-box {
+  max-width: 500px;
+  margin: 10% auto;
+}
+</style>

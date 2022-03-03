@@ -1,4 +1,4 @@
-import { NamedSelectionType } from "../search-document/types";
+import { NamedSelectionType } from "../../types";
 
 export interface FileDescriptionType {
 	name: string,

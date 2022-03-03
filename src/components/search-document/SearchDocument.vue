@@ -1,20 +1,11 @@
 <template>
   <el-card style="max-width: fit-content; margin: 0 auto;">
     <div style="display: flex; justify-content: center;">
-      <div class="grouping-box content-box">
-        <h1>Группировка по виду документа</h1>
-        <el-scrollbar height="100%">
-          <CheckTagWrapper
-            v-for="docType in selectableData['documentType']"
-            :key="docType.id"
-            :ref="(el: any) => groupTagInit(docType.id, el)"
-            style="margin-bottom: 8px; display: block;"
-            @change="groupTagChange(docType.id)"
-          >
-            {{ docType.name }}
-          </CheckTagWrapper>
-        </el-scrollbar>
-      </div>
+      <DocTypeGroup
+        class="grouping-box content-box"
+        :doc-types="() => selectableData['documentType']"
+        @tag-checked="groupTagChange"
+      />
       <div style="min-width: 0;">
         <div class="filter-box-item filter-fields-box">
           <el-form
@@ -33,23 +24,25 @@
               >
                 <el-form-item :label="field.name">
                   <div class="filter-form-item">
-                    <el-select
+                    <SelectableField
                       v-if="isInSelectableKeys(field.key)"
                       v-model="filterData[field.key]"
-                      placeholder="Выберите"
-                    >
-                      <el-option
-                        v-for="option in selectableData[field.key]"
-                        :key="option.id"
-                        :label="getSelectionTypeName(option)"
-                        :value="option.id"
-                      />
-                    </el-select>
-                    <el-date-picker
-                      v-else-if="field.type === 'Date'"
-                      v-model="filterData[field.key]"
-                      type="date"
+                      :options="() => selectableData[field.key]"
                     />
+                    <div v-else-if="field.type === 'Date'">
+                      <el-date-picker
+                        v-model="filterData[field.key + 'Start']"
+                        type="date"
+                        style="display: block;"
+                        placeholder="Дата начала поиска"
+                      />
+                      <el-date-picker
+                        v-model="filterData[field.key + 'End']"
+                        type="date"
+                        style="display: block; margin-top: 8px;"
+                        placeholder="Дата конца поиска"
+                      />
+                    </div>
                     <el-input
                       v-else
                       v-model="filterData[field.key]"
@@ -62,7 +55,7 @@
                       <el-button
                         size="small"
                         style="margin-left: 16px"
-                        @click="clearFilterField(filterFieldsArrIndex)"
+                        @click="clearFilterField(filterFieldsArrIndex, field.type === 'Date')"
                       >
                         <span
                           style="font-size: 1rem"
@@ -79,7 +72,7 @@
                         type="danger"
                         size="small"
                         style="margin-left: 16px"
-                        @click="disableField(filterFieldsArrIndex)"
+                        @click="disableField(filterFieldsArrIndex, field.type === 'Date')"
                       >
                         <span
                           style="font-size: 1rem"
@@ -98,7 +91,7 @@
                 />
                 <el-select
                   placeholder="Добавить фильтр"
-                  style="margin-left: 16px"
+                  style="margin: 0 16px"
                   @change="addFilterSelected"
                 >
                   <el-option
@@ -108,8 +101,21 @@
                     :value="item.key"
                   />
                 </el-select>
+                <el-button 
+                  type="primary"
+                  @click="createNewDocPage"
+                >
+                  Создать документ
+                </el-button>
+                <el-button
+                  type="danger"
+                  @click="deleteSelectedDocs"
+                >
+                  Удалить выбранные
+                </el-button>
               </div>
               <SearchDocumentTable
+                ref="docTableRef"
                 key="docTable"
                 :document-filter-data="documentsResponseData"
                 :documents-view="shownDocuments"
@@ -127,8 +133,7 @@
 <script lang="ts">
 import axios from "axios";
 import { computed, onMounted, reactive, ref } from "vue";
-import LoadingButton from "../LoadingButton.vue";
-import CheckTagWrapper from "../CheckTagWrapper.vue";
+import LoadingButton from "../helpers/LoadingButton.vue";
 import {
   DocFilterRequestType,
   DocTypeView,
@@ -136,23 +141,27 @@ import {
   FilterDataType,
   FilterFieldsType,
   SelectableDataType,
-  NamedSelectionType,
   FilterFieldsViewType,
   DocFilterResponse,
-  IndexedType
 } from "./types";
 import { AxiosResponse } from "axios";
 import { defineComponent } from "vue";
 import SearchDocumentTable from "./SearchDocumentTable.vue";
 import { getSelectableArray, selectableTypes, SelectableTypesAlias } from "../../net/common-requests";
+import SelectableField from "../helpers/SelectableField.vue";
+import DocTypeGroup from "./DocTypeGroup.vue";
+import { useRouter } from "vue-router";
 
 export default defineComponent({
   components: {
     LoadingButton,
-    CheckTagWrapper,
-    SearchDocumentTable
+    SearchDocumentTable,
+    SelectableField,
+    DocTypeGroup
   },
   setup() {
+    const router = useRouter();
+
     const applyFiltersButton = ref();
     const shownDocuments = ref<DocTypeView[]>([]);
     const documentsResponseData = ref<DocFilterResponse>();
@@ -166,25 +175,15 @@ export default defineComponent({
       docTypes: 'documentType',
       orgs: 'organisation',
     };
-    const doctypeGroupTags = reactive<IndexedType<number, typeof CheckTagWrapper>>({});
-    let doctypeGroupTagCheckedId = -1;
     const saveFiltersInSession = true;
     const filterPagingInfo = {
       page: '0',
       recordsOnPage: '10',
     };
+    const docTableRef = ref();
 
-    function groupTagInit(id: number, el: typeof CheckTagWrapper) {
-      doctypeGroupTags[id] = el;
-    }
-
-    function groupTagChange(id: number) {
-      if (doctypeGroupTagCheckedId >= 0 && doctypeGroupTagCheckedId !== id) {
-        doctypeGroupTags[doctypeGroupTagCheckedId].checked = false;
-      }
-      doctypeGroupTags[id].checked = !doctypeGroupTags[id].checked;
-      doctypeGroupTagCheckedId = id;
-      if (doctypeGroupTags[id].checked) {
+    function groupTagChange(id: number, isOn: boolean) {
+      if (isOn) {
         filterData.documentType = `${id}`;
         applyFilters();
       } else {
@@ -192,8 +191,6 @@ export default defineComponent({
         applyFilters();
       }
     }
-
-    type SelectableKeysMappingType = keyof (typeof selectableKeysMapping);
 
     function initFilterFields() {
       let sessionFiltersResult: ReturnType<typeof retrieveSessionFilters> | undefined = undefined;
@@ -254,22 +251,23 @@ export default defineComponent({
     }
 
     function processDate(filterRequest: DocFilterRequestType) {
-      const dateObjIndex = filterRequest.filter.findIndex(value => value.key === 'documentDate');
-      if (dateObjIndex !== -1) {
-        const dateFrom = filterRequest.filter[dateObjIndex].value[0] as unknown as Date;
-        const dateTo = filterRequest.filter[dateObjIndex].value[1] as unknown as Date;
-        filterRequest.filter.splice(dateObjIndex, 1);
-        filterRequest.filter.push({
-          key: 'documentDate',
-          value: dateFrom.toISOString().split('T')[0],
-          operation: '>'
-        });
-        filterRequest.filter.push({
-          key: 'documentDate',
-          value: dateTo.toISOString().split('T')[0],
-          operation: '<'
-        });
+      function addDateToFilterList(index: number, operation: string) {
+        if (index !== -1) {
+          const date = new Date(filterRequest.filter[index].value);
+          filterRequest.filter.splice(index, 1);
+          filterRequest.filter.push({
+            key: 'documentDate',
+            value: `${date.getFullYear()}-${date.getMonth()}-${date.getDate()}`,
+            operation: operation
+          });
+        }
       }
+
+      const dateObjIndexStart = filterRequest.filter.findIndex(value => value.key === 'documentDateStart');
+      addDateToFilterList(dateObjIndexStart, '>');
+
+      const dateObjIndexEnd = filterRequest.filter.findIndex(value => value.key === 'documentDateEnd');
+      addDateToFilterList(dateObjIndexEnd, '<');
     }
 
     function initFilters(filterTempData: FilterDataType) {
@@ -313,21 +311,11 @@ export default defineComponent({
       applyFilters();
     }
 
-    function getSelectionTypeName(value: NamedSelectionType) {
-      if (value.name) {
-        return value.name;
-      } else if (value.shortname) {
-        return value.shortname;
-      } else {
-        throw Error('wrong type ' + value);
-      }
-    }
-
-    function disableField(fieldIndex: number | string) {
+    function disableField(fieldIndex: number | string, isDate: boolean) {
       fieldIndex = Number(fieldIndex);
       const activeFieldIndex = activeFilterFieldIndices.value.indexOf(fieldIndex);
       activeFilterFieldIndices.value.splice(activeFieldIndex, 1);
-      clearFilterField(fieldIndex);
+      clearFilterField(fieldIndex, isDate);
     }
 
     function isInSelectableKeys(fieldKey: string) {
@@ -360,14 +348,32 @@ export default defineComponent({
       });
     }
 
-    function clearFilterField(fieldIndex: number) {
-      delete filterData[filterFields.value[fieldIndex].key];
+    function clearFilterField(fieldIndex: number, isDate: boolean) {
+      if (isDate) {
+        delete filterData[filterFields.value[fieldIndex].key + 'Start'];
+        delete filterData[filterFields.value[fieldIndex].key + 'End'];
+      } else {
+        delete filterData[filterFields.value[fieldIndex].key];
+      }
+    }
+
+    function deleteSelectedDocs() {
+      docTableRef.value?.deleteSelected(() => applyFilters());
     }
 
     function getDocumentsInitialRequest() {
       axios
         .get('/documents/')
         .then(updateDocuments);
+    }
+
+    function createNewDocPage() {
+      router.push({ name: 'new-doc' });
+      window.scrollTo({
+        top: 0,
+        left: 0,
+        behavior: 'smooth'
+      });
     }
 
     function doSaveFiltersInSession() {
@@ -396,14 +402,6 @@ export default defineComponent({
       };
     }
 
-    async function getSelectionListBy(type: SelectableKeysMappingType) {
-      await axios
-        .get<NamedSelectionType[]>(`/${type}/`)
-        .then(res => {
-          selectableData.value[selectableKeysMapping[type]] = res.data;
-        });
-    }
-
     return {
       selectableData,
       activeFieldsObject,
@@ -412,15 +410,16 @@ export default defineComponent({
       nonActiveFields,
       shownDocuments,
       documentsResponseData,
+      docTableRef,
+      deleteSelectedDocs,
       applyFilters,
-      groupTagInit,
       groupTagChange,
       addFilterSelected,
-      getSelectionTypeName,
       disableField,
       isInSelectableKeys,
       clearFilterField,
-      onPageChange
+      onPageChange,
+      createNewDocPage
     };
   }
 });

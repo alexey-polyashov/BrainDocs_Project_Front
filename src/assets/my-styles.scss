@@ -12,3 +12,9 @@
 );
 
 @use "element-plus/theme-chalk/src/index.scss" as *;
+
+.el-table__row:hover {
+  color: #5c30e3;
+  cursor: pointer;
+  font-weight: bold;
+}

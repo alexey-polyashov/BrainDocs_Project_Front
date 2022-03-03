@@ -1,8 +1,5 @@
 import { FullFileType } from "../file-dialog/types";
-
-export type IndexedType<T extends number | string, U> = {
-  [id in T]: U;
-};
+import { IndexedType, NamedSelectionType } from "../../types";
 
 export interface DocFilterRequestType {
   page: string,
@@ -29,7 +26,7 @@ export interface DocTypeView {
 }
 
 export interface FilterFieldsType {
-  readonly key: string,
+  key: string,
   name: string,
   source: string,
   validOperations: string[],
@@ -37,10 +34,9 @@ export interface FilterFieldsType {
   defaultOn: boolean,
 }
 
-export interface NamedSelectionType {
+export interface UserResponseType {
   id: number,
-  name?: string,
-  shortname?: string
+  shortname: string,
 }
 
 export interface DocFilterResponse {
@@ -58,17 +54,17 @@ export interface DocFilterResponse {
 }
 
 export interface DocFilterResponseContent {
-  author: NamedSelectionType;
+  author: UserResponseType;
   content: string;
   documentDate: string;
-  documentType: DocumentType;
+  documentType: NamedSelectionType;
   files: FullFileType[];
   heading: string;
   id: number;
   marked: boolean;
   number: string;
-  organisation: DocumentType;
-  responsible: NamedSelectionType;
+  organisation: NamedSelectionType;
+  responsible: UserResponseType;
 }
 
 export interface DocFilterResponsePageable {
