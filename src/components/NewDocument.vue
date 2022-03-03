@@ -163,8 +163,8 @@ function saveClick() {
             documentDate: new Date().toISOString(),
             heading: formData.heading,
             content: formData.content,
-            documentType: { id: +formData.documentType },
-            organisation: { id: +formData.organisation },
+            documentType: formData.documentType,
+            organisation: formData.organisation,
             author: { id: 1 },
             responsible: { id: 1 }
           });
@@ -185,7 +185,7 @@ async function sendSaveRequest(data: SaveDocRequest) {
     .then((res) => {
       ElMessage.success('Сохранение успешно!');
       filesDialog.value?.sendStoredFilesToDocument(res.data);
-      clearForms();
+      modified.value = false;
     })
     .catch((error) => {
       console.log(error);

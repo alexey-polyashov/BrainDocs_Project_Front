@@ -109,6 +109,11 @@ function selectionChange(selection: DocTypeView[]) {
 
 function rowClick(row: DocTypeView) {
   router.push({ name: 'new-doc', params: { id: row.id } });
+  window.scrollTo({
+    top: 0,
+    left: 0,
+    behavior: 'smooth'
+  });
 }
 
 function deleteSelected(onFinished: () => void) {

@@ -29,11 +29,20 @@
                       v-model="filterData[field.key]"
                       :options="() => selectableData[field.key]"
                     />
-                    <el-date-picker
-                      v-else-if="field.type === 'Date'"
-                      v-model="filterData[field.key]"
-                      type="date"
-                    />
+                    <div v-else-if="field.type === 'Date'">
+                      <el-date-picker
+                        v-model="filterData[field.key + 'Start']"
+                        type="date"
+                        style="display: block;"
+                        placeholder="Дата начала поиска"
+                      />
+                      <el-date-picker
+                        v-model="filterData[field.key + 'End']"
+                        type="date"
+                        style="display: block; margin-top: 8px;"
+                        placeholder="Дата конца поиска"
+                      />
+                    </div>
                     <el-input
                       v-else
                       v-model="filterData[field.key]"
@@ -46,7 +55,7 @@
                       <el-button
                         size="small"
                         style="margin-left: 16px"
-                        @click="clearFilterField(filterFieldsArrIndex)"
+                        @click="clearFilterField(filterFieldsArrIndex, field.type === 'Date')"
                       >
                         <span
                           style="font-size: 1rem"
@@ -63,7 +72,7 @@
                         type="danger"
                         size="small"
                         style="margin-left: 16px"
-                        @click="disableField(filterFieldsArrIndex)"
+                        @click="disableField(filterFieldsArrIndex, field.type === 'Date')"
                       >
                         <span
                           style="font-size: 1rem"
@@ -242,22 +251,23 @@ export default defineComponent({
     }
 
     function processDate(filterRequest: DocFilterRequestType) {
-      const dateObjIndex = filterRequest.filter.findIndex(value => value.key === 'documentDate');
-      if (dateObjIndex !== -1) {
-        const dateFrom = filterRequest.filter[dateObjIndex].value[0] as unknown as Date;
-        const dateTo = filterRequest.filter[dateObjIndex].value[1] as unknown as Date;
-        filterRequest.filter.splice(dateObjIndex, 1);
-        filterRequest.filter.push({
-          key: 'documentDate',
-          value: dateFrom.toISOString().split('T')[0],
-          operation: '>'
-        });
-        filterRequest.filter.push({
-          key: 'documentDate',
-          value: dateTo.toISOString().split('T')[0],
-          operation: '<'
-        });
+      function addDateToFilterList(index: number, operation: string) {
+        if (index !== -1) {
+          const date = new Date(filterRequest.filter[index].value);
+          filterRequest.filter.splice(index, 1);
+          filterRequest.filter.push({
+            key: 'documentDate',
+            value: `${date.getFullYear()}-${date.getMonth()}-${date.getDate()}`,
+            operation: operation
+          });
+        }
       }
+
+      const dateObjIndexStart = filterRequest.filter.findIndex(value => value.key === 'documentDateStart');
+      addDateToFilterList(dateObjIndexStart, '>');
+
+      const dateObjIndexEnd = filterRequest.filter.findIndex(value => value.key === 'documentDateEnd');
+      addDateToFilterList(dateObjIndexEnd, '<');
     }
 
     function initFilters(filterTempData: FilterDataType) {
@@ -281,7 +291,7 @@ export default defineComponent({
     async function applyFilters(filterTempData: FilterDataType = filterData) {
       applyFiltersButton.value.loading = true;
       const filterRequest = initFilters(filterTempData);
-      //processDate(filterRequest);
+      processDate(filterRequest);
       await axios
         .post<DocFilterResponse>('/documents/search', filterRequest)
         .then(res => {
@@ -301,11 +311,11 @@ export default defineComponent({
       applyFilters();
     }
 
-    function disableField(fieldIndex: number | string) {
+    function disableField(fieldIndex: number | string, isDate: boolean) {
       fieldIndex = Number(fieldIndex);
       const activeFieldIndex = activeFilterFieldIndices.value.indexOf(fieldIndex);
       activeFilterFieldIndices.value.splice(activeFieldIndex, 1);
-      clearFilterField(fieldIndex);
+      clearFilterField(fieldIndex, isDate);
     }
 
     function isInSelectableKeys(fieldKey: string) {
@@ -317,27 +327,6 @@ export default defineComponent({
         .get<FilterFieldsType[]>('/documents/fields')
         .then((res) => {
           filterFields.value = res.data;
-          const dateIndex = filterFields.value.findIndex(val => val.key === 'documentDate');
-          if (dateIndex !== -1) {
-            const dateItem = filterFields.value[dateIndex];
-            filterFields.value.splice(dateIndex, 1);
-            filterFields.value.push({
-              key: dateItem.key,
-              name: 'Дата с',
-              source: '',
-              validOperations: ['>'],
-              type: 'Date',
-              defaultOn: dateItem.defaultOn,
-            });
-            filterFields.value.push({
-              key: dateItem.key,
-              name: 'Дата до',
-              source: '',
-              validOperations: ['<'],
-              type: 'Date',
-              defaultOn: dateItem.defaultOn,
-            });
-          }
         });
     }
 
@@ -359,8 +348,13 @@ export default defineComponent({
       });
     }
 
-    function clearFilterField(fieldIndex: number) {
-      delete filterData[filterFields.value[fieldIndex].key];
+    function clearFilterField(fieldIndex: number, isDate: boolean) {
+      if (isDate) {
+        delete filterData[filterFields.value[fieldIndex].key + 'Start'];
+        delete filterData[filterFields.value[fieldIndex].key + 'End'];
+      } else {
+        delete filterData[filterFields.value[fieldIndex].key];
+      }
     }
 
     function deleteSelectedDocs() {
@@ -375,6 +369,11 @@ export default defineComponent({
 
     function createNewDocPage() {
       router.push({ name: 'new-doc' });
+      window.scrollTo({
+        top: 0,
+        left: 0,
+        behavior: 'smooth'
+      });
     }
 
     function doSaveFiltersInSession() {
