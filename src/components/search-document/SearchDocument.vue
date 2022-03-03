@@ -82,7 +82,7 @@
                 />
                 <el-select
                   placeholder="Добавить фильтр"
-                  style="margin-left: 16px"
+                  style="margin: 0 16px"
                   @change="addFilterSelected"
                 >
                   <el-option
@@ -92,8 +92,21 @@
                     :value="item.key"
                   />
                 </el-select>
+                <el-button 
+                  type="primary"
+                  @click="createNewDocPage"
+                >
+                  Создать документ
+                </el-button>
+                <el-button
+                  type="danger"
+                  @click="deleteSelectedDocs"
+                >
+                  Удалить выбранные
+                </el-button>
               </div>
               <SearchDocumentTable
+                ref="docTableRef"
                 key="docTable"
                 :document-filter-data="documentsResponseData"
                 :documents-view="shownDocuments"
@@ -128,6 +141,7 @@ import SearchDocumentTable from "./SearchDocumentTable.vue";
 import { getSelectableArray, selectableTypes, SelectableTypesAlias } from "../../net/common-requests";
 import SelectableField from "../helpers/SelectableField.vue";
 import DocTypeGroup from "./DocTypeGroup.vue";
+import { useRouter } from "vue-router";
 
 export default defineComponent({
   components: {
@@ -137,6 +151,8 @@ export default defineComponent({
     DocTypeGroup
   },
   setup() {
+    const router = useRouter();
+
     const applyFiltersButton = ref();
     const shownDocuments = ref<DocTypeView[]>([]);
     const documentsResponseData = ref<DocFilterResponse>();
@@ -155,6 +171,7 @@ export default defineComponent({
       page: '0',
       recordsOnPage: '10',
     };
+    const docTableRef = ref();
 
     function groupTagChange(id: number, isOn: boolean) {
       if (isOn) {
@@ -346,10 +363,18 @@ export default defineComponent({
       delete filterData[filterFields.value[fieldIndex].key];
     }
 
+    function deleteSelectedDocs() {
+      docTableRef.value?.deleteSelected(() => applyFilters());
+    }
+
     function getDocumentsInitialRequest() {
       axios
         .get('/documents/')
         .then(updateDocuments);
+    }
+
+    function createNewDocPage() {
+      router.push({ name: 'new-doc' });
     }
 
     function doSaveFiltersInSession() {
@@ -386,13 +411,16 @@ export default defineComponent({
       nonActiveFields,
       shownDocuments,
       documentsResponseData,
+      docTableRef,
+      deleteSelectedDocs,
       applyFilters,
       groupTagChange,
       addFilterSelected,
       disableField,
       isInSelectableKeys,
       clearFilterField,
-      onPageChange
+      onPageChange,
+      createNewDocPage
     };
   }
 });

@@ -15,44 +15,58 @@
           type="primary"
           @click="fieldsEditable = !fieldsEditable"
         >
-          Edit mode {{ fieldsEditable ? 'on' : 'off' }}
+          Изменения {{ fieldsEditable ? 'включены' : 'выключены' }}
         </el-button>
       </template>
       <el-descriptions-item label="Avatar">
         <el-avatar
           :size="80"
-          :src="userInfo.avatarSrc"
+          :src="userInfoForm.avatarSrc"
         >
           <img src="https://cube.elemecdn.com/e/fd/0fc7d20532fdaf769a25683617711png.png">
         </el-avatar>
       </el-descriptions-item>
-      <el-descriptions-item label="Full name">
+      <el-descriptions-item label="Полное имя">
         <el-input
-          v-model="userInfo.fullName"
+          v-model="userInfoForm.fullname"
           :readonly="!fieldsEditable"
         />
       </el-descriptions-item>
-      <el-descriptions-item label="Login">
+      <el-descriptions-item label="Короткое имя">
         <el-input
-          v-model="userInfo.login"
+          v-model="userInfoForm.shortname"
           :readonly="!fieldsEditable"
         />
       </el-descriptions-item>
-      <el-descriptions-item label="Email">
+      <el-descriptions-item label="Логин">
         <el-input
-          v-model="userInfo.email"
+          v-model="userInfoForm.login"
           :readonly="!fieldsEditable"
         />
       </el-descriptions-item>
-      <el-descriptions-item label="Address">
+      <el-descriptions-item label="Почта">
         <el-input
-          v-model="userInfo.address"
+          v-model="userInfoForm.email"
           :readonly="!fieldsEditable"
         />
       </el-descriptions-item>
-      <el-descriptions-item label="Phone">
+      <el-descriptions-item label="Организация">
+        <selectable-field
+          v-model="userInfoForm.organisation"
+          :value-is-object="true"
+          select-type="orgs"
+          :disabled="!fieldsEditable"
+        />
+      </el-descriptions-item>
+      <el-descriptions-item label="Адрес">
         <el-input
-          v-model="userInfo.phone"
+          v-model="userInfoForm.address"
+          :readonly="!fieldsEditable"
+        />
+      </el-descriptions-item>
+      <el-descriptions-item label="Телефон">
+        <el-input
+          v-model="userInfoForm.phone"
           :readonly="!fieldsEditable"
         />
       </el-descriptions-item>
@@ -61,6 +75,7 @@
       type="primary"
       :disabled="!fieldsModified"
       style="margin-top: 16px"
+      @click="saveChanges"
     >
       Save changes
     </el-button>
@@ -126,51 +141,70 @@
 </template>
 
 <script lang="ts" setup>
-import { reactive, ref, watch } from "vue"
-import { ElForm, ElMessage } from "element-plus"
+import { onMounted, reactive, ref, watch } from "vue"
+import { ElForm, ElMessage, ElMessageBox } from "element-plus"
+import { useStore } from "../store";
+import SelectableField from "./helpers/SelectableField.vue";
+import _ from "lodash";
+import axios from "axios";
 
-const userInfo = reactive({
+const store = useStore();
+const userInfoForm = reactive({
   avatarSrc: '',
-  fullName: 'Full name',
+  fullname: 'Full name',
+  shortname: 'Full name',
+  organisation: {
+    id: -1,
+    name: ''
+  },
   login: 'asdf',
   password: 'asdf',
   email: 'asdf@gmail.com',
   address: 'No.1188, Wuzhong Avenue, Wuzhong District, Suzhou, Jiangsu Province',
   phone: '3456457433',
-})
-const passChangeFormRef = ref<InstanceType<typeof ElForm>>()
-const fieldsEditable = ref(false)
-const fieldsModified = ref(false)
-const passChangeDialogVisible = ref(false)
+});
+const passChangeFormRef = ref<InstanceType<typeof ElForm>>();
+const fieldsEditable = ref(false);
+const fieldsModified = ref(false);
+const passChangeDialogVisible = ref(false);
 const passChangeForm = reactive({
   oldPass: '',
   newPass: '',
   newPassRepeated: ''
-})
-watch(userInfo, () => {
-  fieldsModified.value = true
+});
+
+onMounted(() => {
+  const user = store.getUserInfo.userExtra;
+  userInfoForm.fullname = user.fullname;
+  userInfoForm.login = user.login;
+  userInfoForm.email = user.email;
+  userInfoForm.shortname = user.shortname;
+  userInfoForm.organisation = user.organisation;
+  watch(userInfoForm, () => {
+    fieldsModified.value = true;
+  });
 })
 
 const passwordChangePrompt = () => {
-  passChangeDialogVisible.value = true
+  passChangeDialogVisible.value = true;
 }
 
 const passwordChangeSubmit = () => {
   passChangeFormRef.value?.validate((isValid, invalidFields) => {
     console.log(isValid)
     if (isValid) {
-      passChangeDialogVisible.value = false
+      passChangeDialogVisible.value = false;
     } else {
-      ElMessage.error('Some inputs are invalid')
+      ElMessage.error('Some inputs are invalid');
     }
   })
 }
 
 const passwordMatchValidator = (rule: unknown, value: unknown, callback: (er?: Error) => void) => {
   if (passChangeForm.newPass === passChangeForm.newPassRepeated) {
-    callback()
+    callback();
   } else {
-    callback(new Error("Two inputs don't match!"))
+    callback(new Error("Two inputs don't match!"));
   }
 }
 
@@ -180,8 +214,27 @@ const passChangeRules = reactive({
       validator: passwordMatchValidator,
     }
   ]
-})
+});
+
+function saveChanges() {
+  const clonedUserInfo = _.clone(store.getUserInfo.userExtra);
+  clonedUserInfo.email = userInfoForm.email;
+  clonedUserInfo.shortname = userInfoForm.shortname;
+  clonedUserInfo.fullname = userInfoForm.fullname;
+  clonedUserInfo.login = userInfoForm.login;
+  clonedUserInfo.organisation = userInfoForm.organisation;
+  axios
+    .put(`/users/${clonedUserInfo.id}`, clonedUserInfo)
+    .then(() => {
+      ElMessageBox.alert('Данные обновлены!', {
+        type: 'success'
+      });
+  })
+}
 </script>
 
 <style scoped>
+.content-box {
+  margin-top: 0;
+}
 </style>

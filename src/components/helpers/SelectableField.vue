@@ -1,12 +1,13 @@
 <template>
   <el-select
     placeholder="Выберите"
+    value-key="id"
   >
     <el-option
       v-for="option in (options ? options() : selectableOptions)"
       :key="option.id"
       :label="option.name"
-      :value="option.id"
+      :value="valueIsObject ? option : option.id"
     />
   </el-select>
 </template>
@@ -14,11 +15,12 @@
 <script setup lang="ts">
 import { onMounted, ref } from 'vue';
 import { getSelectableArray, SelectableTypesAlias } from '../../net/common-requests';
-import { NamedSelectionType } from '../search-document/types';
+import { NamedSelectionType } from "../../types";
 
 const props = defineProps<{
 	selectType?: SelectableTypesAlias,
-  options?: () => NamedSelectionType[]
+  options?: () => NamedSelectionType[],
+  valueIsObject?: boolean,
 }>();
 
 const selectableOptions = ref<NamedSelectionType[]>([]);

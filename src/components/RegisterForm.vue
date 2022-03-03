@@ -1,12 +1,13 @@
 <template>
-  <el-card class="content-box">
+  <el-card class="form-box">
     <el-form
       ref="formRef"
       :model="formData"
       :rules="formRules"
       label-width="auto"
-      :label-position="labelPosition"
+      label-position="right"
     >
+      <h2>Регистрация</h2>
       <el-form-item
         required
         label="Имя"
@@ -117,7 +118,6 @@ const formRules = reactive({
     validator: validatePasswordRepeated
   }]
 });
-const labelPosition = ref(store.checkWidthTypeFits('md') ? 'right' : 'top');
 const formRef = ref<FormInstance>();
 const onSubmit = () => {
   formRef.value?.validate(passed => {
@@ -157,7 +157,15 @@ async function sendRegistrationRequest(data: UserRegistrationRequest) {
   await axios
     .post<number>('users', data)
     .then(res => {
-      ElMessageBox.alert('Запрос на регистрацию успешно отправлен!');
+      ElMessageBox.alert('Запрос на регистрацию успешно отправлен! Ожидайте подтверждения.');
     });
 }
 </script>
+
+
+<style scoped>
+.form-box {
+  max-width: 500px;
+  margin: 10% auto;
+}
+</style>

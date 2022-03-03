@@ -5,6 +5,8 @@
       :default-sort="{ prop: 'id', order: 'ascending' }"
       border
       table-layout="auto"
+      @selection-change="selectionChange"
+      @row-click="rowClick"
     >
       <el-table-column
         type="selection"
@@ -47,7 +49,7 @@
         width="110"
       >
         <template #default="scope">
-          <el-button @click="openFilesDialog(scope.row)">
+          <el-button @click="(e) => openFilesDialog(e, scope.row)">
             Файлы
           </el-button>
         </template>
@@ -63,13 +65,16 @@
     />
     <AttachedFilesDialog
       ref="filesDialog"
-      :should-send-requests-on-change="true" 
+      :should-send-requests-on-change="true"
     />
   </div>
 </template>
 
 <script setup lang="ts">
+import axios from 'axios';
+import { ElMessage, ElMessageBox } from 'element-plus';
 import { ref } from 'vue';
+import { useRouter } from 'vue-router';
 import AttachedFilesDialog from '../file-dialog/AttachedFilesDialog.vue';
 import { DocFilterResponse, DocTypeView } from './types';
 
@@ -82,6 +87,8 @@ const emit = defineEmits<{
   (event: 'currentPageChange', newNum: number): void,
 }>();
 
+const router = useRouter();
+let selectedViews: DocTypeView[] = [];
 const currentPage = ref(1);
 const filesDialog = ref();
 
@@ -90,11 +97,44 @@ function curPageUpdate(newPageNum: number) {
   emit('currentPageChange', newPageNum);
 }
 
-function openFilesDialog(row: DocTypeView) {
-  console.log(row);
+function openFilesDialog(event: Event, row: DocTypeView) {
+  event.stopPropagation();
   filesDialog.value?.updateView(row.id);
   filesDialog.value?.toggleVisible();
 }
+
+function selectionChange(selection: DocTypeView[]) {
+  selectedViews = selection;
+}
+
+function rowClick(row: DocTypeView) {
+  router.push({ name: 'new-doc', params: { id: row.id } });
+}
+
+function deleteSelected(onFinished: () => void) {
+  if (selectedViews.length === 0) {
+    ElMessage.info('Нет выбранных елементов');
+  } else {
+    ElMessageBox.confirm('Подтвердите удаление', {
+      type: 'warning'
+    }).then(() => {
+      selectedViews = [];
+      const promises: Promise<any>[] = [];
+      selectedViews.forEach(val => {
+        promises.push(axios.delete(`/documents/${val.id}`));
+      })
+      Promise.all(promises).then(res => {
+        ElMessage.info('Документы удалены');
+      }).catch(err => {
+        ElMessage.info('Произошла ошибка');
+      }).finally(() => onFinished());
+    });
+  }
+}
+
+defineExpose({
+  deleteSelected
+});
 </script>
 
 <style scoped>

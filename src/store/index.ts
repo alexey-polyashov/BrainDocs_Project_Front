@@ -1,12 +1,6 @@
 import { defineStore } from "pinia"
 import { UserInfoType } from "../types";
 
-const widthMinMapping = {
-  sm: 425,
-  md: 768,
-  lg: 1024,
-}
-
 interface Store {
   userInfo: {
     token: string,

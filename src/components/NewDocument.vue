@@ -31,6 +31,7 @@
       >
         <SelectableField
           v-model="formData.documentType"
+          :value-is-object="true"
           select-type="docTypes"
         />
       </el-form-item>
@@ -41,6 +42,7 @@
       >
         <SelectableField
           v-model="formData.organisation"
+          :value-is-object="true"
           select-type="orgs"
         />
       </el-form-item>
@@ -68,24 +70,34 @@
         >
           Файлы
         </el-button>
+        <el-button
+          class="button"
+          size="large"
+          @click="onCloseClick"
+        >
+          Закрыть
+        </el-button>
       </div>
     </el-form>
   </el-card>
 </template>
 
 <script lang="ts" setup>
-import { onMounted, reactive, ref } from "vue";
+import { onMounted, reactive, ref, watch } from "vue";
 import Editor from '@tinymce/tinymce-vue';
 import AttachedFilesDialog from "./file-dialog/AttachedFilesDialog.vue";
 import { ElForm, ElMessage, ElMessageBox } from "element-plus";
 import axios from "axios";
-import { NamedSelectionType } from "./search-document/types";
 import { getSelectableArray } from "../net/common-requests";
 import SelectableField from "./helpers/SelectableField.vue";
+import { NamedSelectionType } from "../types";
+import { useRouter } from "vue-router";
+import { DocFilterResponseContent } from "./search-document/types";
 
 type Id = { id: number };
 
 type SaveDocRequest = {
+  id?: string,
   number: string,
   documentDate: string,
   heading: string,
@@ -96,31 +108,45 @@ type SaveDocRequest = {
   responsible?: Id,
 };
 
+const router = useRouter();
+
 const formRef = ref<InstanceType<typeof ElForm>>();
 const filesDialog = ref();
 const formData = reactive({
+  id: '',
   number: '',
-  documentType: '',
-  organisation: '',
-  documentDate: new Date(),
+  documentType: {
+    id: -1,
+    name: ''
+  },
+  organisation: {
+    id: -1,
+    name: ''
+  },
+  documentDate: new Date().toISOString(),
   heading: '',
   content: ''
 });
-const docTypeSelectable = ref<NamedSelectionType[]>([]);
-const orgSelectable = ref<NamedSelectionType[]>([]);
-
-function initSelectables() {
-  getSelectableArray('docTypes').then(res => docTypeSelectable.value = res);
-  getSelectableArray('orgs').then(res => orgSelectable.value = res);
-}
+const modified = ref(false);
 
 onMounted(() => {
-  initSelectables();
-})
+  const id = router.currentRoute.value.params.id;
+  if (id) editMode(+(id as string));
+});
 
 const toggleFileAttachDialog = () => {
   filesDialog.value?.toggleVisible()
 };
+
+function onCloseClick() {
+  if (modified.value) {
+    ElMessageBox.confirm('Есть несохраненные изменения, закрыть без сохранения?').then(() => {
+      router.push({ name: 'search-doc' });
+    });
+  } else {
+    router.push({ name: 'search-doc' });
+  }
+}
 
 function saveClick() {
   formRef.value?.validate((passed, failedFields) => {
@@ -132,6 +158,7 @@ function saveClick() {
         })
         .then(() => {
           sendSaveRequest({
+            id: formData.id,
             number: formData.number,
             documentDate: new Date().toISOString(),
             heading: formData.heading,
@@ -153,7 +180,8 @@ function saveClick() {
 
 async function sendSaveRequest(data: SaveDocRequest) {
   ElMessage.info('Идет сохранение...');
-  await axios.post<number>('/documents', data)
+  await axios
+    .post<number>('/documents' + (data.id ? `/${data.id}` : ''), data)
     .then((res) => {
       ElMessage.success('Сохранение успешно!');
       filesDialog.value?.sendStoredFilesToDocument(res.data);
@@ -162,13 +190,38 @@ async function sendSaveRequest(data: SaveDocRequest) {
     .catch((error) => {
       console.log(error);
       ElMessage.error('error');
-    })
+    });
 }
 
 function clearForms() {
   formRef.value?.resetFields();
   filesDialog.value?.resetState();
 }
+
+// if formData.id is present, edit mode is on
+function editMode(docId: number) {
+  function fetchDocById(docId: number) {
+    axios
+      .get<DocFilterResponseContent>(`/documents/${docId}`)
+      .then(res => {
+        formData.id = res.data.id.toString();
+        formData.content = res.data.content;
+        formData.heading = res.data.heading;
+        formData.documentDate = res.data.documentDate;
+        formData.number = res.data.number;
+        formData.organisation = res.data.organisation;
+        formData.documentType = res.data.documentType;
+        watch(formData, () => {
+          modified.value = true;
+        });
+      });
+  }
+  fetchDocById(docId);
+}
+
+defineExpose({
+  editMode
+});
 </script>
 
 <style scoped>

@@ -1,7 +1,7 @@
 import axios from "axios";
 import { ElMessage } from "element-plus";
 import { FileDescriptionType, FullFileType } from "../components/file-dialog/types";
-import { NamedSelectionType } from "../components/search-document/types";
+import { NamedSelectionType } from "../types";
 
 export async function uploadFileToExistingDocument(
   docId: number,

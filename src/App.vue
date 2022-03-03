@@ -30,12 +30,6 @@
             @select="menuClicked"
           >
             <el-menu-item
-              index="create-doc"
-              class="menu-item"
-            >
-              Новый документ
-            </el-menu-item>
-            <el-menu-item
               index="search-doc"
               class="menu-item"
             >
@@ -54,6 +48,14 @@
           style="text-align: end"
         >
           <el-button
+            v-if="userInfo.authorized"
+            type="primary"
+            @click="profileClick"
+          >
+            <span class="material-icons-round">account_circle</span>&nbsp;{{ userInfo.userExtra.shortname }}
+          </el-button>
+          <el-button
+            v-else
             type="primary"
             @click="signIn"
           >
@@ -73,20 +75,16 @@
 
 <script lang="ts" setup>
 import { useRouter } from "vue-router";
-import { onMounted, onUnmounted, ref } from "vue";
+import { computed, onMounted, onUnmounted, ref } from "vue";
 import { useStore } from "./store";
 import useServerCheck from "./net/server-check";
 
 const router = useRouter();
 const store = useStore();
 
-const onWidthChange = () => store.windowResize(window.innerWidth);
 onMounted(() => {
-  window.addEventListener('resize', onWidthChange);
   useServerCheck();
 });
-onUnmounted(() => window.removeEventListener('resize', onWidthChange));
-onWidthChange();
 
 const activeMenu = ref('');
 
@@ -96,6 +94,11 @@ const signIn = () => {
 }
 const menuClicked = (index: string) => {
   activeMenu.value = index;
+}
+
+const userInfo = computed(() => store.getUserInfo);
+const profileClick = () => {
+  router.push({ name: 'profile' });
 }
 </script>
 
@@ -158,8 +161,8 @@ body {
 }
 
 .main-logo-icon {
-  font-size: 3em; 
-  color: #ffd400; 
+  font-size: 3em;
+  color: #ffd400;
   margin-right: 8px;
 }
 
