@@ -1,21 +1,18 @@
 <template>
   <el-container class="page-container">
     <el-header class="page-header">
-      <el-row
-        justify="space-between"
-        align="middle"
-      >
-        <el-col
-          :span="10"
-          class="logo-menu"
-        >
+      <el-row justify="space-between" align="middle">
+        <el-col :span="10" class="logo-menu">
           <div class="main-logo">
-            <span
-              class="material-icons-round main-logo-icon"
-            >
+            <span class="material-icons-round main-logo-icon">
               filter_drama
             </span>
-            <span class="logo-text"><span style="color: #88deff;">B</span>rain<span style="color: #88deff;">D</span>ocs</span>
+            <span class="logo-text"
+              ><span style="color: #88deff">B</span>rain<span
+                style="color: #88deff"
+                >D</span
+              >ocs</span
+            >
           </div>
           <el-menu
             :default-active="activeMenu"
@@ -29,36 +26,25 @@
             router
             @select="menuClicked"
           >
-            <el-menu-item
-              index="search-doc"
-              class="menu-item"
-            >
+            <el-menu-item index="search-doc" class="menu-item">
               Поиск
             </el-menu-item>
-            <el-menu-item
-              index="3"
-              class="menu-item"
-            >
+            <el-menu-item index="3" class="menu-item">
               Справочники
             </el-menu-item>
           </el-menu>
         </el-col>
-        <el-col
-          :span="3"
-          style="text-align: end"
-        >
+        <el-col :span="3" style="text-align: end">
           <el-button
             v-if="userInfo.authorized"
             type="primary"
             @click="profileClick"
           >
-            <span class="material-icons-round">account_circle</span>&nbsp;{{ userInfo.userExtra.shortname }}
+            <span class="material-icons-round">account_circle</span>&nbsp;{{
+              userInfo.userExtra.shortname
+            }}
           </el-button>
-          <el-button
-            v-else
-            type="primary"
-            @click="signIn"
-          >
+          <el-button v-else type="primary" @click="signIn">
             <span class="material-icons-round">account_circle</span>&nbsp;Войти
           </el-button>
         </el-col>
@@ -86,26 +72,26 @@ onMounted(() => {
   useServerCheck();
 });
 
-const activeMenu = ref('');
+const activeMenu = ref("");
 
 const signIn = () => {
-  activeMenu.value = '';
-  router.push({ name: 'login' });
-}
+  activeMenu.value = "";
+  router.push({ name: "login" });
+};
 const menuClicked = (index: string) => {
   activeMenu.value = index;
-}
+};
 
 const userInfo = computed(() => store.getUserInfo);
 const profileClick = () => {
-  router.push({ name: 'profile' });
-}
+  router.push({ name: "profile" });
+};
 </script>
 
 <style>
-@import url('https://fonts.googleapis.com/icon?family=Material+Icons+Round');
-@import url('https://fonts.googleapis.com/css2?family=Ubuntu:wght@400&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400&display=swap');
+@import url("https://fonts.googleapis.com/icon?family=Material+Icons+Round");
+@import url("https://fonts.googleapis.com/css2?family=Ubuntu:wght@400&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Roboto:wght@400&display=swap");
 
 body {
   min-width: 768px;
@@ -114,7 +100,7 @@ body {
 }
 
 * {
-  font-family: 'Roboto', 'Ubuntu', sans-serif;
+  font-family: "Roboto", "Ubuntu", sans-serif;
 }
 
 .content-box {
@@ -167,13 +153,13 @@ body {
 }
 
 .page-container:before {
-  content: '';
+  content: "";
   display: block;
   position: fixed;
   width: 100%;
   height: 100%;
   opacity: 0.3;
-  background-image: url('assets/bg-min.png');
+  background-image: url("assets/bg-min.png");
   background-repeat: no-repeat;
   background-position: center;
   background-size: cover;

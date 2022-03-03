@@ -10,9 +10,8 @@ import { ref } from "vue";
 const checked = ref(false);
 
 defineExpose({
-  checked
+  checked,
 });
 </script>
 
-<style scoped>
-</style>
+<style scoped></style>

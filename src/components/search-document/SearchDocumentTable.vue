@@ -8,46 +8,18 @@
       @selection-change="selectionChange"
       @row-click="rowClick"
     >
-      <el-table-column
-        type="selection"
-        width="55"
-      />
-      <el-table-column
-        prop="number"
-        label="Номер"
-        sortable
-        width="100"
-      />
-      <el-table-column
-        prop="documentDate"
-        label="Дата"
-        sortable
-        width="120"
-      />
-      <el-table-column
-        prop="heading"
-        label="Название"
-        sortable
-        width="180"
-      />
-      <el-table-column
-        prop="author"
-        label="Автор"
-        sortable
-        width="180"
-      />
+      <el-table-column type="selection" width="55" />
+      <el-table-column prop="number" label="Номер" sortable width="100" />
+      <el-table-column prop="documentDate" label="Дата" sortable width="120" />
+      <el-table-column prop="heading" label="Название" sortable width="180" />
+      <el-table-column prop="author" label="Автор" sortable width="180" />
       <el-table-column
         prop="organisation"
         label="Организация"
         sortable
         width="180"
       />
-      <el-table-column
-        prop="files"
-        label="Файлы"
-        sortable
-        width="110"
-      >
+      <el-table-column prop="files" label="Файлы" sortable width="110">
         <template #default="scope">
           <el-button @click="(e) => openFilesDialog(e, scope.row)">
             Файлы
@@ -71,20 +43,20 @@
 </template>
 
 <script setup lang="ts">
-import axios from 'axios';
-import { ElMessage, ElMessageBox } from 'element-plus';
-import { ref } from 'vue';
-import { useRouter } from 'vue-router';
-import AttachedFilesDialog from '../file-dialog/AttachedFilesDialog.vue';
-import { DocFilterResponse, DocTypeView } from './types';
+import axios from "axios";
+import { ElMessage, ElMessageBox } from "element-plus";
+import { ref } from "vue";
+import { useRouter } from "vue-router";
+import AttachedFilesDialog from "../file-dialog/AttachedFilesDialog.vue";
+import { DocFilterResponse, DocTypeView } from "./types";
 
 const props = defineProps<{
-  documentsView: DocTypeView[],
-  documentFilterData?: DocFilterResponse,
+  documentsView: DocTypeView[];
+  documentFilterData?: DocFilterResponse;
 }>();
 
 const emit = defineEmits<{
-  (event: 'currentPageChange', newNum: number): void,
+  (event: "currentPageChange", newNum: number): void;
 }>();
 
 const router = useRouter();
@@ -94,7 +66,7 @@ const filesDialog = ref();
 
 function curPageUpdate(newPageNum: number) {
   currentPage.value = newPageNum;
-  emit('currentPageChange', newPageNum);
+  emit("currentPageChange", newPageNum);
 }
 
 function openFilesDialog(event: Event, row: DocTypeView) {
@@ -108,37 +80,40 @@ function selectionChange(selection: DocTypeView[]) {
 }
 
 function rowClick(row: DocTypeView) {
-  router.push({ name: 'new-doc', params: { id: row.id } });
+  router.push({ name: "new-doc", params: { id: row.id } });
   window.scrollTo({
     top: 0,
     left: 0,
-    behavior: 'smooth'
+    behavior: "smooth",
   });
 }
 
 function deleteSelected(onFinished: () => void) {
   if (selectedViews.length === 0) {
-    ElMessage.info('Нет выбранных елементов');
+    ElMessage.info("Нет выбранных елементов");
   } else {
-    ElMessageBox.confirm('Подтвердите удаление', {
-      type: 'warning'
+    ElMessageBox.confirm("Подтвердите удаление", {
+      type: "warning",
     }).then(() => {
       selectedViews = [];
       const promises: Promise<any>[] = [];
-      selectedViews.forEach(val => {
+      selectedViews.forEach((val) => {
         promises.push(axios.delete(`/documents/${val.id}`));
-      })
-      Promise.all(promises).then(res => {
-        ElMessage.info('Документы удалены');
-      }).catch(err => {
-        ElMessage.info('Произошла ошибка');
-      }).finally(() => onFinished());
+      });
+      Promise.all(promises)
+        .then((res) => {
+          ElMessage.info("Документы удалены");
+        })
+        .catch((err) => {
+          ElMessage.info("Произошла ошибка");
+        })
+        .finally(() => onFinished());
     });
   }
 }
 
 defineExpose({
-  deleteSelected
+  deleteSelected,
 });
 </script>
 

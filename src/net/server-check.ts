@@ -6,23 +6,23 @@ export default function useServerCheck() {
   testServerConnection();
 
   function testServerConnection() {
-    console.log('performing server check...');
+    console.log("performing server check...");
     let loading: ReturnType<typeof ElLoading.service> | null = null;
     const timeoutVal = setTimeout(() => {
       loading = ElLoading.service({
         lock: true,
-        text: 'Waiting for server to load... It may take about 30 seconds, thanks.',
-        background: 'rgba(0, 0, 0, 0.3)',
+        text: "Waiting for server to load... It may take about 30 seconds, thanks.",
+        background: "rgba(0, 0, 0, 0.3)",
       });
     }, 1000);
     axios
-      .get('/test', {
-        timeout: 0
+      .get("/test", {
+        timeout: 0,
       })
       .then(() => {
         loading?.close();
         clearTimeout(timeoutVal);
-        console.log('server responded');
+        console.log("server responded");
       });
   }
 }

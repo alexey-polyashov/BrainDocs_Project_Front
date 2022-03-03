@@ -5,50 +5,28 @@
         <span>Добавить новый документ</span>
       </div>
     </template>
-    <el-form
-      ref="formRef"
-      :model="formData"
-      label-width="auto"
-    >
-      <el-form-item
-        required
-        label="Номер"
-        prop="number"
-      >
+    <el-form ref="formRef" :model="formData" label-width="auto">
+      <el-form-item required label="Номер" prop="number">
         <el-input v-model="formData.number" />
       </el-form-item>
-      <el-form-item
-        required
-        label="Название"
-        prop="heading"
-      >
+      <el-form-item required label="Название" prop="heading">
         <el-input v-model="formData.heading" />
       </el-form-item>
-      <el-form-item
-        required
-        label="Тип"
-        prop="documentType"
-      >
+      <el-form-item required label="Тип" prop="documentType">
         <SelectableField
           v-model="formData.documentType"
           :value-is-object="true"
           select-type="docTypes"
         />
       </el-form-item>
-      <el-form-item
-        required
-        label="Организация"
-        prop="organisation"
-      >
+      <el-form-item required label="Организация" prop="organisation">
         <SelectableField
           v-model="formData.organisation"
           :value-is-object="true"
           select-type="orgs"
         />
       </el-form-item>
-      <h2 style="text-align: center">
-        Содержание
-      </h2>
+      <h2 style="text-align: center">Содержание</h2>
       <editor
         v-model="formData.content"
         api-key="r8zqd3nkvkfr7t0s0r4qo107guk38q9xpact4xap39t1p0pe"
@@ -63,18 +41,10 @@
         >
           Сохранить
         </el-button>
-        <el-button
-          class="button"
-          size="large"
-          @click="toggleFileAttachDialog"
-        >
+        <el-button class="button" size="large" @click="toggleFileAttachDialog">
           Файлы
         </el-button>
-        <el-button
-          class="button"
-          size="large"
-          @click="onCloseClick"
-        >
+        <el-button class="button" size="large" @click="onCloseClick">
           Закрыть
         </el-button>
       </div>
@@ -84,50 +54,65 @@
 
 <script lang="ts" setup>
 import { onMounted, reactive, ref, watch } from "vue";
-import Editor from '@tinymce/tinymce-vue';
+import Editor from "@tinymce/tinymce-vue";
 import AttachedFilesDialog from "./file-dialog/AttachedFilesDialog.vue";
 import { ElForm, ElMessage, ElMessageBox } from "element-plus";
 import axios from "axios";
 import { getSelectableArray } from "../net/common-requests";
 import SelectableField from "./helpers/SelectableField.vue";
 import { NamedSelectionType } from "../types";
-import { useRouter } from "vue-router";
+import { onBeforeRouteLeave, useRouter } from "vue-router";
 import { DocFilterResponseContent } from "./search-document/types";
+import { useStore } from "../store";
 
 type Id = { id: number };
 
 type SaveDocRequest = {
-  id?: string,
-  number: string,
-  documentDate: string,
-  heading: string,
-  documentType: Id,
-  author: Id,
-  organisation: Id,
-  content?: string,
-  responsible?: Id,
+  id?: string;
+  number: string;
+  documentDate: string;
+  heading: string;
+  documentType: Id;
+  author: Id;
+  organisation: Id;
+  content?: string;
+  responsible?: Id;
 };
 
 const router = useRouter();
+const store = useStore();
 
 const formRef = ref<InstanceType<typeof ElForm>>();
 const filesDialog = ref();
 const formData = reactive({
-  id: '',
-  number: '',
+  id: "",
+  number: "",
   documentType: {
     id: -1,
-    name: ''
+    name: "",
   },
   organisation: {
     id: -1,
-    name: ''
+    name: "",
   },
   documentDate: new Date().toISOString(),
-  heading: '',
-  content: ''
+  heading: "",
+  content: "",
 });
 const modified = ref(false);
+
+onBeforeRouteLeave(async (to, from) => {
+  if (modified.value) {
+    let result = false;
+    await ElMessageBox.confirm(
+      "Есть несохраненные изменения, закрыть без сохранения?",
+      { type: "warning" }
+    ).then(() => (result = true));
+    return result;
+  } else {
+    return true;
+  }
+});
 
 onMounted(() => {
   const id = router.currentRoute.value.params.id;
@@ -135,43 +120,38 @@ onMounted(() => {
 });
 
 const toggleFileAttachDialog = () => {
-  filesDialog.value?.toggleVisible()
+  filesDialog.value?.toggleVisible();
 };
 
 function onCloseClick() {
-  if (modified.value) {
-    ElMessageBox.confirm('Есть несохраненные изменения, закрыть без сохранения?').then(() => {
-      router.push({ name: 'search-doc' });
-    });
-  } else {
-    router.push({ name: 'search-doc' });
-  }
+  router.push({ name: "search-doc" });
 }
 
 function saveClick() {
   formRef.value?.validate((passed, failedFields) => {
     if (passed) {
-      ElMessageBox.confirm(
-        'Сохранить этот документ?',
-        {
-          type: 'warning',
-        })
-        .then(() => {
-          sendSaveRequest({
-            id: formData.id,
-            number: formData.number,
-            documentDate: new Date().toISOString(),
-            heading: formData.heading,
-            content: formData.content,
-            documentType: formData.documentType,
-            organisation: formData.organisation,
-            author: { id: 1 },
-            responsible: { id: 1 }
-          });
+      ElMessageBox.confirm("Сохранить этот документ?", {
+        type: "warning",
+      }).then(() => {
+        const userId =
+          store.getUserInfo.userExtra.id !== undefined
+            ? store.getUserInfo.userExtra.id
+            : 1;
+        sendSaveRequest({
+          id: formData.id,
+          number: formData.number,
+          documentDate: new Date().toISOString(),
+          heading: formData.heading,
+          content: formData.content,
+          documentType: formData.documentType,
+          organisation: formData.organisation,
+          author: { id: userId },
+          responsible: { id: userId },
         });
+      });
     } else {
       ElMessage.warning({
-        message: 'Некоторые поля заполнены неверно',
+        message: "Некоторые поля заполнены неверно",
         grouping: true,
       });
     }
@@ -179,17 +159,17 @@ function saveClick() {
 }
 
 async function sendSaveRequest(data: SaveDocRequest) {
-  ElMessage.info('Идет сохранение...');
+  ElMessage.info("Идет сохранение...");
   await axios
-    .post<number>('/documents' + (data.id ? `/${data.id}` : ''), data)
+    .post<number>("/documents" + (data.id ? `/${data.id}` : ""), data)
     .then((res) => {
-      ElMessage.success('Сохранение успешно!');
+      ElMessage.success("Сохранение успешно!");
       filesDialog.value?.sendStoredFilesToDocument(res.data);
       modified.value = false;
     })
     .catch((error) => {
       console.log(error);
-      ElMessage.error('error');
+      ElMessage.error("error");
     });
 }
 
@@ -201,26 +181,24 @@ function clearForms() {
 // if formData.id is present, edit mode is on
 function editMode(docId: number) {
   function fetchDocById(docId: number) {
-    axios
-      .get<DocFilterResponseContent>(`/documents/${docId}`)
-      .then(res => {
-        formData.id = res.data.id.toString();
-        formData.content = res.data.content;
-        formData.heading = res.data.heading;
-        formData.documentDate = res.data.documentDate;
-        formData.number = res.data.number;
-        formData.organisation = res.data.organisation;
-        formData.documentType = res.data.documentType;
-        watch(formData, () => {
-          modified.value = true;
-        });
+    axios.get<DocFilterResponseContent>(`/documents/${docId}`).then((res) => {
+      formData.id = res.data.id.toString();
+      formData.content = res.data.content;
+      formData.heading = res.data.heading;
+      formData.documentDate = res.data.documentDate;
+      formData.number = res.data.number;
+      formData.organisation = res.data.organisation;
+      formData.documentType = res.data.documentType;
+      watch(formData, () => {
+        modified.value = true;
       });
+    });
   }
   fetchDocById(docId);
 }
 
 defineExpose({
-  editMode
+  editMode,
 });
 </script>
 

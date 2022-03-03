@@ -8,56 +8,23 @@
       label-position="right"
     >
       <h2>Регистрация</h2>
-      <el-form-item
-        required
-        label="Имя"
-        prop="shortName"
-      >
+      <el-form-item required label="Имя" prop="shortName">
         <el-input v-model="formData.shortName" />
       </el-form-item>
-      <el-form-item
-        required
-        label="Организация"
-        prop="organisationId"
-      >
-        <SelectableField
-          v-model="formData.organisationId"
-          select-type="orgs"
-        />
+      <el-form-item required label="Организация" prop="organisationId">
+        <SelectableField v-model="formData.organisationId" select-type="orgs" />
       </el-form-item>
-      <el-form-item
-        required
-        label="Логин"
-        prop="login"
-      >
+      <el-form-item required label="Логин" prop="login">
         <el-input v-model="formData.login" />
       </el-form-item>
-      <el-form-item
-        required
-        label="Почта"
-        prop="email"
-      >
+      <el-form-item required label="Почта" prop="email">
         <el-input v-model="formData.email" />
       </el-form-item>
-      <el-form-item
-        required
-        label="Пароль"
-        prop="password"
-      >
-        <el-input
-          v-model="formData.password"
-          type="password"
-        />
+      <el-form-item required label="Пароль" prop="password">
+        <el-input v-model="formData.password" type="password" />
       </el-form-item>
-      <el-form-item
-        required
-        label="Повтор пароля"
-        prop="passwordRepeated"
-      >
-        <el-input
-          v-model="formData.passwordRepeated"
-          type="password"
-        />
+      <el-form-item required label="Повтор пароля" prop="passwordRepeated">
+        <el-input v-model="formData.passwordRepeated" type="password" />
       </el-form-item>
       <el-form-item>
         <LoadingButton
@@ -65,28 +32,21 @@
           button-text="Регистрация"
           @click="onSubmit"
         />
-        <el-button @click="resetForm">
-          Сброс
-        </el-button>
+        <el-button @click="resetForm"> Сброс </el-button>
       </el-form-item>
-      <el-button
-        type="text"
-        @click="switchToLogin"
-      >
-        Войти
-      </el-button>
+      <el-button type="text" @click="switchToLogin"> Войти </el-button>
     </el-form>
   </el-card>
 </template>
 
 <script lang="ts" setup>
-import { reactive, ref, watch } from 'vue';
+import { reactive, ref, watch } from "vue";
 import { ElForm, ElMessage, ElMessageBox } from "element-plus";
 import { useRouter } from "vue-router";
 import { useStore } from "../store";
-import LoadingButton from './helpers/LoadingButton.vue';
-import axios from 'axios';
-import SelectableField from './helpers/SelectableField.vue';
+import LoadingButton from "./helpers/LoadingButton.vue";
+import axios from "axios";
+import SelectableField from "./helpers/SelectableField.vue";
 
 export interface UserRegistrationRequest {
   email: string;
@@ -105,22 +65,24 @@ const loadingButton = ref();
 
 type FormInstance = InstanceType<typeof ElForm>;
 const formData = reactive({
-  fullName: 'asd',
-  shortName: 'asd',
-  password: 'asd',
-  passwordRepeated: 'asd',
-  organisationId: '1',
-  email: 'asd@gmail.com',
-  login: 'asd',
+  fullName: "asd",
+  shortName: "asd",
+  password: "asd",
+  passwordRepeated: "asd",
+  organisationId: "1",
+  email: "asd@gmail.com",
+  login: "asd",
 });
 const formRules = reactive({
-  passwordRepeated: [{
-    validator: validatePasswordRepeated
-  }]
+  passwordRepeated: [
+    {
+      validator: validatePasswordRepeated,
+    },
+  ],
 });
 const formRef = ref<FormInstance>();
 const onSubmit = () => {
-  formRef.value?.validate(passed => {
+  formRef.value?.validate((passed) => {
     if (passed) {
       loadingButton.value.loading = true;
       sendRegistrationRequest({
@@ -142,26 +104,25 @@ const resetForm = () => {
   formRef.value?.resetFields();
 };
 const switchToLogin = () => {
-  router.push({ name: 'login' });
+  router.push({ name: "login" });
 };
 
 function validatePasswordRepeated(rule: any, value: any, callback: any) {
   if (formData.password !== formData.passwordRepeated) {
-    callback(new Error('Пароли не совпадают'));
+    callback(new Error("Пароли не совпадают"));
   } else {
     callback();
   }
 }
 
 async function sendRegistrationRequest(data: UserRegistrationRequest) {
-  await axios
-    .post<number>('users', data)
-    .then(res => {
-      ElMessageBox.alert('Запрос на регистрацию успешно отправлен! Ожидайте подтверждения.');
-    });
+  await axios.post<number>("users", data).then((res) => {
+    ElMessageBox.alert(
+      "Запрос на регистрацию успешно отправлен! Ожидайте подтверждения."
+    );
+  });
 }
 </script>
-
 
 <style scoped>
 .form-box {
