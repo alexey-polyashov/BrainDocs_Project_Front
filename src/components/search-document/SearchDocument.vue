@@ -88,10 +88,12 @@
               <div key="optionsSection">
                 <LoadingButton
                   ref="applyFiltersButton"
+                  class="m8"
                   button-text="Применить"
                   @click="applyFilters"
                 />
                 <el-select
+                  class="m8"
                   placeholder="Добавить фильтр"
                   @change="addFilterSelected"
                 >
@@ -102,10 +104,10 @@
                     :value="item.key"
                   />
                 </el-select>
-                <el-button type="primary" @click="createNewDocPage">
+                <el-button type="primary" class="m8" @click="createNewDocPage">
                   Создать документ
                 </el-button>
-                <el-button type="danger" @click="deleteSelectedDocs">
+                <el-button type="danger" class="m8" @click="deleteSelectedDocs">
                   Удалить выбранные
                 </el-button>
               </div>
@@ -463,6 +465,10 @@ export default defineComponent({
   border-top-right-radius: 0;
   border-bottom-right-radius: 0;
   border-right-width: 1px;
+}
+
+.m8 {
+  margin: 8px;
 }
 
 .filter-form-item {
