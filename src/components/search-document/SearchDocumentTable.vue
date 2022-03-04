@@ -95,11 +95,11 @@ function deleteSelected(onFinished: () => void) {
     ElMessageBox.confirm('Подтвердите удаление', {
       type: 'warning',
     }).then(() => {
-      selectedViews = [];
       const promises: Promise<any>[] = [];
       selectedViews.forEach((val) => {
         promises.push(axios.delete(`/documents/${val.id}`));
       });
+      selectedViews = [];
       Promise.all(promises)
         .then((res) => {
           ElMessage.info('Документы удалены');
