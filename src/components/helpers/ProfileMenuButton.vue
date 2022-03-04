@@ -11,8 +11,6 @@
     <template #dropdown>
       <el-dropdown-menu>
         <el-dropdown-item command="logOut">Выйти</el-dropdown-item>
-        <el-dropdown-item>Action 3</el-dropdown-item>
-        <el-dropdown-item>Action 4</el-dropdown-item>
       </el-dropdown-menu>
     </template>
   </el-dropdown>
@@ -46,6 +44,10 @@ const signIn = () => {
 
 function dropDownClick(command: string) {
   if (command === 'logOut') {
+    logOut();
+  }
+
+  function logOut() {
     store.$patch((state) => {
       state.userInfo.authorized = false;
       state.userInfo.token = '';

@@ -99,6 +99,7 @@ import { useStore } from '../store';
 import SelectableField from './helpers/SelectableField.vue';
 import _ from 'lodash';
 import axios from 'axios';
+import { UserInfoType } from '../types';
 
 const store = useStore();
 const userInfoForm = reactive({
@@ -186,11 +187,14 @@ function saveChanges() {
   clonedUserInfo.fullname = userInfoForm.fullname;
   clonedUserInfo.login = userInfoForm.login;
   clonedUserInfo.organisation = userInfoForm.organisation;
-  axios.put(`/users/${clonedUserInfo.id}`, clonedUserInfo).then(() => {
-    ElMessageBox.alert('Данные обновлены!', {
-      type: 'success',
+  axios
+    .put<UserInfoType>(`/users/${clonedUserInfo.id}`, clonedUserInfo)
+    .then((res) => {
+      ElMessageBox.alert('Данные обновлены!', {
+        type: 'success',
+      });
+      store.getUserInfo.userExtra = res.data;
     });
-  });
 }
 </script>
 

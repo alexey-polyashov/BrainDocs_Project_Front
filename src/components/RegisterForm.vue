@@ -118,7 +118,10 @@ function validatePasswordRepeated(rule: any, value: any, callback: any) {
 async function sendRegistrationRequest(data: UserRegistrationRequest) {
   await axios.post<number>('users', data).then((res) => {
     ElMessageBox.alert(
-      'Запрос на регистрацию успешно отправлен! Ожидайте подтверждения.'
+      'Запрос на регистрацию успешно отправлен! Ожидайте подтверждения.',
+      {
+        type: 'success',
+      }
     );
   });
 }

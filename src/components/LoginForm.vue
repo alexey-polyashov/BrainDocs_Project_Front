@@ -61,8 +61,7 @@ async function loginRequest() {
       getUserData(res.data.token);
     })
     .catch((err) => {
-      ElMessage.error(err.response.data.message);
-      console.log(err.response.data);
+      ElMessage.error(err.response.data);
     });
   loadingButton.value.loading = false;
 }

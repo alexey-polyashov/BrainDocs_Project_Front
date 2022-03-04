@@ -133,10 +133,11 @@ function saveClick() {
       ElMessageBox.confirm('Сохранить этот документ?', {
         type: 'warning',
       }).then(() => {
-        const userId =
-          store.getUserInfo.userExtra?.id !== undefined
-            ? store.getUserInfo.userExtra.id
-            : 1;
+        let userId = store.getUserInfo.userExtra?.id;
+        if (!userId) {
+          // throw new Error('no user logged in');
+          userId = 1;
+        }
         sendSaveRequest({
           id: formData.id,
           number: formData.number,
