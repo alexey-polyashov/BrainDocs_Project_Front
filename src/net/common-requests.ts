@@ -1,10 +1,10 @@
-import axios from "axios";
-import { ElMessage } from "element-plus";
+import axios from 'axios';
+import { ElMessage } from 'element-plus';
 import {
   FileDescriptionType,
   FullFileType,
-} from "../components/file-dialog/types";
-import { NamedSelectionType } from "../types";
+} from '../components/file-dialog/types';
+import { NamedSelectionType } from '../types';
 
 export async function uploadFileToExistingDocument(
   docId: number,
@@ -12,20 +12,20 @@ export async function uploadFileToExistingDocument(
 ) {
   const formData = new FormData();
   formData.append(
-    "fileDescribe",
+    'fileDescribe',
     JSON.stringify(fileInfo, (key, value) => {
-      if (key === "fileRaw") {
+      if (key === 'fileRaw') {
         return undefined;
       }
       return value;
     })
   );
-  if (fileInfo.fileRaw) formData.append("file", fileInfo.fileRaw);
+  if (fileInfo.fileRaw) formData.append('file', fileInfo.fileRaw);
   return new Promise<FullFileType>((resolve, reject) => {
     axios
       .post<FullFileType>(
         `/documents/${docId}/files/${
-          fileInfo.id !== undefined ? fileInfo.id : "upload"
+          fileInfo.id !== undefined ? fileInfo.id : 'upload'
         }`,
         formData
       )
@@ -34,16 +34,16 @@ export async function uploadFileToExistingDocument(
         if (err.response) {
           console.error(err.response.data);
         }
-        ElMessage.error("Error");
+        ElMessage.error('Error');
         reject(err);
       });
   });
 }
 
 export const selectableTypes = Object.freeze({
-  users: "users",
-  docTypes: "documents/types",
-  orgs: "organisations",
+  users: 'users',
+  docTypes: 'documents/types',
+  orgs: 'organisations',
 });
 
 export type SelectableTypesAlias = keyof typeof selectableTypes;

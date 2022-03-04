@@ -22,41 +22,41 @@
 </template>
 
 <script lang="ts" setup>
-import { reactive, ref } from "vue";
-import { ElForm, ElMessage } from "element-plus";
-import { useRouter } from "vue-router";
-import LoadingButton from "./helpers/LoadingButton.vue";
-import axios from "axios";
-import { useStore } from "../store";
-import { NamedSelectionType, UserInfoType } from "../types";
+import { reactive, ref } from 'vue';
+import { ElForm, ElMessage } from 'element-plus';
+import { useRouter } from 'vue-router';
+import LoadingButton from './helpers/LoadingButton.vue';
+import axios from 'axios';
+import { useStore } from '../store';
+import { NamedSelectionType, UserInfoType } from '../types';
 
 type FormInstance = InstanceType<typeof ElForm>;
 const loadingButton = ref();
 const router = useRouter();
 const store = useStore();
 const form = reactive({
-  username: "user",
-  password: "100",
+  username: 'user',
+  password: '100',
 });
 const formRef = ref<FormInstance>();
 const resetForm = (formEl?: FormInstance) => {
   formEl?.resetFields();
 };
 const switchToRegister = () => {
-  router.push({ name: "register" });
+  router.push({ name: 'register' });
 };
 
 async function loginRequest() {
   loadingButton.value.loading = true;
   await axios
-    .post<{ token: string }>("/auth", form)
+    .post<{ token: string }>('/auth', form)
     .then((res) => {
       store.$patch((state) => {
         (state.userInfo.token = res.data.token),
           (state.userInfo.authorized = true);
       });
       axios.defaults.headers.common[
-        "Authorization"
+        'Authorization'
       ] = `Bearer ${res.data.token}`;
       getUserData(res.data.token);
     })
@@ -69,14 +69,14 @@ async function loginRequest() {
 
 function getUserData(token: string) {
   axios
-    .get<UserInfoType>("/users/authorized")
+    .get<UserInfoType>('/users/authorized')
     .then((res) => {
       store.$state.userInfo.userExtra = res.data;
-      ElMessage.success("Вы вошли в систему!");
-      router.push({ name: "search-doc" });
+      ElMessage.success('Вы вошли в систему!');
+      router.push({ name: 'search-doc' });
     })
     .catch((err) => {
-      ElMessage.warning("Произошла ошибка");
+      ElMessage.warning('Произошла ошибка');
     });
 }
 </script>

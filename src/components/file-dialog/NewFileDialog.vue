@@ -60,10 +60,10 @@
 </template>
 
 <script lang="ts" setup>
-import { reactive, ref } from "vue";
-import { ElMessage, ElUpload } from "element-plus";
-import { FileDescriptionType, FullFileType } from "./types";
-import { uploadFileToExistingDocument } from "../../net/common-requests";
+import { reactive, ref } from 'vue';
+import { ElMessage, ElUpload } from 'element-plus';
+import { FileDescriptionType, FullFileType } from './types';
+import { uploadFileToExistingDocument } from '../../net/common-requests';
 
 const props = defineProps<{
   shouldSendRequestsOnChange: boolean;
@@ -72,29 +72,29 @@ const props = defineProps<{
 }>();
 
 const emit = defineEmits<{
-  (event: "fileSaved", fileInfo: FileDescriptionType): void;
+  (event: 'fileSaved', fileInfo: FileDescriptionType): void;
 }>();
 
 const uploadRef = ref<InstanceType<typeof ElUpload>>();
 const dialogVisible = ref(false);
 const fileForm = reactive<FileDescriptionType>({
-  name: "",
-  description: "",
-  fileType: "",
-  author: { id: 1, name: "" },
+  name: '',
+  description: '',
+  fileType: '',
+  author: { id: 1, name: '' },
 });
 
 function fileSelected(file: any) {
   console.log(file);
   fileForm.fileRaw = file.raw;
   fileForm.name = file.name;
-  fileForm.fileType = fileForm.name.slice(fileForm.name.lastIndexOf(".") + 1);
+  fileForm.fileType = fileForm.name.slice(fileForm.name.lastIndexOf('.') + 1);
 }
 
 function clearFormData() {
-  fileForm.name = "";
-  fileForm.description = "";
-  fileForm.fileType = "";
+  fileForm.name = '';
+  fileForm.description = '';
+  fileForm.fileType = '';
   delete fileForm.fileRaw;
   uploadRef.value?.clearFiles();
 }
@@ -108,16 +108,16 @@ function save() {
   if (fileForm.fileRaw || fileForm.id) {
     if (props.shouldSendRequestsOnChange) {
       uploadFileToExistingDocument(props.docId, fileForm).then((res) => {
-        ElMessage.success("Загрузка прошла успешно!");
+        ElMessage.success('Загрузка прошла успешно!');
         props.updateView(props.docId);
         uploadCleanUp();
       });
     } else {
-      emit("fileSaved", fileForm);
+      emit('fileSaved', fileForm);
       uploadCleanUp();
     }
   } else {
-    ElMessage.warning("Выберите файл");
+    ElMessage.warning('Выберите файл');
   }
 }
 

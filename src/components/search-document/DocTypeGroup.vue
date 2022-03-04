@@ -16,16 +16,16 @@
 </template>
 
 <script setup lang="ts">
-import { reactive } from "vue";
-import CheckTagWrapper from "../helpers/CheckTagWrapper.vue";
-import { IndexedType, NamedSelectionType } from "../../types";
+import { reactive } from 'vue';
+import CheckTagWrapper from '../helpers/CheckTagWrapper.vue';
+import { IndexedType, NamedSelectionType } from '../../types';
 
 const props = defineProps<{
   docTypes: () => NamedSelectionType[];
 }>();
 
 const emit = defineEmits<{
-  (event: "tagChecked", id: number, isOn: boolean): void;
+  (event: 'tagChecked', id: number, isOn: boolean): void;
 }>();
 
 const doctypeGroupTags = reactive<IndexedType<number, typeof CheckTagWrapper>>(
@@ -43,7 +43,7 @@ function groupTagChange(id: number) {
   }
   doctypeGroupTags[id].checked = !doctypeGroupTags[id].checked;
   doctypeGroupTagCheckedId = id;
-  emit("tagChecked", id, doctypeGroupTags[id].checked);
+  emit('tagChecked', id, doctypeGroupTags[id].checked);
 }
 </script>
 

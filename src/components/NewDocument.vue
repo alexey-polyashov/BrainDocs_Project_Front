@@ -53,17 +53,17 @@
 </template>
 
 <script lang="ts" setup>
-import { onMounted, reactive, ref, watch } from "vue";
-import Editor from "@tinymce/tinymce-vue";
-import AttachedFilesDialog from "./file-dialog/AttachedFilesDialog.vue";
-import { ElForm, ElMessage, ElMessageBox } from "element-plus";
-import axios from "axios";
-import { getSelectableArray } from "../net/common-requests";
-import SelectableField from "./helpers/SelectableField.vue";
-import { NamedSelectionType } from "../types";
-import { onBeforeRouteLeave, useRouter } from "vue-router";
-import { DocFilterResponseContent } from "./search-document/types";
-import { useStore } from "../store";
+import { onMounted, reactive, ref, watch } from 'vue';
+import Editor from '@tinymce/tinymce-vue';
+import AttachedFilesDialog from './file-dialog/AttachedFilesDialog.vue';
+import { ElForm, ElMessage, ElMessageBox } from 'element-plus';
+import axios from 'axios';
+import { getSelectableArray } from '../net/common-requests';
+import SelectableField from './helpers/SelectableField.vue';
+import { NamedSelectionType } from '../types';
+import { onBeforeRouteLeave, useRouter } from 'vue-router';
+import { DocFilterResponseContent } from './search-document/types';
+import { useStore } from '../store';
 
 type Id = { id: number };
 
@@ -85,19 +85,19 @@ const store = useStore();
 const formRef = ref<InstanceType<typeof ElForm>>();
 const filesDialog = ref();
 const formData = reactive({
-  id: "",
-  number: "",
+  id: '',
+  number: '',
   documentType: {
     id: -1,
-    name: "",
+    name: '',
   },
   organisation: {
     id: -1,
-    name: "",
+    name: '',
   },
   documentDate: new Date().toISOString(),
-  heading: "",
-  content: "",
+  heading: '',
+  content: '',
 });
 const modified = ref(false);
 
@@ -105,8 +105,8 @@ onBeforeRouteLeave(async (to, from) => {
   if (modified.value) {
     let result = false;
     await ElMessageBox.confirm(
-      "Есть несохраненные изменения, закрыть без сохранения?",
-      { type: "warning" }
+      'Есть несохраненные изменения, закрыть без сохранения?',
+      { type: 'warning' }
     ).then(() => (result = true));
     return result;
   } else {
@@ -124,17 +124,17 @@ const toggleFileAttachDialog = () => {
 };
 
 function onCloseClick() {
-  router.push({ name: "search-doc" });
+  router.push({ name: 'search-doc' });
 }
 
 function saveClick() {
   formRef.value?.validate((passed, failedFields) => {
     if (passed) {
-      ElMessageBox.confirm("Сохранить этот документ?", {
-        type: "warning",
+      ElMessageBox.confirm('Сохранить этот документ?', {
+        type: 'warning',
       }).then(() => {
         const userId =
-          store.getUserInfo.userExtra.id !== undefined
+          store.getUserInfo.userExtra?.id !== undefined
             ? store.getUserInfo.userExtra.id
             : 1;
         sendSaveRequest({
@@ -151,7 +151,7 @@ function saveClick() {
       });
     } else {
       ElMessage.warning({
-        message: "Некоторые поля заполнены неверно",
+        message: 'Некоторые поля заполнены неверно',
         grouping: true,
       });
     }
@@ -159,17 +159,17 @@ function saveClick() {
 }
 
 async function sendSaveRequest(data: SaveDocRequest) {
-  ElMessage.info("Идет сохранение...");
+  ElMessage.info('Идет сохранение...');
   await axios
-    .post<number>("/documents" + (data.id ? `/${data.id}` : ""), data)
+    .post<number>('/documents' + (data.id ? `/${data.id}` : ''), data)
     .then((res) => {
-      ElMessage.success("Сохранение успешно!");
+      ElMessage.success('Сохранение успешно!');
       filesDialog.value?.sendStoredFilesToDocument(res.data);
       modified.value = false;
     })
     .catch((error) => {
       console.log(error);
-      ElMessage.error("error");
+      ElMessage.error('error');
     });
 }
 

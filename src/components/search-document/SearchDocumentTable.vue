@@ -43,12 +43,12 @@
 </template>
 
 <script setup lang="ts">
-import axios from "axios";
-import { ElMessage, ElMessageBox } from "element-plus";
-import { ref } from "vue";
-import { useRouter } from "vue-router";
-import AttachedFilesDialog from "../file-dialog/AttachedFilesDialog.vue";
-import { DocFilterResponse, DocTypeView } from "./types";
+import axios from 'axios';
+import { ElMessage, ElMessageBox } from 'element-plus';
+import { ref } from 'vue';
+import { useRouter } from 'vue-router';
+import AttachedFilesDialog from '../file-dialog/AttachedFilesDialog.vue';
+import { DocFilterResponse, DocTypeView } from './types';
 
 const props = defineProps<{
   documentsView: DocTypeView[];
@@ -56,7 +56,7 @@ const props = defineProps<{
 }>();
 
 const emit = defineEmits<{
-  (event: "currentPageChange", newNum: number): void;
+  (event: 'currentPageChange', newNum: number): void;
 }>();
 
 const router = useRouter();
@@ -66,7 +66,7 @@ const filesDialog = ref();
 
 function curPageUpdate(newPageNum: number) {
   currentPage.value = newPageNum;
-  emit("currentPageChange", newPageNum);
+  emit('currentPageChange', newPageNum);
 }
 
 function openFilesDialog(event: Event, row: DocTypeView) {
@@ -80,20 +80,20 @@ function selectionChange(selection: DocTypeView[]) {
 }
 
 function rowClick(row: DocTypeView) {
-  router.push({ name: "new-doc", params: { id: row.id } });
+  router.push({ name: 'new-doc', params: { id: row.id } });
   window.scrollTo({
     top: 0,
     left: 0,
-    behavior: "smooth",
+    behavior: 'smooth',
   });
 }
 
 function deleteSelected(onFinished: () => void) {
   if (selectedViews.length === 0) {
-    ElMessage.info("Нет выбранных елементов");
+    ElMessage.info('Нет выбранных елементов');
   } else {
-    ElMessageBox.confirm("Подтвердите удаление", {
-      type: "warning",
+    ElMessageBox.confirm('Подтвердите удаление', {
+      type: 'warning',
     }).then(() => {
       selectedViews = [];
       const promises: Promise<any>[] = [];
@@ -102,10 +102,10 @@ function deleteSelected(onFinished: () => void) {
       });
       Promise.all(promises)
         .then((res) => {
-          ElMessage.info("Документы удалены");
+          ElMessage.info('Документы удалены');
         })
         .catch((err) => {
-          ElMessage.info("Произошла ошибка");
+          ElMessage.info('Произошла ошибка');
         })
         .finally(() => onFinished());
     });

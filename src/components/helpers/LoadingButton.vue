@@ -10,12 +10,13 @@
 </template>
 
 <script lang="ts" setup>
-import { ref } from "vue";
+import { ref } from 'vue';
 
 const loading = ref(false);
+const setLoading = (val: boolean) => (loading.value = val);
 
 defineExpose({
-  loading,
+  setLoading,
 });
 
 defineProps<{
@@ -23,7 +24,7 @@ defineProps<{
 }>();
 
 defineEmits<{
-  (event: "click"): void;
+  (event: 'click'): void;
 }>();
 </script>
 

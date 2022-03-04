@@ -34,19 +34,8 @@
             </el-menu-item>
           </el-menu>
         </el-col>
-        <el-col :span="3" style="text-align: end">
-          <el-button
-            v-if="userInfo.authorized"
-            type="primary"
-            @click="profileClick"
-          >
-            <span class="material-icons-round">account_circle</span>&nbsp;{{
-              userInfo.userExtra.shortname
-            }}
-          </el-button>
-          <el-button v-else type="primary" @click="signIn">
-            <span class="material-icons-round">account_circle</span>&nbsp;Войти
-          </el-button>
+        <el-col :span="7" style="text-align: end">
+          <profile-menu-button />
         </el-col>
       </el-row>
     </el-header>
@@ -60,10 +49,14 @@
 </template>
 
 <script lang="ts" setup>
-import { useRouter } from "vue-router";
-import { computed, onMounted, onUnmounted, ref } from "vue";
-import { useStore } from "./store";
-import useServerCheck from "./net/server-check";
+import { useRouter } from 'vue-router';
+import { computed, onMounted, onUnmounted, provide, Ref, ref } from 'vue';
+import { useStore } from './store';
+import useServerCheck from './net/server-check';
+import ProfileMenuButton from './components/helpers/ProfileMenuButton.vue';
+
+export type MenuBarValues = 'search-doc' | '3' | '';
+export type SetActiveMenuItemType = (item: MenuBarValues) => void;
 
 const router = useRouter();
 const store = useStore();
@@ -71,27 +64,24 @@ const store = useStore();
 onMounted(() => {
   useServerCheck();
 });
+const activeMenu = ref('');
+const setActiveMenuItem = (item: MenuBarValues) => (activeMenu.value = item);
 
-const activeMenu = ref("");
+provide('setActiveMenuItem', setActiveMenuItem);
 
 const signIn = () => {
-  activeMenu.value = "";
-  router.push({ name: "login" });
+  activeMenu.value = '';
+  router.push({ name: 'login' });
 };
 const menuClicked = (index: string) => {
-  activeMenu.value = index;
-};
-
-const userInfo = computed(() => store.getUserInfo);
-const profileClick = () => {
-  router.push({ name: "profile" });
+  activeMenu.value = index as MenuBarValues;
 };
 </script>
 
 <style>
-@import url("https://fonts.googleapis.com/icon?family=Material+Icons+Round");
-@import url("https://fonts.googleapis.com/css2?family=Ubuntu:wght@400&display=swap");
-@import url("https://fonts.googleapis.com/css2?family=Roboto:wght@400&display=swap");
+@import url('https://fonts.googleapis.com/icon?family=Material+Icons+Round');
+@import url('https://fonts.googleapis.com/css2?family=Ubuntu:wght@400&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400&display=swap');
 
 body {
   min-width: 768px;
@@ -100,7 +90,7 @@ body {
 }
 
 * {
-  font-family: "Roboto", "Ubuntu", sans-serif;
+  font-family: 'Roboto', 'Ubuntu', sans-serif;
 }
 
 .content-box {
@@ -153,13 +143,13 @@ body {
 }
 
 .page-container:before {
-  content: "";
+  content: '';
   display: block;
   position: fixed;
   width: 100%;
   height: 100%;
   opacity: 0.3;
-  background-image: url("assets/bg-min.png");
+  background-image: url('assets/bg-min.png');
   background-repeat: no-repeat;
   background-position: center;
   background-size: cover;

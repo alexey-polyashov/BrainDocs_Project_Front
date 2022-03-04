@@ -1,4 +1,4 @@
-import { NamedSelectionType } from "../../types";
+import { NamedSelectionType } from '../../types';
 
 export interface FileDescriptionType {
   name: string;

@@ -43,13 +43,13 @@
 </template>
 
 <script lang="ts" setup>
-import { ref } from "vue";
-import NewFileDialog from "./NewFileDialog.vue";
-import axios from "axios";
-import { ElMessage } from "element-plus";
-import { FileDescriptionType, FullFileType } from "./types";
-import { uploadFileToExistingDocument } from "../../net/common-requests";
-import _ from "lodash";
+import { ref } from 'vue';
+import NewFileDialog from './NewFileDialog.vue';
+import axios from 'axios';
+import { ElMessage } from 'element-plus';
+import { FileDescriptionType, FullFileType } from './types';
+import { uploadFileToExistingDocument } from '../../net/common-requests';
+import _ from 'lodash';
 
 const props = withDefaults(
   defineProps<{
@@ -69,7 +69,7 @@ let localEntryId = 0;
 
 function updateTableEntry(fileInfo: FileDescriptionType) {
   const clonedInfo = _.clone(fileInfo);
-  clonedInfo.author = { id: fileInfo.author.id, name: "" };
+  clonedInfo.author = { id: fileInfo.author.id, name: '' };
   if (clonedInfo.id) {
     const index = fileTableData.value.findIndex(
       (val) => val.id === clonedInfo.id
@@ -101,7 +101,7 @@ function removeFile(row: FileDescriptionType, index: number) {
   if (props.shouldSendRequestsOnChange) {
     axios.delete(`/documents/${docId.value}/files/${row.id}`).then(() => {
       fileTableData.value.splice(index, 1);
-      ElMessage.warning("Файл удален");
+      ElMessage.warning('Файл удален');
     });
   } else {
     fileTableData.value.splice(index, 1);
@@ -126,7 +126,7 @@ async function sendStoredFilesToDocument(docId: number) {
     promises.push(uploadFileToExistingDocument(docId, element));
   });
   Promise.all(promises).then(() => {
-    ElMessage.success("Загрузка файлов прошла успешно!");
+    ElMessage.success('Загрузка файлов прошла успешно!');
   });
 }
 

@@ -40,13 +40,13 @@
 </template>
 
 <script lang="ts" setup>
-import { reactive, ref, watch } from "vue";
-import { ElForm, ElMessage, ElMessageBox } from "element-plus";
-import { useRouter } from "vue-router";
-import { useStore } from "../store";
-import LoadingButton from "./helpers/LoadingButton.vue";
-import axios from "axios";
-import SelectableField from "./helpers/SelectableField.vue";
+import { reactive, ref, watch } from 'vue';
+import { ElForm, ElMessage, ElMessageBox } from 'element-plus';
+import { useRouter } from 'vue-router';
+import { useStore } from '../store';
+import LoadingButton from './helpers/LoadingButton.vue';
+import axios from 'axios';
+import SelectableField from './helpers/SelectableField.vue';
 
 export interface UserRegistrationRequest {
   email: string;
@@ -65,13 +65,13 @@ const loadingButton = ref();
 
 type FormInstance = InstanceType<typeof ElForm>;
 const formData = reactive({
-  fullName: "asd",
-  shortName: "asd",
-  password: "asd",
-  passwordRepeated: "asd",
-  organisationId: "1",
-  email: "asd@gmail.com",
-  login: "asd",
+  fullName: 'asd',
+  shortName: 'asd',
+  password: 'asd',
+  passwordRepeated: 'asd',
+  organisationId: '1',
+  email: 'asd@gmail.com',
+  login: 'asd',
 });
 const formRules = reactive({
   passwordRepeated: [
@@ -104,21 +104,21 @@ const resetForm = () => {
   formRef.value?.resetFields();
 };
 const switchToLogin = () => {
-  router.push({ name: "login" });
+  router.push({ name: 'login' });
 };
 
 function validatePasswordRepeated(rule: any, value: any, callback: any) {
   if (formData.password !== formData.passwordRepeated) {
-    callback(new Error("Пароли не совпадают"));
+    callback(new Error('Пароли не совпадают'));
   } else {
     callback();
   }
 }
 
 async function sendRegistrationRequest(data: UserRegistrationRequest) {
-  await axios.post<number>("users", data).then((res) => {
+  await axios.post<number>('users', data).then((res) => {
     ElMessageBox.alert(
-      "Запрос на регистрацию успешно отправлен! Ожидайте подтверждения."
+      'Запрос на регистрацию успешно отправлен! Ожидайте подтверждения.'
     );
   });
 }

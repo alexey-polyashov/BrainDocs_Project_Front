@@ -10,12 +10,12 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref } from "vue";
+import { onMounted, ref } from 'vue';
 import {
   getSelectableArray,
   SelectableTypesAlias,
-} from "../../net/common-requests";
-import { NamedSelectionType } from "../../types";
+} from '../../net/common-requests';
+import { NamedSelectionType } from '../../types';
 
 const props = defineProps<{
   selectType?: SelectableTypesAlias;
@@ -27,13 +27,13 @@ const selectableOptions = ref<NamedSelectionType[]>([]);
 
 onMounted(() => {
   if (props.options && props.selectType)
-    throw new Error("only 1 option should be set");
+    throw new Error('only 1 option should be set');
   else if (props.selectType)
     getSelectableArray(props.selectType).then(
       (data) => (selectableOptions.value = data)
     );
   else if (!(props.options || props.selectType))
-    throw new Error("no selection type specified");
+    throw new Error('no selection type specified');
 });
 </script>
 

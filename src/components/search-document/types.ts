@@ -1,5 +1,5 @@
-import { FullFileType } from "../file-dialog/types";
-import { IndexedType, NamedSelectionType } from "../../types";
+import { FullFileType } from '../file-dialog/types';
+import { IndexedType, NamedSelectionType } from '../../types';
 
 export interface DocFilterRequestType {
   page: string;

@@ -8,7 +8,7 @@
     <el-descriptions title="User Info" border :column="1">
       <template #extra>
         <el-button type="primary" @click="fieldsEditable = !fieldsEditable">
-          Изменения {{ fieldsEditable ? "включены" : "выключены" }}
+          Изменения {{ fieldsEditable ? 'включены' : 'выключены' }}
         </el-button>
       </template>
       <el-descriptions-item label="Avatar">
@@ -93,41 +93,44 @@
 </template>
 
 <script lang="ts" setup>
-import { onMounted, reactive, ref, watch } from "vue";
-import { ElForm, ElMessage, ElMessageBox } from "element-plus";
-import { useStore } from "../store";
-import SelectableField from "./helpers/SelectableField.vue";
-import _ from "lodash";
-import axios from "axios";
+import { onMounted, reactive, ref, watch } from 'vue';
+import { ElForm, ElMessage, ElMessageBox } from 'element-plus';
+import { useStore } from '../store';
+import SelectableField from './helpers/SelectableField.vue';
+import _ from 'lodash';
+import axios from 'axios';
 
 const store = useStore();
 const userInfoForm = reactive({
-  avatarSrc: "",
-  fullname: "Full name",
-  shortname: "Full name",
+  avatarSrc: '',
+  fullname: 'Full name',
+  shortname: 'Full name',
   organisation: {
     id: -1,
-    name: "",
+    name: '',
   },
-  login: "asdf",
-  password: "asdf",
-  email: "asdf@gmail.com",
+  login: 'asdf',
+  password: 'asdf',
+  email: 'asdf@gmail.com',
   address:
-    "No.1188, Wuzhong Avenue, Wuzhong District, Suzhou, Jiangsu Province",
-  phone: "3456457433",
+    'No.1188, Wuzhong Avenue, Wuzhong District, Suzhou, Jiangsu Province',
+  phone: '3456457433',
 });
 const passChangeFormRef = ref<InstanceType<typeof ElForm>>();
 const fieldsEditable = ref(false);
 const fieldsModified = ref(false);
 const passChangeDialogVisible = ref(false);
 const passChangeForm = reactive({
-  oldPass: "",
-  newPass: "",
-  newPassRepeated: "",
+  oldPass: '',
+  newPass: '',
+  newPassRepeated: '',
 });
 
 onMounted(() => {
   const user = store.getUserInfo.userExtra;
+  if (!user) {
+    throw new Error('user is undefined');
+  }
   userInfoForm.fullname = user.fullname;
   userInfoForm.login = user.login;
   userInfoForm.email = user.email;
@@ -148,7 +151,7 @@ const passwordChangeSubmit = () => {
     if (isValid) {
       passChangeDialogVisible.value = false;
     } else {
-      ElMessage.error("Some inputs are invalid");
+      ElMessage.error('Some inputs are invalid');
     }
   });
 };
@@ -175,14 +178,17 @@ const passChangeRules = reactive({
 
 function saveChanges() {
   const clonedUserInfo = _.clone(store.getUserInfo.userExtra);
+  if (!clonedUserInfo) {
+    throw new Error('user is undefined');
+  }
   clonedUserInfo.email = userInfoForm.email;
   clonedUserInfo.shortname = userInfoForm.shortname;
   clonedUserInfo.fullname = userInfoForm.fullname;
   clonedUserInfo.login = userInfoForm.login;
   clonedUserInfo.organisation = userInfoForm.organisation;
   axios.put(`/users/${clonedUserInfo.id}`, clonedUserInfo).then(() => {
-    ElMessageBox.alert("Данные обновлены!", {
-      type: "success",
+    ElMessageBox.alert('Данные обновлены!', {
+      type: 'success',
     });
   });
 }

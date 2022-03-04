@@ -93,7 +93,6 @@
                 />
                 <el-select
                   placeholder="Добавить фильтр"
-                  style="margin: 0 16px"
                   @change="addFilterSelected"
                 >
                   <el-option
@@ -127,9 +126,9 @@
 </template>
 
 <script lang="ts">
-import axios from "axios";
-import { computed, onMounted, reactive, ref } from "vue";
-import LoadingButton from "../helpers/LoadingButton.vue";
+import axios from 'axios';
+import { computed, onMounted, reactive, ref } from 'vue';
+import LoadingButton from '../helpers/LoadingButton.vue';
 import {
   DocFilterRequestType,
   DocTypeView,
@@ -139,18 +138,18 @@ import {
   SelectableDataType,
   FilterFieldsViewType,
   DocFilterResponse,
-} from "./types";
-import { AxiosResponse } from "axios";
-import { defineComponent } from "vue";
-import SearchDocumentTable from "./SearchDocumentTable.vue";
+} from './types';
+import { AxiosResponse } from 'axios';
+import { defineComponent } from 'vue';
+import SearchDocumentTable from './SearchDocumentTable.vue';
 import {
   getSelectableArray,
   selectableTypes,
   SelectableTypesAlias,
-} from "../../net/common-requests";
-import SelectableField from "../helpers/SelectableField.vue";
-import DocTypeGroup from "./DocTypeGroup.vue";
-import { useRouter } from "vue-router";
+} from '../../net/common-requests';
+import SelectableField from '../helpers/SelectableField.vue';
+import DocTypeGroup from './DocTypeGroup.vue';
+import { useRouter } from 'vue-router';
 
 export default defineComponent({
   components: {
@@ -162,7 +161,9 @@ export default defineComponent({
   setup() {
     const router = useRouter();
 
-    const applyFiltersButton = ref();
+    const applyFiltersButton = ref<InstanceType<typeof LoadingButton> | null>(
+      null
+    );
     const shownDocuments = ref<DocTypeView[]>([]);
     const documentsResponseData = ref<DocFilterResponse>();
     const filterData = reactive<FilterDataType>({});
@@ -171,14 +172,14 @@ export default defineComponent({
     const selectableData = ref<SelectableDataType>({});
     // url request map to key of a field
     const selectableKeysMapping = {
-      users: "author",
-      docTypes: "documentType",
-      orgs: "organisation",
+      users: 'author',
+      docTypes: 'documentType',
+      orgs: 'organisation',
     };
     const saveFiltersInSession = true;
     const filterPagingInfo = {
-      page: "0",
-      recordsOnPage: "10",
+      page: '0',
+      recordsOnPage: '10',
     };
     const docTableRef = ref();
 
@@ -273,15 +274,15 @@ export default defineComponent({
           const date = new Date(filterRequest.filter[index].value);
           filterRequest.filter.splice(index, 1);
           filterRequest.filter.push({
-            key: "documentDate",
+            key: 'documentDate',
             value: `${date.getFullYear()}-${date.getMonth()}-${date.getDate()}`,
             operation: operation,
           });
         }
       }
 
-      addDateToFilterList("documentDateStart", ">");
-      addDateToFilterList("documentDateEnd", "<");
+      addDateToFilterList('documentDateStart', '>');
+      addDateToFilterList('documentDateEnd', '<');
     }
 
     function initFilters(filterTempData: FilterDataType) {
@@ -291,7 +292,7 @@ export default defineComponent({
           filters.push({
             key: dataKey,
             value: filterTempData[dataKey] as string,
-            operation: ":",
+            operation: ':',
           });
         }
       }
@@ -303,11 +304,11 @@ export default defineComponent({
     }
 
     async function applyFilters(filterTempData: FilterDataType = filterData) {
-      applyFiltersButton.value.loading = true;
+      applyFiltersButton.value?.setLoading(true);
       const filterRequest = initFilters(filterTempData);
       processDate(filterRequest);
       await axios
-        .post<DocFilterResponse>("/documents/search", filterRequest)
+        .post<DocFilterResponse>('/documents/search', filterRequest)
         .then((res) => {
           updateDocuments(res);
           if (saveFiltersInSession) {
@@ -317,7 +318,7 @@ export default defineComponent({
         .catch((err) => {
           console.log(err);
         });
-      applyFiltersButton.value.loading = false;
+      applyFiltersButton.value?.setLoading(false);
     }
 
     function onPageChange(num: number) {
@@ -338,7 +339,7 @@ export default defineComponent({
     }
 
     async function getFieldsRequest() {
-      await axios.get<FilterFieldsType[]>("/documents/fields").then((res) => {
+      await axios.get<FilterFieldsType[]>('/documents/fields').then((res) => {
         filterFields.value = res.data;
       });
     }
@@ -363,8 +364,8 @@ export default defineComponent({
 
     function clearFilterField(fieldIndex: number, isDate: boolean) {
       if (isDate) {
-        delete filterData[filterFields.value[fieldIndex].key + "Start"];
-        delete filterData[filterFields.value[fieldIndex].key + "End"];
+        delete filterData[filterFields.value[fieldIndex].key + 'Start'];
+        delete filterData[filterFields.value[fieldIndex].key + 'End'];
       } else {
         delete filterData[filterFields.value[fieldIndex].key];
       }
@@ -375,26 +376,26 @@ export default defineComponent({
     }
 
     function getDocumentsInitialRequest() {
-      axios.get("/documents/").then(updateDocuments);
+      axios.get('/documents/').then(updateDocuments);
     }
 
     function createNewDocPage() {
-      router.push({ name: "new-doc" });
+      router.push({ name: 'new-doc' });
       window.scrollTo({
         top: 0,
         left: 0,
-        behavior: "smooth",
+        behavior: 'smooth',
       });
     }
 
     function doSaveFiltersInSession() {
-      sessionStorage.setItem("filterData", JSON.stringify(filterData));
+      sessionStorage.setItem('filterData', JSON.stringify(filterData));
       sessionStorage.setItem(
-        "filterFields",
+        'filterFields',
         JSON.stringify(filterFields.value)
       );
       sessionStorage.setItem(
-        "filterActiveFields",
+        'filterActiveFields',
         JSON.stringify(activeFilterFieldIndices.value)
       );
     }
@@ -402,17 +403,17 @@ export default defineComponent({
     function retrieveSessionFilters() {
       function parseData(item: string, data: unknown): boolean {
         const storedData = sessionStorage.getItem(item);
-        if (storedData && storedData !== "undefined") {
+        if (storedData && storedData !== 'undefined') {
           Object.assign(data, JSON.parse(storedData));
           return true;
         }
         return false;
       }
 
-      const dataPersist = parseData("filterData", filterData);
-      const filterFieldsPersist = parseData("filterFields", filterFields.value);
+      const dataPersist = parseData('filterData', filterData);
+      const filterFieldsPersist = parseData('filterFields', filterFields.value);
       const activeFilterFieldsPersist = parseData(
-        "filterActiveFields",
+        'filterActiveFields',
         activeFilterFieldIndices.value
       );
       return {
