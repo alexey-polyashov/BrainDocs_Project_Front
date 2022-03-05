@@ -152,6 +152,8 @@ import {
 import SelectableField from '../helpers/SelectableField.vue';
 import DocTypeGroup from './DocTypeGroup.vue';
 import { useRouter } from 'vue-router';
+import { convertDate } from '../../common';
+import { da } from 'element-plus/lib/locale';
 
 export default defineComponent({
   components: {
@@ -195,7 +197,7 @@ export default defineComponent({
       }
     }
 
-    function initFilterFields() {
+    async function initFilterFieldsAsync() {
       let sessionFiltersResult:
         | ReturnType<typeof retrieveSessionFilters>
         | undefined = undefined;
@@ -216,19 +218,25 @@ export default defineComponent({
           initActiveFields();
       }
 
-      if (!sessionFiltersResult?.filterFieldsPersist) {
-        getFieldsRequest().then(() => {
+      return new Promise<void>((resolve) => {
+        if (!sessionFiltersResult?.filterFieldsPersist) {
+          getFieldsRequest().then(() => {
+            initActiveFieldsIfNeeded();
+            resolve();
+          });
+        } else {
           initActiveFieldsIfNeeded();
-        });
-      } else {
-        initActiveFieldsIfNeeded();
-      }
+          resolve();
+        }
+      });
     }
 
     onMounted(() => {
-      getDocumentsInitialRequest();
-      initSelectableArraysAsync();
-      initFilterFields();
+      const p1 = initSelectableArraysAsync();
+      const p2 = initFilterFieldsAsync();
+      Promise.all([p1, p2]).then(() => {
+        applyFilters();
+      });
     });
 
     const nonActiveFields = computed<FilterFieldsType[]>(() => {
@@ -277,7 +285,7 @@ export default defineComponent({
           filterRequest.filter.splice(index, 1);
           filterRequest.filter.push({
             key: 'documentDate',
-            value: `${date.getFullYear()}-${date.getMonth()}-${date.getDate()}`,
+            value: convertDate(date),
             operation: operation,
           });
         }
@@ -375,10 +383,6 @@ export default defineComponent({
 
     function deleteSelectedDocs() {
       docTableRef.value?.deleteSelected(() => applyFilters());
-    }
-
-    function getDocumentsInitialRequest() {
-      axios.get('/documents/').then(updateDocuments);
     }
 
     function createNewDocPage() {

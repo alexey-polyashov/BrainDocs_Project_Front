@@ -10,6 +10,12 @@ export async function uploadFileToExistingDocument(
   docId: number,
   fileInfo: FileDescriptionType
 ) {
+  // replace name property with shortname as it is required for dto
+  if (fileInfo.author) {
+    const author = fileInfo.author as any;
+    author.shortname = author.name;
+    delete author.name;
+  }
   const formData = new FormData();
   formData.append(
     'fileDescribe',

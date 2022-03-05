@@ -64,6 +64,7 @@ import { reactive, ref } from 'vue';
 import { ElMessage, ElUpload } from 'element-plus';
 import { FileDescriptionType, FullFileType } from './types';
 import { uploadFileToExistingDocument } from '../../net/common-requests';
+import { LocalFileDescriptionType } from './AttachedFilesDialog.vue';
 
 const props = defineProps<{
   shouldSendRequestsOnChange: boolean;
@@ -72,12 +73,12 @@ const props = defineProps<{
 }>();
 
 const emit = defineEmits<{
-  (event: 'fileSaved', fileInfo: FileDescriptionType): void;
+  (event: 'fileSaved', fileInfo: LocalFileDescriptionType): void;
 }>();
 
 const uploadRef = ref<InstanceType<typeof ElUpload>>();
 const dialogVisible = ref(false);
-const fileForm = reactive<FileDescriptionType>({
+const fileForm = reactive<LocalFileDescriptionType>({
   name: '',
   description: '',
   fileType: '',
@@ -121,9 +122,10 @@ function save() {
   }
 }
 
-function editMode(fileInfo: FullFileType) {
+function editMode(fileInfo: FullFileType | LocalFileDescriptionType) {
   fileForm.name = fileInfo.name;
   fileForm.id = fileInfo.id;
+  if ((fileInfo as any).localId) fileForm.localId = (fileInfo as any).localId;
   fileForm.description = fileInfo.description;
 }
 

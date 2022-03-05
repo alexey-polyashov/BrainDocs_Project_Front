@@ -31,7 +31,10 @@
         v-model="formData.content"
         api-key="r8zqd3nkvkfr7t0s0r4qo107guk38q9xpact4xap39t1p0pe"
       />
-      <AttachedFilesDialog ref="filesDialog" />
+      <AttachedFilesDialog
+        ref="filesDialog"
+        :should-send-requests-on-change="shouldSendRequestsOnChange"
+      />
       <div class="button-group">
         <el-button
           size="large"
@@ -82,8 +85,9 @@ type SaveDocRequest = {
 const router = useRouter();
 const store = useStore();
 
+const shouldSendRequestsOnChange = ref(false);
 const formRef = ref<InstanceType<typeof ElForm>>();
-const filesDialog = ref();
+const filesDialog = ref<InstanceType<typeof AttachedFilesDialog> | null>(null);
 const formData = reactive({
   id: '',
   number: '',
@@ -196,6 +200,8 @@ function editMode(docId: number) {
     });
   }
   fetchDocById(docId);
+  shouldSendRequestsOnChange.value = true;
+  filesDialog.value?.updateView(docId);
 }
 
 defineExpose({

@@ -47,9 +47,13 @@ import { ref } from 'vue';
 import NewFileDialog from './NewFileDialog.vue';
 import axios from 'axios';
 import { ElMessage } from 'element-plus';
-import { FileDescriptionType, FullFileType } from './types';
+import { FullFileType, FileDescriptionType } from './types';
 import { uploadFileToExistingDocument } from '../../net/common-requests';
 import _ from 'lodash';
+
+export interface LocalFileDescriptionType extends FileDescriptionType {
+  localId?: number;
+}
 
 const props = withDefaults(
   defineProps<{
@@ -59,45 +63,45 @@ const props = withDefaults(
     shouldSendRequestsOnChange: false,
   }
 );
-
-const fileTableData = ref<FileDescriptionType[]>([]);
+const fileTableData = ref<LocalFileDescriptionType[]>([]);
 const docId = ref(0);
 const newFileDialog = ref();
 const dialogVisible = ref(false);
 const toggleVisible = () => (dialogVisible.value = !dialogVisible.value);
 let localEntryId = 0;
 
-function updateTableEntry(fileInfo: FileDescriptionType) {
+function updateTableEntry(fileInfo: LocalFileDescriptionType) {
   const clonedInfo = _.clone(fileInfo);
-  clonedInfo.author = { id: fileInfo.author.id, name: '' };
-  if (clonedInfo.id) {
+  if (clonedInfo.localId) {
     const index = fileTableData.value.findIndex(
-      (val) => val.id === clonedInfo.id
+      (val) => val.localId === clonedInfo.localId
     );
     fileTableData.value[index] = clonedInfo;
   } else {
-    clonedInfo.id = localEntryId;
+    clonedInfo.localId = localEntryId;
     localEntryId++;
     fileTableData.value.push(clonedInfo);
   }
 }
 
 function updateView(id: number) {
-  if (props.shouldSendRequestsOnChange) {
-    docId.value = id;
-    fileTableData.value = [];
-    axios.get<FullFileType[]>(`/documents/${docId.value}/files`).then((res) => {
-      fileTableData.value = res.data;
+  docId.value = id;
+  fileTableData.value = [];
+  axios.get<FullFileType[]>(`/documents/${docId.value}/files`).then((res) => {
+    fileTableData.value = res.data;
+    fileTableData.value.forEach((el) => {
+      el.localId = localEntryId;
+      localEntryId++;
     });
-  }
+  });
 }
 
-function editFileClick(fileInfo: FileDescriptionType) {
+function editFileClick(fileInfo: LocalFileDescriptionType) {
   newFileDialog.value.dialogVisible = true;
   newFileDialog.value.editMode(fileInfo);
 }
 
-function removeFile(row: FileDescriptionType, index: number) {
+function removeFile(row: LocalFileDescriptionType, index: number) {
   if (props.shouldSendRequestsOnChange) {
     axios.delete(`/documents/${docId.value}/files/${row.id}`).then(() => {
       fileTableData.value.splice(index, 1);
@@ -122,10 +126,10 @@ async function sendStoredFilesToDocument(docId: number) {
   if (fileTableData.value.length === 0) return;
   let promises: Promise<FullFileType>[] = [];
   fileTableData.value.forEach((element) => {
-    delete element.id;
+    delete element.localId;
     promises.push(uploadFileToExistingDocument(docId, element));
   });
-  Promise.all(promises).then(() => {
+  await Promise.all(promises).then(() => {
     ElMessage.success('Загрузка файлов прошла успешно!');
   });
 }

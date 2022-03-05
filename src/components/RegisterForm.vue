@@ -8,7 +8,10 @@
       label-position="right"
     >
       <h2>Регистрация</h2>
-      <el-form-item required label="Имя" prop="shortName">
+      <el-form-item required label="Полное имя" prop="fullName">
+        <el-input v-model="formData.fullName" />
+      </el-form-item>
+      <el-form-item required label="Короткое имя" prop="shortName">
         <el-input v-model="formData.shortName" />
       </el-form-item>
       <el-form-item required label="Организация" prop="organisationId">
@@ -91,7 +94,7 @@ const onSubmit = () => {
         password: formData.password,
         shortname: formData.shortName,
         organisationId: +formData.organisationId,
-        //fullname: formData.shortName,
+        fullname: formData.fullName,
         //male: 'm',
         //birthday: new Date().toISOString()
       }).then(() => {
