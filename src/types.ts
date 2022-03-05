@@ -4,7 +4,7 @@ export type IndexedType<T extends number | string, U> = {
 
 export interface NamedSelectionType {
   id: number,
-  shortname: string,
+  name: string,
 }
 
 export interface UserInfoType {
