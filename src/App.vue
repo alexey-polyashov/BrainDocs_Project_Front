@@ -29,7 +29,7 @@
             <el-menu-item index="search-doc" class="menu-item">
               Поиск
             </el-menu-item>
-            <el-menu-item index="3" class="menu-item">
+            <el-menu-item index="directories" class="menu-item">
               Справочники
             </el-menu-item>
           </el-menu>
@@ -55,11 +55,8 @@ import { useStore } from './store';
 import useServerCheck from './net/server-check';
 import ProfileMenuButton from './components/helpers/ProfileMenuButton.vue';
 
-export type MenuBarValues = 'search-doc' | '3' | '';
+export type MenuBarValues = 'search-doc' | 'directories' | '';
 export type SetActiveMenuItemType = (item: MenuBarValues) => void;
-
-const router = useRouter();
-const store = useStore();
 
 onMounted(() => {
   useServerCheck();
@@ -69,10 +66,6 @@ const setActiveMenuItem = (item: MenuBarValues) => (activeMenu.value = item);
 
 provide('setActiveMenuItem', setActiveMenuItem);
 
-const signIn = () => {
-  activeMenu.value = '';
-  router.push({ name: 'login' });
-};
 const menuClicked = (index: string) => {
   activeMenu.value = index as MenuBarValues;
 };

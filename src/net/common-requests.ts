@@ -16,6 +16,9 @@ export async function uploadFileToExistingDocument(
     author.shortname = author.name;
     delete author.name;
   }
+  const fileIdToSave = fileInfo.id;
+  delete fileInfo.id;
+  delete (fileInfo as any).localId;
   const formData = new FormData();
   formData.append(
     'fileDescribe',
@@ -31,7 +34,7 @@ export async function uploadFileToExistingDocument(
     axios
       .post<FullFileType>(
         `/documents/${docId}/files/${
-          fileInfo.id !== undefined ? fileInfo.id : 'upload'
+          fileIdToSave !== undefined ? fileIdToSave : 'upload'
         }`,
         formData
       )

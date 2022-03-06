@@ -2,7 +2,7 @@
   <el-card class="form-box">
     <el-form ref="formRef" :model="form" label-width="auto">
       <h2>Вход</h2>
-      <el-form-item label="Логин" prop="login">
+      <el-form-item label="Логин" prop="username">
         <el-input v-model="form.username" />
       </el-form-item>
       <el-form-item label="Пароль" prop="password">
@@ -52,21 +52,21 @@ async function loginRequest() {
     .post<{ token: string }>('/auth', form)
     .then((res) => {
       store.$patch((state) => {
-        (state.userInfo.token = res.data.token),
-          (state.userInfo.authorized = true);
+        state.userInfo.token = res.data.token;
+        state.userInfo.authorized = true;
       });
       axios.defaults.headers.common[
         'Authorization'
       ] = `Bearer ${res.data.token}`;
-      getUserData(res.data.token);
+      getUserData();
     })
     .catch((err) => {
-      ElMessage.error(err.response.data);
+      ElMessage.warning(err.response.data);
     });
   loadingButton.value.loading = false;
 }
 
-function getUserData(token: string) {
+function getUserData() {
   axios
     .get<UserInfoType>('/users/authorized')
     .then((res) => {

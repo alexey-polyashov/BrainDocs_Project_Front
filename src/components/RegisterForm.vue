@@ -50,6 +50,7 @@ import { useStore } from '../store';
 import LoadingButton from './helpers/LoadingButton.vue';
 import axios from 'axios';
 import SelectableField from './helpers/SelectableField.vue';
+import _ from 'lodash';
 
 export interface UserRegistrationRequest {
   email: string;
@@ -72,7 +73,9 @@ const formData = reactive({
   shortName: 'asd',
   password: 'asd',
   passwordRepeated: 'asd',
-  organisationId: '1',
+  organisationId: {
+    id: 1,
+  },
   email: 'asd@gmail.com',
   login: 'asd',
 });
@@ -99,6 +102,11 @@ const onSubmit = () => {
         //birthday: new Date().toISOString()
       }).then(() => {
         loadingButton.value.loading = false;
+      });
+    } else {
+      ElMessage.warning({
+        message: 'Некоторые поля заполнены неверно',
+        grouping: true,
       });
     }
   });

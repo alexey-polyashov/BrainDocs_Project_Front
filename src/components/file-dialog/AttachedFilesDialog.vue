@@ -1,5 +1,5 @@
 <template>
-  <el-dialog v-model="dialogVisible" title="Files" width="600px">
+  <el-dialog v-model="dialogVisible" title="Файлы" width="600px">
     <el-table :data="fileTableData" style="width: 100%" max-height="300">
       <el-table-column prop="name" label="Имя" />
       <el-table-column prop="author.shortname" label="Автор" />
@@ -126,7 +126,6 @@ async function sendStoredFilesToDocument(docId: number) {
   if (fileTableData.value.length === 0) return;
   let promises: Promise<FullFileType>[] = [];
   fileTableData.value.forEach((element) => {
-    delete element.localId;
     promises.push(uploadFileToExistingDocument(docId, element));
   });
   await Promise.all(promises).then(() => {
