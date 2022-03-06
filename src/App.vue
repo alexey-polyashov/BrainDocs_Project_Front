@@ -54,12 +54,14 @@ import { computed, onMounted, onUnmounted, provide, Ref, ref } from 'vue';
 import { useStore } from './store';
 import useServerCheck from './net/server-check';
 import ProfileMenuButton from './components/helpers/ProfileMenuButton.vue';
+import { installAuthHeader } from './common';
 
 export type MenuBarValues = 'search-doc' | 'directories' | '';
 export type SetActiveMenuItemType = (item: MenuBarValues) => void;
 
 onMounted(() => {
   useServerCheck();
+  installAuthHeader();
 });
 const activeMenu = ref('');
 const setActiveMenuItem = (item: MenuBarValues) => (activeMenu.value = item);

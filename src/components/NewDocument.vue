@@ -170,6 +170,7 @@ async function sendSaveRequest(data: SaveDocRequest) {
     .then((res) => {
       ElMessage.success('Сохранение успешно!');
       filesDialog.value?.sendStoredFilesToDocument(res.data);
+      editMode(res.data);
       modified.value = false;
     })
     .catch((error) => {

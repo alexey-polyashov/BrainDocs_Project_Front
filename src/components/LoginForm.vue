@@ -29,6 +29,8 @@ import LoadingButton from './helpers/LoadingButton.vue';
 import axios from 'axios';
 import { useStore } from '../store';
 import { NamedSelectionType, UserInfoType } from '../types';
+import { updateUserData } from '../net/common-requests';
+import { installAuthHeader } from '../common';
 
 type FormInstance = InstanceType<typeof ElForm>;
 const loadingButton = ref();
@@ -55,28 +57,16 @@ async function loginRequest() {
         state.userInfo.token = res.data.token;
         state.userInfo.authorized = true;
       });
-      axios.defaults.headers.common[
-        'Authorization'
-      ] = `Bearer ${res.data.token}`;
-      getUserData();
+      installAuthHeader();
+      updateUserData().then(() => {
+        ElMessage.success('Вы вошли в систему!');
+        router.push({ name: 'search-doc' });
+      });
     })
     .catch((err) => {
       ElMessage.warning(err.response.data);
     });
   loadingButton.value.loading = false;
-}
-
-function getUserData() {
-  axios
-    .get<UserInfoType>('/users/authorized')
-    .then((res) => {
-      store.$state.userInfo.userExtra = res.data;
-      ElMessage.success('Вы вошли в систему!');
-      router.push({ name: 'search-doc' });
-    })
-    .catch((err) => {
-      ElMessage.warning('Произошла ошибка');
-    });
 }
 </script>
 
