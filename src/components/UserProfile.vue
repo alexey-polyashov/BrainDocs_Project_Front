@@ -129,18 +129,19 @@ const passChangeForm = reactive({
 });
 
 onMounted(() => {
-  updateUserData();
-  const user = store.getUserInfo.userExtra;
-  if (!user) {
-    throw new Error('user is undefined');
-  }
-  userInfoForm.fullname = user.fullname;
-  userInfoForm.login = user.login;
-  userInfoForm.email = user.email;
-  userInfoForm.shortname = user.shortname;
-  userInfoForm.organisation = user.organisation;
-  watch(userInfoForm, () => {
-    fieldsModified.value = true;
+  updateUserData().then(() => {
+    const user = store.getUserInfo.userExtra;
+    if (!user) {
+      throw new Error('user is undefined');
+    }
+    userInfoForm.fullname = user.fullname;
+    userInfoForm.login = user.login;
+    userInfoForm.email = user.email;
+    userInfoForm.shortname = user.shortname;
+    userInfoForm.organisation = user.organisation;
+    watch(userInfoForm, () => {
+      fieldsModified.value = true;
+    });
   });
 });
 
