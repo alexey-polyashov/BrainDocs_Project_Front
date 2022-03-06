@@ -5,14 +5,13 @@
 </template>
 
 <script lang="ts" setup>
-import { ref } from "vue";
+import { ref } from 'vue';
 
 const checked = ref(false);
 
 defineExpose({
-  checked
+  checked,
 });
 </script>
 
-<style scoped>
-</style>
+<style scoped></style>

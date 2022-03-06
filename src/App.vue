@@ -1,21 +1,18 @@
 <template>
   <el-container class="page-container">
     <el-header class="page-header">
-      <el-row
-        justify="space-between"
-        align="middle"
-      >
-        <el-col
-          :span="10"
-          class="logo-menu"
-        >
+      <el-row justify="space-between" align="middle">
+        <el-col :span="10" class="logo-menu">
           <div class="main-logo">
-            <span
-              class="material-icons-round main-logo-icon"
-            >
+            <span class="material-icons-round main-logo-icon">
               filter_drama
             </span>
-            <span class="logo-text"><span style="color: #88deff;">B</span>rain<span style="color: #88deff;">D</span>ocs</span>
+            <span class="logo-text"
+              ><span style="color: #88deff">B</span>rain<span
+                style="color: #88deff"
+                >D</span
+              >ocs</span
+            >
           </div>
           <el-menu
             :default-active="activeMenu"
@@ -29,38 +26,16 @@
             router
             @select="menuClicked"
           >
-            <el-menu-item
-              index="search-doc"
-              class="menu-item"
-            >
+            <el-menu-item index="search-doc" class="menu-item">
               Поиск
             </el-menu-item>
-            <el-menu-item
-              index="3"
-              class="menu-item"
-            >
+            <el-menu-item index="3" class="menu-item">
               Справочники
             </el-menu-item>
           </el-menu>
         </el-col>
-        <el-col
-          :span="3"
-          style="text-align: end"
-        >
-          <el-button
-            v-if="userInfo.authorized"
-            type="primary"
-            @click="profileClick"
-          >
-            <span class="material-icons-round">account_circle</span>&nbsp;{{ userInfo.userExtra.shortname }}
-          </el-button>
-          <el-button
-            v-else
-            type="primary"
-            @click="signIn"
-          >
-            <span class="material-icons-round">account_circle</span>&nbsp;Войти
-          </el-button>
+        <el-col :span="7" style="text-align: end">
+          <profile-menu-button />
         </el-col>
       </el-row>
     </el-header>
@@ -74,10 +49,14 @@
 </template>
 
 <script lang="ts" setup>
-import { useRouter } from "vue-router";
-import { computed, onMounted, onUnmounted, ref } from "vue";
-import { useStore } from "./store";
-import useServerCheck from "./net/server-check";
+import { useRouter } from 'vue-router';
+import { computed, onMounted, onUnmounted, provide, Ref, ref } from 'vue';
+import { useStore } from './store';
+import useServerCheck from './net/server-check';
+import ProfileMenuButton from './components/helpers/ProfileMenuButton.vue';
+
+export type MenuBarValues = 'search-doc' | '3' | '';
+export type SetActiveMenuItemType = (item: MenuBarValues) => void;
 
 const router = useRouter();
 const store = useStore();
@@ -85,21 +64,18 @@ const store = useStore();
 onMounted(() => {
   useServerCheck();
 });
-
 const activeMenu = ref('');
+const setActiveMenuItem = (item: MenuBarValues) => (activeMenu.value = item);
+
+provide('setActiveMenuItem', setActiveMenuItem);
 
 const signIn = () => {
   activeMenu.value = '';
   router.push({ name: 'login' });
-}
+};
 const menuClicked = (index: string) => {
-  activeMenu.value = index;
-}
-
-const userInfo = computed(() => store.getUserInfo);
-const profileClick = () => {
-  router.push({ name: 'profile' });
-}
+  activeMenu.value = index as MenuBarValues;
+};
 </script>
 
 <style>

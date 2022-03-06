@@ -1,5 +1,5 @@
-import { createApp } from 'vue'
-import { createPinia, PiniaPluginContext } from "pinia";
+import { createApp } from 'vue';
+import { createPinia, PiniaPluginContext } from 'pinia';
 import App from './App.vue';
 import router from './router';
 import ElementPlus from 'element-plus';
@@ -28,7 +28,7 @@ pinia.use(piniaLocalStoragePlugin);
 
 createApp(App)
   .use(ElementPlus, {
-    locale: ru
+    locale: ru,
   })
   .use(pinia)
   .use(router)

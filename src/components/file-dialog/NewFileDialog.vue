@@ -6,26 +6,14 @@
     width="500px"
     @close="clearFormData"
   >
-    <el-form
-      label-width="auto"
-      :model="fileForm"
-    >
-      <el-form-item
-        label="Имя файла"
-        prop="name"
-      >
+    <el-form label-width="auto" :model="fileForm">
+      <el-form-item label="Имя файла" prop="name">
         <el-input v-model="fileForm.name" />
       </el-form-item>
-      <el-form-item
-        label="Описание"
-        prop="description"
-      >
+      <el-form-item label="Описание" prop="description">
         <el-input v-model="fileForm.description" />
       </el-form-item>
-      <el-form-item
-        v-if="shouldSendRequestsOnChange"
-        label="Просмотр файла"
-      >
+      <el-form-item v-if="shouldSendRequestsOnChange" label="Просмотр файла">
         <el-link
           :href="`https://brain-docs.herokuapp.com/api/v1/documents/${$props.docId}/files/${fileForm.id}/data`"
           type="primary"
@@ -34,10 +22,7 @@
           preview
         </el-link>
       </el-form-item>
-      <el-form-item
-        v-if="shouldSendRequestsOnChange"
-        label="Ссылка файла"
-      >
+      <el-form-item v-if="shouldSendRequestsOnChange" label="Ссылка файла">
         <el-link
           :href="`https://brain-docs.herokuapp.com/api/v1/documents/${$props.docId}/files/${fileForm.id}/download`"
           type="primary"
@@ -64,44 +49,36 @@
         <em>нажмите для загрузки</em>
       </div>
       <template #tip>
-        <div class="el-upload__tip">
-          любое расширение, размер до 500kb
-        </div>
+        <div class="el-upload__tip">любое расширение, размер до 500kb</div>
       </template>
     </el-upload>
     <template #footer>
-      <el-button
-        type="primary"
-        @click="save"
-      >
-        Сохранить
-      </el-button>
-      <el-button @click="dialogVisible = false">
-        Отмена
-      </el-button>
+      <el-button type="primary" @click="save"> Сохранить </el-button>
+      <el-button @click="dialogVisible = false"> Отмена </el-button>
     </template>
   </el-dialog>
 </template>
 
 <script lang="ts" setup>
-import { reactive, ref } from "vue";
-import { ElMessage, ElUpload } from "element-plus";
-import { FileDescriptionType, FullFileType } from "./types";
-import { uploadFileToExistingDocument } from "../../net/common-requests";
+import { reactive, ref } from 'vue';
+import { ElMessage, ElUpload } from 'element-plus';
+import { FileDescriptionType, FullFileType } from './types';
+import { uploadFileToExistingDocument } from '../../net/common-requests';
+import { LocalFileDescriptionType } from './AttachedFilesDialog.vue';
 
 const props = defineProps<{
-  shouldSendRequestsOnChange: boolean,
-  docId: number,
-  updateView: (id: number) => void,
+  shouldSendRequestsOnChange: boolean;
+  docId: number;
+  updateView: (id: number) => void;
 }>();
 
 const emit = defineEmits<{
-  (event: 'fileSaved', fileInfo: FileDescriptionType): void,
+  (event: 'fileSaved', fileInfo: LocalFileDescriptionType): void;
 }>();
 
 const uploadRef = ref<InstanceType<typeof ElUpload>>();
 const dialogVisible = ref(false);
-const fileForm = reactive<FileDescriptionType>({
+const fileForm = reactive<LocalFileDescriptionType>({
   name: '',
   description: '',
   fileType: '',
@@ -131,7 +108,7 @@ function save() {
 
   if (fileForm.fileRaw || fileForm.id) {
     if (props.shouldSendRequestsOnChange) {
-      uploadFileToExistingDocument(props.docId, fileForm).then(res => {
+      uploadFileToExistingDocument(props.docId, fileForm).then((res) => {
         ElMessage.success('Загрузка прошла успешно!');
         props.updateView(props.docId);
         uploadCleanUp();
@@ -145,9 +122,10 @@ function save() {
   }
 }
 
-function editMode(fileInfo: FullFileType) {
+function editMode(fileInfo: FullFileType | LocalFileDescriptionType) {
   fileForm.name = fileInfo.name;
   fileForm.id = fileInfo.id;
+  if ((fileInfo as any).localId) fileForm.localId = (fileInfo as any).localId;
   fileForm.description = fileInfo.description;
 }
 
@@ -157,7 +135,7 @@ function onLimitExceed(files: any, fileList: any) {
 
 defineExpose({
   dialogVisible,
-  editMode
+  editMode,
 });
 </script>
 

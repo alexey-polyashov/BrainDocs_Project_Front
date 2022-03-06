@@ -1,23 +1,16 @@
 <template>
-  <el-card style="max-width: fit-content; margin: 0 auto;">
-    <div style="display: flex; justify-content: center;">
+  <el-card style="max-width: fit-content; margin: 0 auto">
+    <div style="display: flex; justify-content: center">
       <DocTypeGroup
         class="grouping-box content-box"
         :doc-types="() => selectableData['documentType']"
         @tag-checked="groupTagChange"
       />
-      <div style="min-width: 0;">
+      <div style="min-width: 0">
         <div class="filter-box-item filter-fields-box">
-          <el-form
-            label-width="200px"
-            label-position="left"
-          >
+          <el-form label-width="200px" label-position="left">
             <h1>Фильтры</h1>
-            <TransitionGroup
-              tag="div"
-              name="list"
-              style="position: relative"
-            >
+            <TransitionGroup tag="div" name="list" style="position: relative">
               <template
                 v-for="(field, filterFieldsArrIndex) in activeFieldsObject"
                 :key="field.key"
@@ -33,20 +26,17 @@
                       <el-date-picker
                         v-model="filterData[field.key + 'Start']"
                         type="date"
-                        style="display: block;"
-                        placeholder="Дата начала поиска"
+                        style="display: block; width: 150px"
+                        placeholder="Дата начала"
                       />
                       <el-date-picker
                         v-model="filterData[field.key + 'End']"
                         type="date"
-                        style="display: block; margin-top: 8px;"
-                        placeholder="Дата конца поиска"
+                        style="display: block; margin-top: 8px; width: 150px"
+                        placeholder="Дата конца"
                       />
                     </div>
-                    <el-input
-                      v-else
-                      v-model="filterData[field.key]"
-                    />
+                    <el-input v-else v-model="filterData[field.key]" />
                     <el-tooltip
                       effect="dark"
                       content="Очистить поле"
@@ -55,12 +45,18 @@
                       <el-button
                         size="small"
                         style="margin-left: 16px"
-                        @click="clearFilterField(filterFieldsArrIndex, field.type === 'Date')"
+                        @click="
+                          clearFilterField(
+                            filterFieldsArrIndex,
+                            field.type === 'Date'
+                          )
+                        "
                       >
                         <span
                           style="font-size: 1rem"
                           class="material-icons-round"
-                        >clear</span>
+                          >clear</span
+                        >
                       </el-button>
                     </el-tooltip>
                     <el-tooltip
@@ -72,12 +68,18 @@
                         type="danger"
                         size="small"
                         style="margin-left: 16px"
-                        @click="disableField(filterFieldsArrIndex, field.type === 'Date')"
+                        @click="
+                          disableField(
+                            filterFieldsArrIndex,
+                            field.type === 'Date'
+                          )
+                        "
                       >
                         <span
                           style="font-size: 1rem"
                           class="material-icons-round"
-                        >delete</span>
+                          >delete</span
+                        >
                       </el-button>
                     </el-tooltip>
                   </div>
@@ -86,12 +88,13 @@
               <div key="optionsSection">
                 <LoadingButton
                   ref="applyFiltersButton"
+                  class="m8"
                   button-text="Применить"
                   @click="applyFilters"
                 />
                 <el-select
+                  class="m8"
                   placeholder="Добавить фильтр"
-                  style="margin: 0 16px"
                   @change="addFilterSelected"
                 >
                   <el-option
@@ -101,16 +104,10 @@
                     :value="item.key"
                   />
                 </el-select>
-                <el-button 
-                  type="primary"
-                  @click="createNewDocPage"
-                >
+                <el-button type="primary" class="m8" @click="createNewDocPage">
                   Создать документ
                 </el-button>
-                <el-button
-                  type="danger"
-                  @click="deleteSelectedDocs"
-                >
+                <el-button type="danger" class="m8" @click="deleteSelectedDocs">
                   Удалить выбранные
                 </el-button>
               </div>
@@ -131,9 +128,9 @@
 </template>
 
 <script lang="ts">
-import axios from "axios";
-import { computed, onMounted, reactive, ref } from "vue";
-import LoadingButton from "../helpers/LoadingButton.vue";
+import axios from 'axios';
+import { computed, onMounted, reactive, ref } from 'vue';
+import LoadingButton from '../helpers/LoadingButton.vue';
 import {
   DocFilterRequestType,
   DocTypeView,
@@ -143,26 +140,34 @@ import {
   SelectableDataType,
   FilterFieldsViewType,
   DocFilterResponse,
-} from "./types";
-import { AxiosResponse } from "axios";
-import { defineComponent } from "vue";
-import SearchDocumentTable from "./SearchDocumentTable.vue";
-import { getSelectableArray, selectableTypes, SelectableTypesAlias } from "../../net/common-requests";
-import SelectableField from "../helpers/SelectableField.vue";
-import DocTypeGroup from "./DocTypeGroup.vue";
-import { useRouter } from "vue-router";
+} from './types';
+import { AxiosResponse } from 'axios';
+import { defineComponent } from 'vue';
+import SearchDocumentTable from './SearchDocumentTable.vue';
+import {
+  getSelectableArray,
+  selectableTypes,
+  SelectableTypesAlias,
+} from '../../net/common-requests';
+import SelectableField from '../helpers/SelectableField.vue';
+import DocTypeGroup from './DocTypeGroup.vue';
+import { useRouter } from 'vue-router';
+import { convertDate } from '../../common';
+import { da } from 'element-plus/lib/locale';
 
 export default defineComponent({
   components: {
     LoadingButton,
     SearchDocumentTable,
     SelectableField,
-    DocTypeGroup
+    DocTypeGroup,
   },
   setup() {
     const router = useRouter();
 
-    const applyFiltersButton = ref();
+    const applyFiltersButton = ref<InstanceType<typeof LoadingButton> | null>(
+      null
+    );
     const shownDocuments = ref<DocTypeView[]>([]);
     const documentsResponseData = ref<DocFilterResponse>();
     const filterData = reactive<FilterDataType>({});
@@ -192,8 +197,10 @@ export default defineComponent({
       }
     }
 
-    function initFilterFields() {
-      let sessionFiltersResult: ReturnType<typeof retrieveSessionFilters> | undefined = undefined;
+    async function initFilterFieldsAsync() {
+      let sessionFiltersResult:
+        | ReturnType<typeof retrieveSessionFilters>
+        | undefined = undefined;
       if (saveFiltersInSession) {
         sessionFiltersResult = retrieveSessionFilters();
       }
@@ -207,67 +214,85 @@ export default defineComponent({
       }
 
       function initActiveFieldsIfNeeded() {
-        if (!sessionFiltersResult?.activeFilterFieldsPersist) initActiveFields();
+        if (!sessionFiltersResult?.activeFilterFieldsPersist)
+          initActiveFields();
       }
 
-      if (!sessionFiltersResult?.filterFieldsPersist) {
-        getFieldsRequest().then(() => {
+      return new Promise<void>((resolve) => {
+        if (!sessionFiltersResult?.filterFieldsPersist) {
+          getFieldsRequest().then(() => {
+            initActiveFieldsIfNeeded();
+            resolve();
+          });
+        } else {
           initActiveFieldsIfNeeded();
-        });
-      } else {
-        initActiveFieldsIfNeeded();
-      }
+          resolve();
+        }
+      });
     }
 
     onMounted(() => {
-      getDocumentsInitialRequest();
-      initSelectableArraysAsync();
-      initFilterFields();
+      const p1 = initSelectableArraysAsync();
+      const p2 = initFilterFieldsAsync();
+      Promise.all([p1, p2]).then(() => {
+        applyFilters();
+      });
     });
 
     const nonActiveFields = computed<FilterFieldsType[]>(() => {
-      return filterFields.value.filter(((value, index) => activeFilterFieldIndices.value.indexOf(index) === -1));
+      return filterFields.value.filter(
+        (value, index) => activeFilterFieldIndices.value.indexOf(index) === -1
+      );
     });
 
     const activeFieldsObject = computed<FilterFieldsViewType>(() => {
       const res: FilterFieldsViewType = {};
-      activeFilterFieldIndices.value.forEach(index => res[index] = filterFields.value[index]);
+      activeFilterFieldIndices.value.forEach(
+        (index) => (res[index] = filterFields.value[index])
+      );
       return res;
     });
 
     async function initSelectableArraysAsync() {
       const promises: Promise<void>[] = [];
       for (const key in selectableTypes) {
-        promises.push(getSelectableArray(key as SelectableTypesAlias).then(data => {
-          selectableData.value[selectableKeysMapping[key as SelectableTypesAlias]] = data;
-        }));
+        promises.push(
+          getSelectableArray(key as SelectableTypesAlias).then((data) => {
+            selectableData.value[
+              selectableKeysMapping[key as SelectableTypesAlias]
+            ] = data;
+          })
+        );
       }
       return Promise.all(promises);
     }
 
     function addFilterSelected(selectedKey: string) {
-      const selectedFieldIndex = filterFields.value.findIndex(value => value.key === selectedKey);
-      if (selectedFieldIndex !== -1) activeFilterFieldIndices.value.push(selectedFieldIndex);
+      const selectedFieldIndex = filterFields.value.findIndex(
+        (value) => value.key === selectedKey
+      );
+      if (selectedFieldIndex !== -1)
+        activeFilterFieldIndices.value.push(selectedFieldIndex);
     }
 
     function processDate(filterRequest: DocFilterRequestType) {
-      function addDateToFilterList(index: number, operation: string) {
+      function addDateToFilterList(fieldKey: string, operation: string) {
+        const index = filterRequest.filter.findIndex(
+          (value) => value.key === fieldKey
+        );
         if (index !== -1) {
           const date = new Date(filterRequest.filter[index].value);
           filterRequest.filter.splice(index, 1);
           filterRequest.filter.push({
             key: 'documentDate',
-            value: `${date.getFullYear()}-${date.getMonth()}-${date.getDate()}`,
-            operation: operation
+            value: convertDate(date),
+            operation: operation,
           });
         }
       }
 
-      const dateObjIndexStart = filterRequest.filter.findIndex(value => value.key === 'documentDateStart');
-      addDateToFilterList(dateObjIndexStart, '>');
-
-      const dateObjIndexEnd = filterRequest.filter.findIndex(value => value.key === 'documentDateEnd');
-      addDateToFilterList(dateObjIndexEnd, '<');
+      addDateToFilterList('documentDateStart', '>');
+      addDateToFilterList('documentDateEnd', '<');
     }
 
     function initFilters(filterTempData: FilterDataType) {
@@ -277,33 +302,33 @@ export default defineComponent({
           filters.push({
             key: dataKey,
             value: filterTempData[dataKey] as string,
-            operation: ':'
+            operation: ':',
           });
         }
       }
       const filterRequest: DocFilterRequestType = {
         ...filterPagingInfo,
-        filter: filters
+        filter: filters,
       };
       return filterRequest;
     }
 
     async function applyFilters(filterTempData: FilterDataType = filterData) {
-      applyFiltersButton.value.loading = true;
+      applyFiltersButton.value?.setLoading(true);
       const filterRequest = initFilters(filterTempData);
       processDate(filterRequest);
       await axios
         .post<DocFilterResponse>('/documents/search', filterRequest)
-        .then(res => {
+        .then((res) => {
           updateDocuments(res);
           if (saveFiltersInSession) {
             doSaveFiltersInSession();
           }
         })
-        .catch(err => {
-          console.log(err)
+        .catch((err) => {
+          console.log(err);
         });
-      applyFiltersButton.value.loading = false;
+      applyFiltersButton.value?.setLoading(false);
     }
 
     function onPageChange(num: number) {
@@ -313,7 +338,8 @@ export default defineComponent({
 
     function disableField(fieldIndex: number | string, isDate: boolean) {
       fieldIndex = Number(fieldIndex);
-      const activeFieldIndex = activeFilterFieldIndices.value.indexOf(fieldIndex);
+      const activeFieldIndex =
+        activeFilterFieldIndices.value.indexOf(fieldIndex);
       activeFilterFieldIndices.value.splice(activeFieldIndex, 1);
       clearFilterField(fieldIndex, isDate);
     }
@@ -323,17 +349,15 @@ export default defineComponent({
     }
 
     async function getFieldsRequest() {
-      await axios
-        .get<FilterFieldsType[]>('/documents/fields')
-        .then((res) => {
-          filterFields.value = res.data;
-        });
+      await axios.get<FilterFieldsType[]>('/documents/fields').then((res) => {
+        filterFields.value = res.data;
+      });
     }
 
     function updateDocuments(res: AxiosResponse<DocFilterResponse>) {
       documentsResponseData.value = res.data;
       shownDocuments.value = [];
-      res.data.content.forEach(doc => {
+      res.data.content.forEach((doc) => {
         shownDocuments.value.push({
           id: doc.id,
           documentType: doc.documentType.name,
@@ -361,25 +385,25 @@ export default defineComponent({
       docTableRef.value?.deleteSelected(() => applyFilters());
     }
 
-    function getDocumentsInitialRequest() {
-      axios
-        .get('/documents/')
-        .then(updateDocuments);
-    }
-
     function createNewDocPage() {
       router.push({ name: 'new-doc' });
       window.scrollTo({
         top: 0,
         left: 0,
-        behavior: 'smooth'
+        behavior: 'smooth',
       });
     }
 
     function doSaveFiltersInSession() {
       sessionStorage.setItem('filterData', JSON.stringify(filterData));
-      sessionStorage.setItem('filterFields', JSON.stringify(filterFields.value));
-      sessionStorage.setItem('filterActiveFields', JSON.stringify(activeFilterFieldIndices.value));
+      sessionStorage.setItem(
+        'filterFields',
+        JSON.stringify(filterFields.value)
+      );
+      sessionStorage.setItem(
+        'filterActiveFields',
+        JSON.stringify(activeFilterFieldIndices.value)
+      );
     }
 
     function retrieveSessionFilters() {
@@ -394,11 +418,14 @@ export default defineComponent({
 
       const dataPersist = parseData('filterData', filterData);
       const filterFieldsPersist = parseData('filterFields', filterFields.value);
-      const activeFilterFieldsPersist = parseData('filterActiveFields', activeFilterFieldIndices.value);
+      const activeFilterFieldsPersist = parseData(
+        'filterActiveFields',
+        activeFilterFieldIndices.value
+      );
       return {
         dataPersist,
         filterFieldsPersist,
-        activeFilterFieldsPersist
+        activeFilterFieldsPersist,
       };
     }
 
@@ -419,9 +446,9 @@ export default defineComponent({
       isInSelectableKeys,
       clearFilterField,
       onPageChange,
-      createNewDocPage
+      createNewDocPage,
     };
-  }
+  },
 });
 </script>
 
@@ -442,6 +469,10 @@ export default defineComponent({
   border-top-right-radius: 0;
   border-bottom-right-radius: 0;
   border-right-width: 1px;
+}
+
+.m8 {
+  margin: 8px;
 }
 
 .filter-form-item {

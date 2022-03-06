@@ -5,32 +5,21 @@
         <span style="font-size: xx-large">Profile</span>
       </div>
     </template>
-    <el-descriptions
-      title="User Info"
-      border
-      :column="1"
-    >
+    <el-descriptions title="User Info" border :column="1">
       <template #extra>
-        <el-button
-          type="primary"
-          @click="fieldsEditable = !fieldsEditable"
-        >
+        <el-button type="primary" @click="fieldsEditable = !fieldsEditable">
           Изменения {{ fieldsEditable ? 'включены' : 'выключены' }}
         </el-button>
       </template>
       <el-descriptions-item label="Avatar">
-        <el-avatar
-          :size="80"
-          :src="userInfoForm.avatarSrc"
-        >
-          <img src="https://cube.elemecdn.com/e/fd/0fc7d20532fdaf769a25683617711png.png">
+        <el-avatar :size="80" :src="userInfoForm.avatarSrc">
+          <img
+            src="https://cube.elemecdn.com/e/fd/0fc7d20532fdaf769a25683617711png.png"
+          />
         </el-avatar>
       </el-descriptions-item>
       <el-descriptions-item label="Полное имя">
-        <el-input
-          v-model="userInfoForm.fullname"
-          :readonly="!fieldsEditable"
-        />
+        <el-input v-model="userInfoForm.fullname" :readonly="!fieldsEditable" />
       </el-descriptions-item>
       <el-descriptions-item label="Короткое имя">
         <el-input
@@ -39,16 +28,10 @@
         />
       </el-descriptions-item>
       <el-descriptions-item label="Логин">
-        <el-input
-          v-model="userInfoForm.login"
-          :readonly="!fieldsEditable"
-        />
+        <el-input v-model="userInfoForm.login" :readonly="!fieldsEditable" />
       </el-descriptions-item>
       <el-descriptions-item label="Почта">
-        <el-input
-          v-model="userInfoForm.email"
-          :readonly="!fieldsEditable"
-        />
+        <el-input v-model="userInfoForm.email" :readonly="!fieldsEditable" />
       </el-descriptions-item>
       <el-descriptions-item label="Организация">
         <selectable-field
@@ -59,16 +42,10 @@
         />
       </el-descriptions-item>
       <el-descriptions-item label="Адрес">
-        <el-input
-          v-model="userInfoForm.address"
-          :readonly="!fieldsEditable"
-        />
+        <el-input v-model="userInfoForm.address" :readonly="!fieldsEditable" />
       </el-descriptions-item>
       <el-descriptions-item label="Телефон">
-        <el-input
-          v-model="userInfoForm.phone"
-          :readonly="!fieldsEditable"
-        />
+        <el-input v-model="userInfoForm.phone" :readonly="!fieldsEditable" />
       </el-descriptions-item>
     </el-descriptions>
     <el-button
@@ -79,10 +56,7 @@
     >
       Save changes
     </el-button>
-    <el-button
-      style="margin-top: 16px"
-      @click="passwordChangePrompt"
-    >
+    <el-button style="margin-top: 16px" @click="passwordChangePrompt">
       Change password
     </el-button>
   </el-card>
@@ -97,56 +71,35 @@
       label-width="150px"
       :rules="passChangeRules"
     >
-      <el-form-item
-        required
-        label="Old password"
-        prop="oldPass"
-      >
-        <el-input
-          v-model="passChangeForm.oldPass"
-          type="password"
-        />
+      <el-form-item required label="Old password" prop="oldPass">
+        <el-input v-model="passChangeForm.oldPass" type="password" />
       </el-form-item>
-      <el-form-item
-        required
-        label="New password"
-        prop="newPass"
-      >
-        <el-input
-          v-model="passChangeForm.newPass"
-          type="password"
-        />
+      <el-form-item required label="New password" prop="newPass">
+        <el-input v-model="passChangeForm.newPass" type="password" />
       </el-form-item>
-      <el-form-item
-        required
-        label="Repeat"
-        prop="newPassRepeated"
-      >
-        <el-input
-          v-model="passChangeForm.newPassRepeated"
-          type="password"
-        />
+      <el-form-item required label="Repeat" prop="newPassRepeated">
+        <el-input v-model="passChangeForm.newPassRepeated" type="password" />
       </el-form-item>
     </el-form>
     <template #footer>
       <span class="dialog-footer">
         <el-button @click="passChangeDialogVisible = false">Cancel</el-button>
-        <el-button
-          type="primary"
-          @click="passwordChangeSubmit"
-        >Submit</el-button>
+        <el-button type="primary" @click="passwordChangeSubmit"
+          >Submit</el-button
+        >
       </span>
     </template>
   </el-dialog>
 </template>
 
 <script lang="ts" setup>
-import { onMounted, reactive, ref, watch } from "vue"
-import { ElForm, ElMessage, ElMessageBox } from "element-plus"
-import { useStore } from "../store";
-import SelectableField from "./helpers/SelectableField.vue";
-import _ from "lodash";
-import axios from "axios";
+import { onMounted, reactive, ref, watch } from 'vue';
+import { ElForm, ElMessage, ElMessageBox } from 'element-plus';
+import { useStore } from '../store';
+import SelectableField from './helpers/SelectableField.vue';
+import _ from 'lodash';
+import axios from 'axios';
+import { UserInfoType } from '../types';
 
 const store = useStore();
 const userInfoForm = reactive({
@@ -155,12 +108,13 @@ const userInfoForm = reactive({
   shortname: 'Full name',
   organisation: {
     id: -1,
-    name: ''
+    name: '',
   },
   login: 'asdf',
   password: 'asdf',
   email: 'asdf@gmail.com',
-  address: 'No.1188, Wuzhong Avenue, Wuzhong District, Suzhou, Jiangsu Province',
+  address:
+    'No.1188, Wuzhong Avenue, Wuzhong District, Suzhou, Jiangsu Province',
   phone: '3456457433',
 });
 const passChangeFormRef = ref<InstanceType<typeof ElForm>>();
@@ -170,11 +124,14 @@ const passChangeDialogVisible = ref(false);
 const passChangeForm = reactive({
   oldPass: '',
   newPass: '',
-  newPassRepeated: ''
+  newPassRepeated: '',
 });
 
 onMounted(() => {
   const user = store.getUserInfo.userExtra;
+  if (!user) {
+    throw new Error('user is undefined');
+  }
   userInfoForm.fullname = user.fullname;
   userInfoForm.login = user.login;
   userInfoForm.email = user.email;
@@ -183,53 +140,61 @@ onMounted(() => {
   watch(userInfoForm, () => {
     fieldsModified.value = true;
   });
-})
+});
 
 const passwordChangePrompt = () => {
   passChangeDialogVisible.value = true;
-}
+};
 
 const passwordChangeSubmit = () => {
   passChangeFormRef.value?.validate((isValid, invalidFields) => {
-    console.log(isValid)
+    console.log(isValid);
     if (isValid) {
       passChangeDialogVisible.value = false;
     } else {
       ElMessage.error('Some inputs are invalid');
     }
-  })
-}
+  });
+};
 
-const passwordMatchValidator = (rule: unknown, value: unknown, callback: (er?: Error) => void) => {
+const passwordMatchValidator = (
+  rule: unknown,
+  value: unknown,
+  callback: (er?: Error) => void
+) => {
   if (passChangeForm.newPass === passChangeForm.newPassRepeated) {
     callback();
   } else {
     callback(new Error("Two inputs don't match!"));
   }
-}
+};
 
 const passChangeRules = reactive({
   newPassRepeated: [
     {
       validator: passwordMatchValidator,
-    }
-  ]
+    },
+  ],
 });
 
 function saveChanges() {
   const clonedUserInfo = _.clone(store.getUserInfo.userExtra);
+  if (!clonedUserInfo) {
+    throw new Error('user is undefined');
+  }
   clonedUserInfo.email = userInfoForm.email;
   clonedUserInfo.shortname = userInfoForm.shortname;
   clonedUserInfo.fullname = userInfoForm.fullname;
   clonedUserInfo.login = userInfoForm.login;
   clonedUserInfo.organisation = userInfoForm.organisation;
   axios
-    .put(`/users/${clonedUserInfo.id}`, clonedUserInfo)
-    .then(() => {
+    .put<UserInfoType>(`/users/${clonedUserInfo.id}`, clonedUserInfo)
+    .then((res) => {
       ElMessageBox.alert('Данные обновлены!', {
-        type: 'success'
+        type: 'success',
       });
-  })
+      store.getUserInfo.userExtra = res.data;
+    });
 }
 </script>
 

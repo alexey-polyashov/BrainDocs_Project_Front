@@ -1,5 +1,5 @@
-import { ElLoading } from "element-plus";
-import axios from "axios";
+import { ElLoading } from 'element-plus';
+import axios from 'axios';
 
 export default function useServerCheck() {
   setInterval(testServerConnection, 1000 * 60 * 20);
@@ -17,7 +17,7 @@ export default function useServerCheck() {
     }, 1000);
     axios
       .get('/test', {
-        timeout: 0
+        timeout: 0,
       })
       .then(() => {
         loading?.close();

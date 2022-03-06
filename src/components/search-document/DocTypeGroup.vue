@@ -6,7 +6,7 @@
         v-for="docType in docTypes()"
         :key="docType.id"
         :ref="(el: any) => groupTagInit(docType.id, el)"
-        style="margin-bottom: 8px; display: block;"
+        style="margin-bottom: 8px; display: block"
         @change="groupTagChange(docType.id)"
       >
         {{ docType.name }}
@@ -18,17 +18,19 @@
 <script setup lang="ts">
 import { reactive } from 'vue';
 import CheckTagWrapper from '../helpers/CheckTagWrapper.vue';
-import { IndexedType, NamedSelectionType } from "../../types";
+import { IndexedType, NamedSelectionType } from '../../types';
 
 const props = defineProps<{
-  docTypes: () => NamedSelectionType[]
+  docTypes: () => NamedSelectionType[];
 }>();
 
 const emit = defineEmits<{
-  (event: 'tagChecked', id: number, isOn: boolean): void,
+  (event: 'tagChecked', id: number, isOn: boolean): void;
 }>();
 
-const doctypeGroupTags = reactive<IndexedType<number, typeof CheckTagWrapper>>({});
+const doctypeGroupTags = reactive<IndexedType<number, typeof CheckTagWrapper>>(
+  {}
+);
 let doctypeGroupTagCheckedId = -1;
 
 function groupTagInit(id: number, el: typeof CheckTagWrapper) {
@@ -43,8 +45,6 @@ function groupTagChange(id: number) {
   doctypeGroupTagCheckedId = id;
   emit('tagChecked', id, doctypeGroupTags[id].checked);
 }
-
 </script>
 
-<style scoped>
-</style>
+<style scoped></style>
