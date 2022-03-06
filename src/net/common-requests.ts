@@ -4,7 +4,9 @@ import {
   FileDescriptionType,
   FullFileType,
 } from '../components/file-dialog/types';
-import { NamedSelectionType } from '../types';
+import router from '../router';
+import { useStore } from '../store';
+import { NamedSelectionType, UserInfoType } from '../types';
 
 export async function uploadFileToExistingDocument(
   docId: number,
@@ -16,6 +18,9 @@ export async function uploadFileToExistingDocument(
     author.shortname = author.name;
     delete author.name;
   }
+  const fileIdToSave = fileInfo.id;
+  delete fileInfo.id;
+  delete (fileInfo as any).localId;
   const formData = new FormData();
   formData.append(
     'fileDescribe',
@@ -31,7 +36,7 @@ export async function uploadFileToExistingDocument(
     axios
       .post<FullFileType>(
         `/documents/${docId}/files/${
-          fileInfo.id !== undefined ? fileInfo.id : 'upload'
+          fileIdToSave !== undefined ? fileIdToSave : 'upload'
         }`,
         formData
       )
@@ -75,4 +80,15 @@ export async function getSelectableArray(
         reject(err);
       });
   });
+}
+
+export async function updateUserData() {
+  return axios
+    .get<UserInfoType>('/users/authorized')
+    .then((res) => {
+      useStore().$state.userInfo.userExtra = res.data;
+    })
+    .catch((err) => {
+      ElMessage.warning('Произошла ошибка');
+    });
 }

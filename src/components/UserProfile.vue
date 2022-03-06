@@ -100,6 +100,7 @@ import SelectableField from './helpers/SelectableField.vue';
 import _ from 'lodash';
 import axios from 'axios';
 import { UserInfoType } from '../types';
+import { updateUserData } from '../net/common-requests';
 
 const store = useStore();
 const userInfoForm = reactive({
@@ -128,6 +129,7 @@ const passChangeForm = reactive({
 });
 
 onMounted(() => {
+  updateUserData();
   const user = store.getUserInfo.userExtra;
   if (!user) {
     throw new Error('user is undefined');

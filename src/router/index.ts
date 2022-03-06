@@ -1,4 +1,4 @@
-import { createRouter, createWebHistory } from 'vue-router';
+import { createRouter, createWebHistory, useRouter } from 'vue-router';
 
 export default createRouter({
   history: createWebHistory(),
@@ -33,6 +33,11 @@ export default createRouter({
       path: '/search-doc',
       component: () =>
         import('../components/search-document/SearchDocument.vue'),
+    },
+    {
+      name: 'directories',
+      path: '/directories',
+      component: () => import('../components/DirectoriesPage.vue'),
     },
   ],
 });
