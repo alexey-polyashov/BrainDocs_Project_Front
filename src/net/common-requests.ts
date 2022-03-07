@@ -59,6 +59,18 @@ export const selectableTypes = Object.freeze({
 
 export type SelectableTypesAlias = keyof typeof selectableTypes;
 
+export const directoryTypes = Object.freeze({
+  docTypes: 'documents/types',
+  orgs: 'organisations',
+  docs: 'documents',
+});
+
+export type DirectoryTypesAlias = keyof typeof directoryTypes;
+
+export function getUrlByDirectoryType(type: DirectoryTypesAlias) {
+  return directoryTypes[type];
+}
+
 export async function getSelectableArray(
   type: SelectableTypesAlias
 ): Promise<NamedSelectionType[]> {

@@ -1,6 +1,6 @@
 <template>
   <div>
-    <h1>Группировка по виду документа</h1>
+    <h3>Группировка по виду документа</h3>
     <el-scrollbar height="100%">
       <CheckTagWrapper
         v-for="docType in docTypes()"

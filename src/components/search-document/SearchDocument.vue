@@ -8,119 +8,25 @@
       />
       <div style="min-width: 0">
         <div class="filter-box-item filter-fields-box">
-          <el-form label-width="200px" label-position="left">
-            <h1>Фильтры</h1>
-            <TransitionGroup tag="div" name="list" style="position: relative">
-              <template
-                v-for="(field, filterFieldsArrIndex) in activeFieldsObject"
-                :key="field.key"
-              >
-                <el-form-item :label="field.name">
-                  <div class="filter-form-item">
-                    <SelectableField
-                      v-if="isInSelectableKeys(field.key)"
-                      v-model="filterData[field.key]"
-                      :options="() => selectableData[field.key]"
-                    />
-                    <div v-else-if="field.type === 'Date'">
-                      <el-date-picker
-                        v-model="filterData[field.key + 'Start']"
-                        type="date"
-                        style="display: block; width: 150px"
-                        placeholder="Дата начала"
-                      />
-                      <el-date-picker
-                        v-model="filterData[field.key + 'End']"
-                        type="date"
-                        style="display: block; margin-top: 8px; width: 150px"
-                        placeholder="Дата конца"
-                      />
-                    </div>
-                    <el-input v-else v-model="filterData[field.key]" />
-                    <el-tooltip
-                      effect="dark"
-                      content="Очистить поле"
-                      placement="top-start"
-                    >
-                      <el-button
-                        size="small"
-                        style="margin-left: 16px"
-                        @click="
-                          clearFilterField(
-                            filterFieldsArrIndex,
-                            field.type === 'Date'
-                          )
-                        "
-                      >
-                        <span
-                          style="font-size: 1rem"
-                          class="material-icons-round"
-                          >clear</span
-                        >
-                      </el-button>
-                    </el-tooltip>
-                    <el-tooltip
-                      effect="dark"
-                      content="Удалить поле"
-                      placement="top-start"
-                    >
-                      <el-button
-                        type="danger"
-                        size="small"
-                        style="margin-left: 16px"
-                        @click="
-                          disableField(
-                            filterFieldsArrIndex,
-                            field.type === 'Date'
-                          )
-                        "
-                      >
-                        <span
-                          style="font-size: 1rem"
-                          class="material-icons-round"
-                          >delete</span
-                        >
-                      </el-button>
-                    </el-tooltip>
-                  </div>
-                </el-form-item>
-              </template>
-              <div key="optionsSection">
-                <LoadingButton
-                  ref="applyFiltersButton"
-                  class="m8"
-                  button-text="Применить"
-                  @click="applyFilters"
-                />
-                <el-select
-                  class="m8"
-                  placeholder="Добавить фильтр"
-                  @change="addFilterSelected"
-                >
-                  <el-option
-                    v-for="item in nonActiveFields"
-                    :key="item.key"
-                    :label="item.name"
-                    :value="item.key"
-                  />
-                </el-select>
-                <el-button type="primary" class="m8" @click="createNewDocPage">
-                  Создать документ
-                </el-button>
-                <el-button type="danger" class="m8" @click="deleteSelectedDocs">
-                  Удалить выбранные
-                </el-button>
-              </div>
+          <SearchFilters
+            ref="searchFiltersRef"
+            filter-type="docs"
+            :selectable-data="selectableData"
+            @init-ready="onFiltersInit"
+            @filters-applied="onFiltersApplied"
+            @create-click="onCreateClick"
+            @delete-selected-click="onDeleteSelectedClick"
+          >
+            <template #table>
               <SearchDocumentTable
                 ref="docTableRef"
-                key="docTable"
                 :document-filter-data="documentsResponseData"
                 :documents-view="shownDocuments"
                 class="filter-box-item filter-box-table"
                 @current-page-change="onPageChange"
               />
-            </TransitionGroup>
-          </el-form>
+            </template>
+          </SearchFilters>
         </div>
       </div>
     </div>
@@ -128,50 +34,28 @@
 </template>
 
 <script lang="ts">
-import axios from 'axios';
-import { computed, onMounted, reactive, ref } from 'vue';
-import LoadingButton from '../helpers/LoadingButton.vue';
-import {
-  DocFilterRequestType,
-  DocTypeView,
-  FilterType,
-  FilterDataType,
-  FilterFieldsType,
-  SelectableDataType,
-  FilterFieldsViewType,
-  DocFilterResponse,
-} from './types';
-import { AxiosResponse } from 'axios';
-import { defineComponent } from 'vue';
-import SearchDocumentTable from './SearchDocumentTable.vue';
+import { defineComponent, ref } from 'vue';
 import {
   getSelectableArray,
   selectableTypes,
   SelectableTypesAlias,
 } from '../../net/common-requests';
-import SelectableField from '../helpers/SelectableField.vue';
 import DocTypeGroup from './DocTypeGroup.vue';
+import SearchFilters from './SearchFilters.vue';
+import { DocFilterResponse, DocTypeView, SelectableDataType } from './types';
+import SearchDocumentTable from './SearchDocumentTable.vue';
 import { useRouter } from 'vue-router';
-import { convertDate } from '../../common';
 
 export default defineComponent({
   components: {
-    LoadingButton,
-    SearchDocumentTable,
-    SelectableField,
+    SearchFilters,
     DocTypeGroup,
+    SearchDocumentTable,
   },
   setup() {
     const router = useRouter();
-
-    const applyFiltersButton = ref<InstanceType<typeof LoadingButton> | null>(
-      null
-    );
     const shownDocuments = ref<DocTypeView[]>([]);
     const documentsResponseData = ref<DocFilterResponse>();
-    const filterData = reactive<FilterDataType>({});
-    const filterFields = ref<FilterFieldsType[]>([]);
-    const activeFilterFieldIndices = ref<number[]>([]);
     const selectableData = ref<SelectableDataType>({});
     // url request map to key of a field
     const selectableKeysMapping = {
@@ -179,78 +63,43 @@ export default defineComponent({
       docTypes: 'documentType',
       orgs: 'organisation',
     };
-    const saveFiltersInSession = true;
-    const filterPagingInfo = {
-      page: '0',
-      recordsOnPage: '10',
-    };
-    const docTableRef = ref();
+    const searchFiltersRef = ref<InstanceType<typeof SearchFilters> | null>(
+      null
+    );
+    const docTableRef = ref<InstanceType<typeof SearchDocumentTable> | null>(
+      null
+    );
+
+    function onCreateClick() {
+      router.push({ name: 'new-doc' });
+      window.scrollTo({
+        top: 0,
+        left: 0,
+        behavior: 'smooth',
+      });
+    }
+
+    function onDeleteSelectedClick() {
+      docTableRef.value?.deleteSelected(() =>
+        searchFiltersRef.value?.applyFilters()
+      );
+    }
 
     function groupTagChange(id: number, isOn: boolean) {
-      if (isOn) {
-        filterData.documentType = `${id}`;
-        applyFilters();
-      } else {
-        delete filterData.documentType;
-        applyFilters();
-      }
+      searchFiltersRef.value?.groupTagChange(id, isOn);
     }
 
-    async function initFilterFieldsAsync() {
-      let sessionFiltersResult:
-        | ReturnType<typeof retrieveSessionFilters>
-        | undefined = undefined;
-      if (saveFiltersInSession) {
-        sessionFiltersResult = retrieveSessionFilters();
-      }
+    const initSelectablesPromise = initSelectableArraysAsync();
 
-      function initActiveFields() {
-        filterFields.value.forEach((value, index) => {
-          if (value.defaultOn) {
-            activeFilterFieldIndices.value.push(index);
-          }
-        });
-      }
-
-      function initActiveFieldsIfNeeded() {
-        if (!sessionFiltersResult?.activeFilterFieldsPersist)
-          initActiveFields();
-      }
-
-      return new Promise<void>((resolve) => {
-        if (!sessionFiltersResult?.filterFieldsPersist) {
-          getFieldsRequest().then(() => {
-            initActiveFieldsIfNeeded();
-            resolve();
-          });
-        } else {
-          initActiveFieldsIfNeeded();
-          resolve();
-        }
+    function onFiltersInit() {
+      initSelectablesPromise.then(() => {
+        searchFiltersRef.value?.applyFilters();
       });
     }
 
-    onMounted(() => {
-      const p1 = initSelectableArraysAsync();
-      const p2 = initFilterFieldsAsync();
-      Promise.all([p1, p2]).then(() => {
-        applyFilters();
-      });
-    });
-
-    const nonActiveFields = computed<FilterFieldsType[]>(() => {
-      return filterFields.value.filter(
-        (value, index) => activeFilterFieldIndices.value.indexOf(index) === -1
-      );
-    });
-
-    const activeFieldsObject = computed<FilterFieldsViewType>(() => {
-      const res: FilterFieldsViewType = {};
-      activeFilterFieldIndices.value.forEach(
-        (index) => (res[index] = filterFields.value[index])
-      );
-      return res;
-    });
+    function onFiltersApplied(data: DocFilterResponse) {
+      updateDocuments(data);
+    }
 
     async function initSelectableArraysAsync() {
       const promises: Promise<void>[] = [];
@@ -266,97 +115,14 @@ export default defineComponent({
       return Promise.all(promises);
     }
 
-    function addFilterSelected(selectedKey: string) {
-      const selectedFieldIndex = filterFields.value.findIndex(
-        (value) => value.key === selectedKey
-      );
-      if (selectedFieldIndex !== -1)
-        activeFilterFieldIndices.value.push(selectedFieldIndex);
-    }
-
-    function processDate(filterRequest: DocFilterRequestType) {
-      function addDateToFilterList(fieldKey: string, operation: string) {
-        const index = filterRequest.filter.findIndex(
-          (value) => value.key === fieldKey
-        );
-        if (index !== -1) {
-          const date = new Date(filterRequest.filter[index].value);
-          filterRequest.filter.splice(index, 1);
-          filterRequest.filter.push({
-            key: 'documentDate',
-            value: convertDate(date),
-            operation: operation,
-          });
-        }
-      }
-
-      addDateToFilterList('documentDateStart', '>');
-      addDateToFilterList('documentDateEnd', '<');
-    }
-
-    function initFilters(filterTempData: FilterDataType) {
-      const filters: FilterType[] = [];
-      for (const dataKey in filterTempData) {
-        if (filterTempData[dataKey]) {
-          filters.push({
-            key: dataKey,
-            value: filterTempData[dataKey] as string,
-            operation: ':',
-          });
-        }
-      }
-      const filterRequest: DocFilterRequestType = {
-        ...filterPagingInfo,
-        filter: filters,
-      };
-      return filterRequest;
-    }
-
-    async function applyFilters(filterTempData: FilterDataType = filterData) {
-      applyFiltersButton.value?.setLoading(true);
-      const filterRequest = initFilters(filterTempData);
-      processDate(filterRequest);
-      await axios
-        .post<DocFilterResponse>('/documents/search', filterRequest)
-        .then((res) => {
-          updateDocuments(res);
-          if (saveFiltersInSession) {
-            doSaveFiltersInSession();
-          }
-        })
-        .catch((err) => {
-          console.log(err);
-        });
-      applyFiltersButton.value?.setLoading(false);
-    }
-
     function onPageChange(num: number) {
-      filterPagingInfo.page = (num - 1).toString();
-      applyFilters();
+      searchFiltersRef.value?.onPageChange(num);
     }
 
-    function disableField(fieldIndex: number | string, isDate: boolean) {
-      fieldIndex = Number(fieldIndex);
-      const activeFieldIndex =
-        activeFilterFieldIndices.value.indexOf(fieldIndex);
-      activeFilterFieldIndices.value.splice(activeFieldIndex, 1);
-      clearFilterField(fieldIndex, isDate);
-    }
-
-    function isInSelectableKeys(fieldKey: string) {
-      return Object.values(selectableKeysMapping).indexOf(fieldKey) !== -1;
-    }
-
-    async function getFieldsRequest() {
-      await axios.get<FilterFieldsType[]>('/documents/fields').then((res) => {
-        filterFields.value = res.data;
-      });
-    }
-
-    function updateDocuments(res: AxiosResponse<DocFilterResponse>) {
-      documentsResponseData.value = res.data;
+    function updateDocuments(data: DocFilterResponse) {
+      documentsResponseData.value = data;
       shownDocuments.value = [];
-      res.data.content.forEach((doc) => {
+      data.content.forEach((doc) => {
         shownDocuments.value.push({
           id: doc.id,
           documentType: doc.documentType.name,
@@ -371,81 +137,18 @@ export default defineComponent({
       });
     }
 
-    function clearFilterField(fieldIndex: number, isDate: boolean) {
-      if (isDate) {
-        delete filterData[filterFields.value[fieldIndex].key + 'Start'];
-        delete filterData[filterFields.value[fieldIndex].key + 'End'];
-      } else {
-        delete filterData[filterFields.value[fieldIndex].key];
-      }
-    }
-
-    function deleteSelectedDocs() {
-      docTableRef.value?.deleteSelected(() => applyFilters());
-    }
-
-    function createNewDocPage() {
-      router.push({ name: 'new-doc' });
-      window.scrollTo({
-        top: 0,
-        left: 0,
-        behavior: 'smooth',
-      });
-    }
-
-    function doSaveFiltersInSession() {
-      sessionStorage.setItem('filterData', JSON.stringify(filterData));
-      sessionStorage.setItem(
-        'filterFields',
-        JSON.stringify(filterFields.value)
-      );
-      sessionStorage.setItem(
-        'filterActiveFields',
-        JSON.stringify(activeFilterFieldIndices.value)
-      );
-    }
-
-    function retrieveSessionFilters() {
-      function parseData(item: string, data: unknown): boolean {
-        const storedData = sessionStorage.getItem(item);
-        if (storedData && storedData !== 'undefined') {
-          Object.assign(data, JSON.parse(storedData));
-          return true;
-        }
-        return false;
-      }
-
-      const dataPersist = parseData('filterData', filterData);
-      const filterFieldsPersist = parseData('filterFields', filterFields.value);
-      const activeFilterFieldsPersist = parseData(
-        'filterActiveFields',
-        activeFilterFieldIndices.value
-      );
-      return {
-        dataPersist,
-        filterFieldsPersist,
-        activeFilterFieldsPersist,
-      };
-    }
-
     return {
       selectableData,
-      activeFieldsObject,
-      applyFiltersButton,
-      filterData,
-      nonActiveFields,
-      shownDocuments,
+      searchFiltersRef,
       documentsResponseData,
+      shownDocuments,
       docTableRef,
-      deleteSelectedDocs,
-      applyFilters,
       groupTagChange,
-      addFilterSelected,
-      disableField,
-      isInSelectableKeys,
-      clearFilterField,
+      onFiltersInit,
+      onFiltersApplied,
       onPageChange,
-      createNewDocPage,
+      onCreateClick,
+      onDeleteSelectedClick,
     };
   },
 });
@@ -470,10 +173,6 @@ export default defineComponent({
   border-right-width: 1px;
 }
 
-.m8 {
-  margin: 8px;
-}
-
 .filter-form-item {
   display: flex;
   align-items: center;
@@ -487,23 +186,5 @@ export default defineComponent({
 .content-box {
   margin: 0;
   width: 95%;
-}
-
-.list-move, /* apply transition to moving elements */
-.list-enter-active,
-.list-leave-active {
-  transition: all 0.2s cubic-bezier(0.55, 0, 0.1, 1);
-}
-
-.list-enter-from,
-.list-leave-to {
-  opacity: 0;
-  transform: scaleY(0.01) translate(30px, 0);
-}
-
-/* ensure leaving items are taken out of layout flow so that moving
-   animations can be calculated correctly. */
-.list-leave-active {
-  position: absolute;
 }
 </style>
