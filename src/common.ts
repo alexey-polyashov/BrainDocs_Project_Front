@@ -10,5 +10,7 @@ export function installAuthHeader() {
   if (store.getUserInfo.token) {
     axios.defaults.headers.common['Authorization'] =
       'Bearer ' + store.getUserInfo.token;
+  } else {
+    throw new Error('no token present');
   }
 }

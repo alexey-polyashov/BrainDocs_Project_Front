@@ -153,7 +153,6 @@ import SelectableField from '../helpers/SelectableField.vue';
 import DocTypeGroup from './DocTypeGroup.vue';
 import { useRouter } from 'vue-router';
 import { convertDate } from '../../common';
-import { da } from 'element-plus/lib/locale';
 
 export default defineComponent({
   components: {

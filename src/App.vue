@@ -59,10 +59,9 @@ import { installAuthHeader } from './common';
 export type MenuBarValues = 'search-doc' | 'directories' | '';
 export type SetActiveMenuItemType = (item: MenuBarValues) => void;
 
-onMounted(() => {
-  useServerCheck();
-  installAuthHeader();
-});
+useServerCheck();
+installAuthHeader();
+
 const activeMenu = ref('');
 const setActiveMenuItem = (item: MenuBarValues) => (activeMenu.value = item);
 

@@ -105,15 +105,15 @@ import { updateUserData } from '../net/common-requests';
 const store = useStore();
 const userInfoForm = reactive({
   avatarSrc: '',
-  fullname: 'Full name',
-  shortname: 'Full name',
+  fullname: '',
+  shortname: '',
   organisation: {
     id: -1,
     name: '',
   },
-  login: 'asdf',
-  password: 'asdf',
-  email: 'asdf@gmail.com',
+  login: '',
+  password: '',
+  email: '',
   address:
     'No.1188, Wuzhong Avenue, Wuzhong District, Suzhou, Jiangsu Province',
   phone: '3456457433',
@@ -128,20 +128,18 @@ const passChangeForm = reactive({
   newPassRepeated: '',
 });
 
-onMounted(() => {
-  updateUserData().then(() => {
-    const user = store.getUserInfo.userExtra;
-    if (!user) {
-      throw new Error('user is undefined');
-    }
-    userInfoForm.fullname = user.fullname;
-    userInfoForm.login = user.login;
-    userInfoForm.email = user.email;
-    userInfoForm.shortname = user.shortname;
-    userInfoForm.organisation = user.organisation;
-    watch(userInfoForm, () => {
-      fieldsModified.value = true;
-    });
+updateUserData().then(() => {
+  const user = store.getUserInfo.userExtra;
+  if (!user) {
+    throw new Error('user is undefined');
+  }
+  userInfoForm.fullname = user.fullname;
+  userInfoForm.login = user.login;
+  userInfoForm.email = user.email;
+  userInfoForm.shortname = user.shortname;
+  userInfoForm.organisation = user.organisation;
+  watch(userInfoForm, () => {
+    fieldsModified.value = true;
   });
 });
 
