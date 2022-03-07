@@ -14,6 +14,8 @@
             :update-entry="updateEntry"
             :apply-on-ready="false"
             :selectable-data="selectableData"
+            @create-click="onCreateClick"
+            @row-click="tableRowClick"
             @init-ready="onFiltersInit"
           >
             <template #columns>
@@ -86,6 +88,7 @@ import SearchTable from './SearchTable.vue';
 import { useRouter } from 'vue-router';
 import AttachedFilesDialog from '../file-dialog/AttachedFilesDialog.vue';
 import SearchFiltersWrapper from './SearchFiltersWrapper.vue';
+import { Id } from '@/types';
 
 const router = useRouter();
 const filesDialog = ref<InstanceType<typeof AttachedFilesDialog> | null>(null);
@@ -135,6 +138,15 @@ function onFiltersInit() {
   });
 }
 
+function tableRowClick(row: Id) {
+  router.push({ name: 'new-doc', params: { id: row.id } });
+  window.scrollTo({
+    top: 0,
+    left: 0,
+    behavior: 'smooth',
+  });
+}
+
 async function initSelectableArraysAsync() {
   const promises: Promise<void>[] = [];
   for (const key in selectableTypes) {
@@ -178,11 +190,6 @@ function openFilesDialog(event: Event, row: DocumentView) {
 .filter-form-item {
   display: flex;
   align-items: center;
-}
-
-.filter-box-table {
-  border: none;
-  margin-top: 8px;
 }
 
 .content-box {

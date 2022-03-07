@@ -66,7 +66,7 @@
           </div>
         </el-form-item>
       </template>
-      <div key="optionsSection" style="margin-bottom: 16px">
+      <div key="optionsSection">
         <LoadingButton
           ref="applyFiltersButton"
           class="m8"
@@ -286,6 +286,9 @@ async function getFieldsRequest() {
     .get<FilterFieldsType[]>(`/${props.filterType}/fields`)
     .then((res) => {
       filterFields.value = res.data;
+      if (res.data.length === 1) {
+        res.data[0].defaultOn = true;
+      }
     });
 }
 
@@ -297,7 +300,6 @@ async function applyFilters(filterTempData: FilterDataType = filterData) {
     .post<any>(`/${props.filterType}/search`, filterRequest)
     .then((res) => {
       emit('filtersApplied', res.data);
-      // updateDocuments(res);
       if (props.saveFiltersInSession) {
         doSaveFiltersInSession();
       }

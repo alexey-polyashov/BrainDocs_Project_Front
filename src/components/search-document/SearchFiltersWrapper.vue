@@ -16,6 +16,7 @@
         :filter-data="entryResponseData"
         :table-data-view="shownEntries"
         class="filter-box-item filter-box-table"
+        @row-click="(id) => $emit('rowClick', id)"
         @current-page-change="onPageChange"
       >
         <template #columns>
@@ -40,6 +41,7 @@ import {
   DirectoryTypesAlias,
   getUrlByDirectoryType,
 } from '@/net/common-requests';
+import { Id } from '@/types';
 
 const props = withDefaults(
   defineProps<{
@@ -56,6 +58,7 @@ const props = withDefaults(
 const emit = defineEmits<{
   (event: 'createClick'): void;
   (event: 'initReady'): void;
+  (event: 'rowClick', id: Id): void;
 }>();
 
 const shownEntries = ref<any[]>([]);
@@ -92,4 +95,18 @@ defineExpose({
 });
 </script>
 
-<style scoped></style>
+<style scoped>
+.filter-box-item {
+  border: 2px solid var(--el-border-color-base);
+  border-radius: 8px;
+  border-left: none;
+  border-bottom-left-radius: 0;
+  border-top-left-radius: 0;
+  padding: 16px;
+}
+
+.filter-box-table {
+  border: none;
+  margin-top: 8px;
+}
+</style>

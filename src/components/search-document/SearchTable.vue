@@ -6,7 +6,7 @@
       border
       table-layout="auto"
       @selection-change="selectionChange"
-      @row-click="rowClick"
+      @row-click="(id) => $emit('rowClick', id)"
     >
       <slot name="columns"></slot>
     </el-table>
@@ -27,7 +27,7 @@ import axios from 'axios';
 import { ElMessage, ElMessageBox } from 'element-plus';
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
-import { DocumentView, SearchDefaultResponse } from './types';
+import { SearchDefaultResponse } from './types';
 
 const props = defineProps<{
   tableDataView: unknown[];
@@ -37,6 +37,7 @@ const props = defineProps<{
 
 const emit = defineEmits<{
   (event: 'currentPageChange', newNum: number): void;
+  (event: 'rowClick', id: Id): void;
 }>();
 
 const router = useRouter();
@@ -50,15 +51,6 @@ function curPageUpdate(newPageNum: number) {
 
 function selectionChange(selection: Id[]) {
   selectedViews = selection;
-}
-
-function rowClick(row: DocumentView) {
-  router.push({ name: 'new-doc', params: { id: row.id } });
-  window.scrollTo({
-    top: 0,
-    left: 0,
-    behavior: 'smooth',
-  });
 }
 
 // eslint-disable-next-line @typescript-eslint/no-empty-function
