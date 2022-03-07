@@ -13,7 +13,7 @@ export interface FilterType {
   value: string;
 }
 
-export interface DocTypeView {
+export interface DocumentView {
   id: number;
   documentType: string;
   documentDate: string;
@@ -39,8 +39,13 @@ export interface UserResponseType {
   shortname: string;
 }
 
-export interface DocFilterResponse {
-  content: DocFilterResponseContent[];
+export interface DocTypeView {
+  name: string;
+  id: number;
+}
+
+export interface SearchDefaultResponse {
+  content: unknown[];
   empty: boolean;
   first: boolean;
   last: boolean;
@@ -51,6 +56,14 @@ export interface DocFilterResponse {
   sort: DocFilterResponseSort;
   totalElements: number;
   totalPages: number;
+}
+
+export interface DocFilterResponse extends SearchDefaultResponse {
+  content: DocFilterResponseContent[];
+}
+
+export interface DocTypeFilterResponse extends SearchDefaultResponse {
+  content: DocTypeView[];
 }
 
 export interface DocFilterResponseContent {

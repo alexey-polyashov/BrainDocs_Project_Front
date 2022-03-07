@@ -17,8 +17,8 @@
 
 <script setup lang="ts">
 import { reactive } from 'vue';
-import CheckTagWrapper from '../helpers/CheckTagWrapper.vue';
-import { IndexedType, NamedSelectionType } from '../../types';
+import CheckTagWrapper from '@/components/helpers/CheckTagWrapper.vue';
+import { IndexedType, NamedSelectionType } from '@/types';
 
 const props = defineProps<{
   docTypes: () => NamedSelectionType[];

@@ -2,6 +2,10 @@ export type IndexedType<T extends number | string, U> = {
   [id in T]: U;
 };
 
+export interface Id {
+  id: number;
+}
+
 export interface NamedSelectionType {
   id: number;
   name: string;

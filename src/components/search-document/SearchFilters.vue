@@ -66,7 +66,7 @@
           </div>
         </el-form-item>
       </template>
-      <div key="optionsSection">
+      <div key="optionsSection" style="margin-bottom: 16px">
         <LoadingButton
           ref="applyFiltersButton"
           class="m8"
@@ -74,7 +74,6 @@
           @click="applyFilters"
         />
         <el-select
-          v-if="filterFields.length > 1"
           class="m8"
           placeholder="Добавить фильтр"
           @change="addFilterSelected"
@@ -97,7 +96,7 @@
           Удалить выбранные
         </el-button>
       </div>
-      <div key="docTable">
+      <div key="elementsTable">
         <slot name="table"></slot>
       </div>
     </TransitionGroup>
@@ -107,14 +106,14 @@
 <script setup lang="ts">
 import axios from 'axios';
 import { computed, reactive, ref, toRef } from 'vue';
-import { convertDate } from '../../common';
+import { convertDate } from '@/common';
 import {
   DirectoryTypesAlias,
   getUrlByDirectoryType,
   SelectableTypesAlias,
-} from '../../net/common-requests';
-import LoadingButton from '../helpers/LoadingButton.vue';
-import SelectableField from '../helpers/SelectableField.vue';
+} from '@/net/common-requests';
+import LoadingButton from '@/components/helpers/LoadingButton.vue';
+import SelectableField from '@/components/helpers/SelectableField.vue';
 import {
   DocFilterRequestType,
   DocFilterResponse,
@@ -128,11 +127,13 @@ import {
 const props = withDefaults(
   defineProps<{
     saveFiltersInSession?: boolean;
-    filterType: DirectoryTypesAlias;
+    filterType: string;
     selectableData?: SelectableDataType;
+    applyOnReady?: boolean;
   }>(),
   {
-    saveFiltersInSession: true,
+    saveFiltersInSession: false,
+    applyOnReady: false,
   }
 );
 
@@ -148,7 +149,6 @@ const filterData = reactive<FilterDataType>({});
 const filterFields = ref<FilterFieldsType[]>([]);
 const activeFilterFieldIndices = ref<number[]>([]);
 const selectableDataLocal = toRef(props, 'selectableData', {});
-const filterTypeLocal = ref(getUrlByDirectoryType(props.filterType));
 const filterPagingInfo = {
   page: '0',
   recordsOnPage: '10',
@@ -161,6 +161,9 @@ const selectableKeysMapping = {
 
 initFilterFieldsAsync().then(() => {
   emit('initReady');
+  if (props.applyOnReady) {
+    applyFilters();
+  }
 });
 
 function groupTagChange(id: number, isOn: boolean) {
@@ -280,7 +283,7 @@ function processDate(filterRequest: DocFilterRequestType) {
 
 async function getFieldsRequest() {
   await axios
-    .get<FilterFieldsType[]>(`/${filterTypeLocal.value}/fields`)
+    .get<FilterFieldsType[]>(`/${props.filterType}/fields`)
     .then((res) => {
       filterFields.value = res.data;
     });
@@ -291,7 +294,7 @@ async function applyFilters(filterTempData: FilterDataType = filterData) {
   const filterRequest = initFilters(filterTempData);
   processDate(filterRequest);
   await axios
-    .post<any>(`/${filterTypeLocal.value}/search`, filterRequest)
+    .post<any>(`/${props.filterType}/search`, filterRequest)
     .then((res) => {
       emit('filtersApplied', res.data);
       // updateDocuments(res);
