@@ -8,8 +8,8 @@
 </template>
 
 <script setup lang="ts">
-import SearchFiltersWrapper from './SearchFiltersWrapper.vue';
-import { DocTypeView } from './types';
+import SearchFiltersWrapper from '../filter/SearchFiltersWrapper.vue';
+import { DocTypeView } from '../types';
 
 function updateEntry(data: DocTypeView) {
   return {

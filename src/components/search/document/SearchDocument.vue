@@ -75,19 +75,19 @@ import {
   getSelectableArray,
   selectableTypes,
   SelectableTypesAlias,
-} from '../../net/common-requests';
+} from '../../../net/common-requests';
 import DocTypeGroup from './DocTypeGroup.vue';
-import SearchFilters from './SearchFilters.vue';
+import SearchFilters from '../filter/SearchFilters.vue';
 import {
   DocFilterResponse,
   DocFilterResponseContent,
   DocumentView,
   SelectableDataType,
-} from './types';
-import SearchTable from './SearchTable.vue';
+} from '../types';
+import SearchTable from '../filter/SearchTable.vue';
 import { useRouter } from 'vue-router';
-import AttachedFilesDialog from '../file-dialog/AttachedFilesDialog.vue';
-import SearchFiltersWrapper from './SearchFiltersWrapper.vue';
+import AttachedFilesDialog from '../../file-dialog/AttachedFilesDialog.vue';
+import SearchFiltersWrapper from '../filter/SearchFiltersWrapper.vue';
 import { Id } from '@/types';
 
 const router = useRouter();

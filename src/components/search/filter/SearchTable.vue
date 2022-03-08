@@ -27,7 +27,7 @@ import axios from 'axios';
 import { ElMessage, ElMessageBox } from 'element-plus';
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
-import { SearchDefaultResponse } from './types';
+import { SearchDefaultResponse } from '../types';
 
 const props = defineProps<{
   tableDataView: unknown[];

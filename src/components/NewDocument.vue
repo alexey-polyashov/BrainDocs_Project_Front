@@ -65,7 +65,7 @@ import { getSelectableArray } from '../net/common-requests';
 import SelectableField from './helpers/SelectableField.vue';
 import { NamedSelectionType } from '../types';
 import { onBeforeRouteLeave, useRouter } from 'vue-router';
-import { DocFilterResponseContent } from './search-document/types';
+import { DocFilterResponseContent } from './search/types';
 import { useStore } from '../store';
 
 type Id = { id: number };

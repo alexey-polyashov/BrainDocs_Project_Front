@@ -14,15 +14,18 @@ export default function useServerCheck() {
         text: 'Waiting for server to load... It may take about 30 seconds, thanks.',
         background: 'rgba(0, 0, 0, 0.3)',
       });
-    }, 1000);
+    }, 2000);
     axios
       .get('/test', {
         timeout: 0,
       })
       .then(() => {
-        loading?.close();
         clearTimeout(timeoutVal);
         console.log('server responded');
+        if (loading) {
+          loading.close();
+          location.reload();
+        }
       });
   }
 }

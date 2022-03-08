@@ -32,7 +32,7 @@ export default createRouter({
       name: 'search-doc',
       path: '/search-doc',
       component: () =>
-        import('../components/search-document/SearchDocument.vue'),
+        import('../components/search/document/SearchDocument.vue'),
     },
     {
       name: 'directories',

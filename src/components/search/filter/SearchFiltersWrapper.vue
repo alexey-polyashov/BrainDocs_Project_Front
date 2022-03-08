@@ -36,7 +36,7 @@ import {
   DocTypeView,
   SearchDefaultResponse,
   SelectableDataType,
-} from './types';
+} from '../types';
 import {
   DirectoryTypesAlias,
   getUrlByDirectoryType,

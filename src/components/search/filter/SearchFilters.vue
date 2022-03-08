@@ -122,7 +122,7 @@ import {
   FilterFieldsViewType,
   FilterType,
   SelectableDataType,
-} from './types';
+} from '../types';
 
 const props = withDefaults(
   defineProps<{
