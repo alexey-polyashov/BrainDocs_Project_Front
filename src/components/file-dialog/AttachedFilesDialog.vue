@@ -49,7 +49,7 @@ import axios from 'axios';
 import { ElMessage } from 'element-plus';
 import { FullFileType, FileDescriptionType } from './types';
 import { uploadFileToExistingDocument } from '../../net/common-requests';
-import _ from 'lodash';
+import _ from 'lodash-es';
 
 export interface LocalFileDescriptionType extends FileDescriptionType {
   localId?: number;

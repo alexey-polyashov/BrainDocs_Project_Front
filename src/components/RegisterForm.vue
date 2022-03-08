@@ -50,7 +50,7 @@ import { useStore } from '../store';
 import LoadingButton from './helpers/LoadingButton.vue';
 import axios from 'axios';
 import SelectableField from './helpers/SelectableField.vue';
-import _ from 'lodash';
+import _ from 'lodash-es';
 
 export interface UserRegistrationRequest {
   email: string;

@@ -11,7 +11,7 @@
   >
     <template #table>
       <SearchTable
-        ref="docTableRef"
+        ref="searchTableRef"
         :filter-type="filterTypeLocal"
         :filter-data="entryResponseData"
         :table-data-view="shownEntries"

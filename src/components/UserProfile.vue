@@ -97,7 +97,7 @@ import { onMounted, reactive, ref, watch } from 'vue';
 import { ElForm, ElMessage, ElMessageBox } from 'element-plus';
 import { useStore } from '../store';
 import SelectableField from './helpers/SelectableField.vue';
-import _ from 'lodash';
+import _ from 'lodash-es';
 import axios from 'axios';
 import { UserInfoType } from '../types';
 import { updateUserData } from '../net/common-requests';
