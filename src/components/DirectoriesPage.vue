@@ -40,11 +40,12 @@ import { markRaw, onMounted, reactive, ref } from 'vue';
 import { useRouter } from 'vue-router';
 import CheckTagWrapper from './helpers/CheckTagWrapper.vue';
 import SearchDocType from './search/doc-type/SearchDocType.vue';
+import SearchOrg from './search/org/SearchOrg.vue';
 import TheHome from './TheHome.vue';
 
 const tabs: { [p: string]: any } = {
   docTypes: SearchDocType,
-  orgs: TheHome,
+  orgs: SearchOrg,
   deletion: TheHome,
   registration: TheHome,
 };

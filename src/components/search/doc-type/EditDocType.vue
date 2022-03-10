@@ -9,7 +9,7 @@
     @on-close-click="$router.push({ name: 'directories', hash: '#docTypes' })"
   >
     <template #header>
-      <h2>Новый тип документа</h2>
+      <h2>Редактирование вида документа</h2>
     </template>
     <template #form-items>
       <el-form-item required label="Название" prop="name">
@@ -18,6 +18,15 @@
     </template>
   </edit-element-page>
 </template>
+
+<script lang="ts">
+export function updateEntry(data: DocTypeView) {
+  return {
+    id: data.id,
+    name: data.name,
+  };
+}
+</script>
 
 <script setup lang="ts">
 import { ElInput } from 'element-plus';
@@ -32,18 +41,14 @@ const formData = reactive({
 });
 
 function applyFormData(source: DocTypeView) {
-  formData.id = source.id;
-  formData.name = source.name;
+  Object.assign(formData, updateEntry(source));
   watch(formData, () => {
     if (editElemPageRef.value) editElemPageRef.value.modified = true;
   });
 }
 
 function applyRequestData() {
-  return {
-    id: formData.id,
-    name: formData.name,
-  };
+  return formData;
 }
 </script>
 

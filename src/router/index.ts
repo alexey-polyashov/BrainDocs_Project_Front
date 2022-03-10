@@ -42,7 +42,12 @@ export default createRouter({
     {
       name: 'new-doc-type',
       path: '/new-doc-type',
-      component: () => import('../components/search/doc-type/NewDocType.vue'),
+      component: () => import('../components/search/doc-type/EditDocType.vue'),
+    },
+    {
+      name: 'new-org',
+      path: '/new-org',
+      component: () => import('../components/search/org/EditOrg.vue'),
     },
   ],
 });

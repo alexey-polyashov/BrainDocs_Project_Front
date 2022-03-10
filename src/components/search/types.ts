@@ -44,6 +44,14 @@ export interface DocTypeView {
   id: number;
 }
 
+export interface OrganisationView {
+  contacts: [];
+  name: string;
+  id: number;
+  inn: string;
+  kpp: string;
+}
+
 export interface SearchDefaultResponse {
   content: unknown[];
   empty: boolean;

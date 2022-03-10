@@ -130,7 +130,7 @@ function clearForms() {
   filesDialog.value?.resetState();
 }
 
-// if formData.id is present, edit mode is on
+// if formData.id is present and is not less than 0, edit mode is on
 function editMode(elemId: number) {
   function fetchElementById(elemId: number) {
     axios.get<any>(`/${filterTypeLocal.value}/${elemId}`).then((res) => {
