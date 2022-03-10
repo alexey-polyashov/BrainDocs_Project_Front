@@ -61,6 +61,7 @@
           </SearchFiltersWrapper>
           <AttachedFilesDialog
             ref="filesDialog"
+            elem-type="docs"
             :should-send-requests-on-change="true"
           />
         </div>

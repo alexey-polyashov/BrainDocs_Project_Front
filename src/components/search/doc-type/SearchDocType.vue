@@ -1,5 +1,13 @@
 <template>
-  <SearchFiltersWrapper filter-type="docTypes" :update-entry="updateEntry">
+  <SearchFiltersWrapper
+    filter-type="docTypes"
+    :update-entry="updateEntry"
+    @create-click="$router.push({ name: 'new-doc-type' })"
+    @row-click="
+      (idObj) =>
+        $router.push({ name: 'new-doc-type', params: { id: idObj.id } })
+    "
+  >
     <template #columns>
       <el-table-column type="selection" width="55" />
       <el-table-column prop="name" label="Название" sortable />

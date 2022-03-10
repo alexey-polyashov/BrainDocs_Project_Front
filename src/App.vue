@@ -52,11 +52,12 @@
 import { provide, ref } from 'vue';
 import { installAuthHeader } from './common';
 import ProfileMenuButton from './components/helpers/ProfileMenuButton.vue';
+import useServerCheck from './net/server-check';
 
 export type MenuBarValues = 'search-doc' | 'directories' | '';
 export type SetActiveMenuItemType = (item: MenuBarValues) => void;
 
-//useServerCheck();
+useServerCheck();
 installAuthHeader();
 
 const activeMenu = ref('');

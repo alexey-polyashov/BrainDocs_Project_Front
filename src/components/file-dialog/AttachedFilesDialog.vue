@@ -35,10 +35,10 @@
   </el-dialog>
   <NewFileDialog
     ref="newFileDialog"
-    :doc-id="docId"
+    :elem-id="elemId"
     :update-view="updateView"
     :should-send-requests-on-change="shouldSendRequestsOnChange"
-    @file-saved="updateTableEntry"
+    @file-saved="fileSaved"
   />
 </template>
 
@@ -48,7 +48,10 @@ import NewFileDialog from './NewFileDialog.vue';
 import axios from 'axios';
 import { ElMessage } from 'element-plus';
 import { FullFileType, FileDescriptionType } from './types';
-import { uploadFileToExistingDocument } from '../../net/common-requests';
+import {
+  DirectoryTypesAlias,
+  uploadFileToExistingElement,
+} from '../../net/common-requests';
 import _ from 'lodash-es';
 
 export interface LocalFileDescriptionType extends FileDescriptionType {
@@ -57,6 +60,7 @@ export interface LocalFileDescriptionType extends FileDescriptionType {
 
 const props = withDefaults(
   defineProps<{
+    elemType: DirectoryTypesAlias;
     shouldSendRequestsOnChange?: boolean;
   }>(),
   {
@@ -64,30 +68,43 @@ const props = withDefaults(
   }
 );
 const fileTableData = ref<LocalFileDescriptionType[]>([]);
-const docId = ref(0);
+const elemId = ref(0);
 const newFileDialog = ref();
 const dialogVisible = ref(false);
 const toggleVisible = () => (dialogVisible.value = !dialogVisible.value);
 let localEntryId = 0;
 
-function updateTableEntry(fileInfo: LocalFileDescriptionType) {
-  const clonedInfo = _.clone(fileInfo);
-  if (clonedInfo.localId) {
-    const index = fileTableData.value.findIndex(
-      (val) => val.localId === clonedInfo.localId
+function fileSaved(fileInfo: LocalFileDescriptionType) {
+  if (props.shouldSendRequestsOnChange) {
+    uploadFileToExistingElement(props.elemType, elemId.value, fileInfo).then(
+      (res) => {
+        ElMessage.success('Загрузка прошла успешно!');
+        updateView(elemId.value);
+      }
     );
-    fileTableData.value[index] = clonedInfo;
   } else {
-    clonedInfo.localId = localEntryId;
-    localEntryId++;
-    fileTableData.value.push(clonedInfo);
+    updateTableEntry();
+  }
+
+  function updateTableEntry() {
+    const clonedInfo = _.clone(fileInfo);
+    if (clonedInfo.localId) {
+      const index = fileTableData.value.findIndex(
+        (val) => val.localId === clonedInfo.localId
+      );
+      fileTableData.value[index] = clonedInfo;
+    } else {
+      clonedInfo.localId = localEntryId;
+      localEntryId++;
+      fileTableData.value.push(clonedInfo);
+    }
   }
 }
 
 function updateView(id: number) {
-  docId.value = id;
+  elemId.value = id;
   fileTableData.value = [];
-  axios.get<FullFileType[]>(`/documents/${docId.value}/files`).then((res) => {
+  axios.get<FullFileType[]>(`/documents/${elemId.value}/files`).then((res) => {
     fileTableData.value = res.data;
     fileTableData.value.forEach((el) => {
       el.localId = localEntryId;
@@ -103,7 +120,7 @@ function editFileClick(fileInfo: LocalFileDescriptionType) {
 
 function removeFile(row: LocalFileDescriptionType, index: number) {
   if (props.shouldSendRequestsOnChange) {
-    axios.delete(`/documents/${docId.value}/files/${row.id}`).then(() => {
+    axios.delete(`/documents/${elemId.value}/files/${row.id}`).then(() => {
       fileTableData.value.splice(index, 1);
       ElMessage.warning('Файл удален');
     });
@@ -121,12 +138,12 @@ function resetState() {
   localEntryId = 0;
 }
 
-async function sendStoredFilesToDocument(docId: number) {
+async function sendStoredFilesToElement(docId: number) {
   if (props.shouldSendRequestsOnChange) return;
   if (fileTableData.value.length === 0) return;
   let promises: Promise<FullFileType>[] = [];
   fileTableData.value.forEach((element) => {
-    promises.push(uploadFileToExistingDocument(docId, element));
+    promises.push(uploadFileToExistingElement(props.elemType, docId, element));
   });
   await Promise.all(promises).then(() => {
     ElMessage.success('Загрузка файлов прошла успешно!');
@@ -136,7 +153,7 @@ async function sendStoredFilesToDocument(docId: number) {
 defineExpose({
   toggleVisible,
   updateView,
-  sendStoredFilesToDocument,
+  sendStoredFilesToElement,
   resetState,
 });
 </script>

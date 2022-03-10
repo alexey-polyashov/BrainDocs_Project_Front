@@ -33,6 +33,7 @@
       />
       <AttachedFilesDialog
         ref="filesDialog"
+        elem-type="docs"
         :should-send-requests-on-change="shouldSendRequestsOnChange"
       />
       <div class="button-group">
@@ -169,7 +170,7 @@ async function sendSaveRequest(data: SaveDocRequest) {
     .post<number>('/documents' + (data.id ? `/${data.id}` : ''), data)
     .then((res) => {
       ElMessage.success('Сохранение успешно!');
-      filesDialog.value?.sendStoredFilesToDocument(res.data);
+      filesDialog.value?.sendStoredFilesToElement(res.data);
       editMode(res.data);
       modified.value = false;
     })

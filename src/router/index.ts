@@ -39,5 +39,10 @@ export default createRouter({
       path: '/directories',
       component: () => import('../components/DirectoriesPage.vue'),
     },
+    {
+      name: 'new-doc-type',
+      path: '/new-doc-type',
+      component: () => import('../components/search/doc-type/NewDocType.vue'),
+    },
   ],
 });
