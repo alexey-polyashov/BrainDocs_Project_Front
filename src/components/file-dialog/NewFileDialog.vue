@@ -15,7 +15,7 @@
       </el-form-item>
       <el-form-item v-if="shouldSendRequestsOnChange" label="Просмотр файла">
         <el-link
-          :href="`https://brain-docs.herokuapp.com/api/v1/documents/${$props.docId}/files/${fileForm.id}/data`"
+          :href="`https://brain-docs.herokuapp.com/api/v1/documents/${$props.elemId}/files/${fileForm.id}/data`"
           type="primary"
           target="_blank"
         >
@@ -24,7 +24,7 @@
       </el-form-item>
       <el-form-item v-if="shouldSendRequestsOnChange" label="Ссылка файла">
         <el-link
-          :href="`https://brain-docs.herokuapp.com/api/v1/documents/${$props.docId}/files/${fileForm.id}/download`"
+          :href="`https://brain-docs.herokuapp.com/api/v1/documents/${$props.elemId}/files/${fileForm.id}/download`"
           type="primary"
           target="_blank"
           :download="fileForm.name"
@@ -63,12 +63,13 @@
 import { reactive, ref } from 'vue';
 import { ElMessage, ElUpload } from 'element-plus';
 import { FileDescriptionType, FullFileType } from './types';
-import { uploadFileToExistingDocument } from '../../net/common-requests';
+import { uploadFileToExistingElement } from '../../net/common-requests';
 import { LocalFileDescriptionType } from './AttachedFilesDialog.vue';
 
 const props = defineProps<{
   shouldSendRequestsOnChange: boolean;
-  docId: number;
+  elemId: number;
+
   updateView: (id: number) => void;
 }>();
 
@@ -107,16 +108,18 @@ function save() {
   }
 
   if (fileForm.fileRaw || fileForm.id) {
-    if (props.shouldSendRequestsOnChange) {
-      uploadFileToExistingDocument(props.docId, fileForm).then((res) => {
-        ElMessage.success('Загрузка прошла успешно!');
-        props.updateView(props.docId);
-        uploadCleanUp();
-      });
-    } else {
-      emit('fileSaved', fileForm);
-      uploadCleanUp();
-    }
+    // if (props.shouldSendRequestsOnChange) {
+    //   uploadFileToExistingElement(props.elemId, fileForm).then((res) => {
+    //     ElMessage.success('Загрузка прошла успешно!');
+    //     props.updateView(props.elemId);
+    //     uploadCleanUp();
+    //   });
+    // } else {
+    //   emit('fileSaved', fileForm);
+    //   uploadCleanUp();
+    // }
+    emit('fileSaved', fileForm);
+    uploadCleanUp();
   } else {
     ElMessage.warning('Выберите файл');
   }

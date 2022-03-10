@@ -49,20 +49,17 @@
 </template>
 
 <script lang="ts" setup>
-import { useRouter } from 'vue-router';
-import { computed, onMounted, onUnmounted, provide, Ref, ref } from 'vue';
-import { useStore } from './store';
-import useServerCheck from './net/server-check';
-import ProfileMenuButton from './components/helpers/ProfileMenuButton.vue';
+import { provide, ref } from 'vue';
 import { installAuthHeader } from './common';
+import ProfileMenuButton from './components/helpers/ProfileMenuButton.vue';
+import useServerCheck from './net/server-check';
 
 export type MenuBarValues = 'search-doc' | 'directories' | '';
 export type SetActiveMenuItemType = (item: MenuBarValues) => void;
 
-onMounted(() => {
-  useServerCheck();
-  installAuthHeader();
-});
+useServerCheck();
+installAuthHeader();
+
 const activeMenu = ref('');
 const setActiveMenuItem = (item: MenuBarValues) => (activeMenu.value = item);
 

@@ -8,8 +8,9 @@ import router from '../router';
 import { useStore } from '../store';
 import { NamedSelectionType, UserInfoType } from '../types';
 
-export async function uploadFileToExistingDocument(
-  docId: number,
+export async function uploadFileToExistingElement(
+  elemType: DirectoryTypesAlias,
+  elemId: number,
   fileInfo: FileDescriptionType
 ) {
   // replace name property with shortname as it is required for dto
@@ -35,7 +36,7 @@ export async function uploadFileToExistingDocument(
   return new Promise<FullFileType>((resolve, reject) => {
     axios
       .post<FullFileType>(
-        `/documents/${docId}/files/${
+        `/${getUrlByDirectoryType(elemType)}/${elemId}/files/${
           fileIdToSave !== undefined ? fileIdToSave : 'upload'
         }`,
         formData
@@ -58,6 +59,18 @@ export const selectableTypes = Object.freeze({
 });
 
 export type SelectableTypesAlias = keyof typeof selectableTypes;
+
+export const directoryTypes = Object.freeze({
+  docTypes: 'documents/types',
+  orgs: 'organisations',
+  docs: 'documents',
+});
+
+export type DirectoryTypesAlias = keyof typeof directoryTypes;
+
+export function getUrlByDirectoryType(type: DirectoryTypesAlias) {
+  return directoryTypes[type];
+}
 
 export async function getSelectableArray(
   type: SelectableTypesAlias

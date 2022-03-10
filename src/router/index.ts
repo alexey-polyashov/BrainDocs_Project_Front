@@ -32,12 +32,22 @@ export default createRouter({
       name: 'search-doc',
       path: '/search-doc',
       component: () =>
-        import('../components/search-document/SearchDocument.vue'),
+        import('../components/search/document/SearchDocument.vue'),
     },
     {
       name: 'directories',
       path: '/directories',
       component: () => import('../components/DirectoriesPage.vue'),
+    },
+    {
+      name: 'new-doc-type',
+      path: '/new-doc-type',
+      component: () => import('../components/search/doc-type/EditDocType.vue'),
+    },
+    {
+      name: 'new-org',
+      path: '/new-org',
+      component: () => import('../components/search/org/EditOrg.vue'),
     },
   ],
 });

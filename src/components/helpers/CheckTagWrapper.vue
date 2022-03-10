@@ -1,6 +1,6 @@
 <template>
   <el-check-tag :checked="checked">
-    <slot />
+    <slot></slot>
   </el-check-tag>
 </template>
 

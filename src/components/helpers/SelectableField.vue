@@ -25,16 +25,14 @@ const props = defineProps<{
 
 const selectableOptions = ref<NamedSelectionType[]>([]);
 
-onMounted(() => {
-  if (props.options && props.selectType)
-    throw new Error('only 1 option should be set');
-  else if (props.selectType)
-    getSelectableArray(props.selectType).then(
-      (data) => (selectableOptions.value = data)
-    );
-  else if (!(props.options || props.selectType))
-    throw new Error('no selection type specified');
-});
+if (props.options && props.selectType)
+  throw new Error('only 1 option should be set');
+else if (props.selectType)
+  getSelectableArray(props.selectType).then(
+    (data) => (selectableOptions.value = data)
+  );
+else if (!(props.options || props.selectType))
+  throw new Error('no selection type specified');
 </script>
 
 <style scoped></style>
