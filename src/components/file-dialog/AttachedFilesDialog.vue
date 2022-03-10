@@ -50,6 +50,7 @@ import { ElMessage } from 'element-plus';
 import { FullFileType, FileDescriptionType } from './types';
 import {
   DirectoryTypesAlias,
+  getUrlByDirectoryType,
   uploadFileToExistingElement,
 } from '../../net/common-requests';
 import _ from 'lodash-es';
@@ -72,6 +73,7 @@ const elemId = ref(0);
 const newFileDialog = ref();
 const dialogVisible = ref(false);
 const toggleVisible = () => (dialogVisible.value = !dialogVisible.value);
+const elemTypeLocal = getUrlByDirectoryType(props.elemType);
 let localEntryId = 0;
 
 function fileSaved(fileInfo: LocalFileDescriptionType) {
@@ -104,13 +106,15 @@ function fileSaved(fileInfo: LocalFileDescriptionType) {
 function updateView(id: number) {
   elemId.value = id;
   fileTableData.value = [];
-  axios.get<FullFileType[]>(`/documents/${elemId.value}/files`).then((res) => {
-    fileTableData.value = res.data;
-    fileTableData.value.forEach((el) => {
-      el.localId = localEntryId;
-      localEntryId++;
+  axios
+    .get<FullFileType[]>(`/${elemTypeLocal}/${elemId.value}/files`)
+    .then((res) => {
+      fileTableData.value = res.data;
+      fileTableData.value.forEach((el) => {
+        el.localId = localEntryId;
+        localEntryId++;
+      });
     });
-  });
 }
 
 function editFileClick(fileInfo: LocalFileDescriptionType) {
@@ -120,10 +124,12 @@ function editFileClick(fileInfo: LocalFileDescriptionType) {
 
 function removeFile(row: LocalFileDescriptionType, index: number) {
   if (props.shouldSendRequestsOnChange) {
-    axios.delete(`/documents/${elemId.value}/files/${row.id}`).then(() => {
-      fileTableData.value.splice(index, 1);
-      ElMessage.warning('Файл удален');
-    });
+    axios
+      .delete(`/${elemTypeLocal}/${elemId.value}/files/${row.id}`)
+      .then(() => {
+        fileTableData.value.splice(index, 1);
+        ElMessage.warning('Файл удален');
+      });
   } else {
     fileTableData.value.splice(index, 1);
   }
