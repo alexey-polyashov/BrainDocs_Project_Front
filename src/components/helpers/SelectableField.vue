@@ -25,14 +25,18 @@ const props = defineProps<{
 
 const selectableOptions = ref<NamedSelectionType[]>([]);
 
-if (props.options && props.selectType)
-  throw new Error('only 1 option should be set');
-else if (props.selectType)
-  getSelectableArray(props.selectType).then(
-    (data) => (selectableOptions.value = data)
-  );
-else if (!(props.options || props.selectType))
-  throw new Error('no selection type specified');
+initArrays();
+
+function initArrays() {
+  if (props.options && props.selectType)
+    throw new Error('only 1 option should be set');
+  else if (props.selectType)
+    getSelectableArray(props.selectType).then(
+      (data) => (selectableOptions.value = data)
+    );
+  else if (!(props.options || props.selectType))
+    throw new Error('no selection type specified');
+}
 </script>
 
 <style scoped></style>
