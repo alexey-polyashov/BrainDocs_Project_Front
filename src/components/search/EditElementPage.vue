@@ -62,6 +62,9 @@ const shouldSendRequestsOnChange = ref(false);
 const formRef = ref<InstanceType<typeof ElForm> | null>(null);
 const filesDialog = ref<InstanceType<typeof AttachedFilesDialog> | null>(null);
 const modified = ref(false);
+const setModified = (mod: boolean) => {
+  modified.value = mod;
+};
 const filterTypeLocal = ref(getUrlByDirectoryType(props.elemType));
 
 const toggleFileAttachDialog = () => {
@@ -144,7 +147,7 @@ function editMode(elemId: number) {
 
 defineExpose({
   editMode,
-  modified,
+  setModified,
 });
 </script>
 

@@ -9,7 +9,7 @@
     @on-close-click="$router.push({ name: 'search-doc' })"
   >
     <template #header>
-      <h2>Редактирование вида документа</h2>
+      <h2>Редактирование документа</h2>
     </template>
     <template #form-items>
       <el-form-item required label="Номер" prop="number">

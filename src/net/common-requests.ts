@@ -53,6 +53,7 @@ export async function uploadFileToExistingElement(
 }
 
 export const selectableTypes = Object.freeze({
+  contactTypes: 'contacts/types',
   users: 'users',
   docTypes: 'documents/types',
   orgs: 'organisations',
@@ -96,12 +97,7 @@ export async function getSelectableArray(
 }
 
 export async function updateUserData() {
-  return axios
-    .get<UserInfoType>('/users/authorized')
-    .then((res) => {
-      useStore().$state.userInfo.userExtra = res.data;
-    })
-    .catch((err) => {
-      ElMessage.warning('Произошла ошибка');
-    });
+  return axios.get<UserInfoType>('/users/authorized').then((res) => {
+    useStore().$state.userInfo.userExtra = res.data;
+  });
 }

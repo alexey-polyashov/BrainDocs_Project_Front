@@ -50,7 +50,7 @@
 
 <script lang="ts" setup>
 import { provide, ref } from 'vue';
-import { installAuthHeader } from './common';
+import { installAuthHeader, verifyAuth } from './common';
 import ProfileMenuButton from './components/helpers/ProfileMenuButton.vue';
 import useServerCheck from './net/server-check';
 
@@ -58,7 +58,7 @@ export type MenuBarValues = 'search-doc' | 'directories' | '';
 export type SetActiveMenuItemType = (item: MenuBarValues) => void;
 
 useServerCheck();
-installAuthHeader();
+verifyAuth();
 
 const activeMenu = ref('');
 const setActiveMenuItem = (item: MenuBarValues) => (activeMenu.value = item);

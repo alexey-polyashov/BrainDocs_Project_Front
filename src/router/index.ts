@@ -26,7 +26,7 @@ export default createRouter({
     {
       name: 'new-doc',
       path: '/create-doc',
-      component: () => import('../components/NewDocument.vue'),
+      component: () => import('../components/EditDocument.vue'),
     },
     {
       name: 'search-doc',
