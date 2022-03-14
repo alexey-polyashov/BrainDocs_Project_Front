@@ -36,6 +36,23 @@ import { NamedSelectionType } from '@/types';
 import { ref } from 'vue';
 import SelectableField from './SelectableField.vue';
 
+export interface ContactType {
+  id: number;
+  present: string;
+  typeId: number;
+  typeName: string;
+}
+
+export interface UserContactType extends ContactType {
+  userId: number;
+  userName: string;
+}
+
+export interface OrgContactType extends ContactType {
+  organisationId: number;
+  organisationName: string;
+}
+
 const fields = ref<
   {
     contactType?: NamedSelectionType;
@@ -48,20 +65,31 @@ function addContactRow() {
   fields.value.push({ value: '' });
 }
 
-function getData(type: 'organisation' | 'user', id: number) {
+function parseData(contacts: ContactType[]) {
+  contacts.forEach((el) => {
+    fields.value.push({
+      contactType: {
+        id: el.typeId,
+        name: el.typeName,
+      },
+      value: el.present,
+      id: el.id,
+    });
+  });
+}
+
+function getData(type: 'organisation' | 'user') {
   return fields.value.map((el) => {
     return {
       id: el.id,
       typeId: el.contactType?.id,
       present: el.value,
-      [type + 'Id']: id,
     };
   });
 }
 
-addContactRow();
-
 defineExpose({
+  parseData,
   getData,
 });
 </script>

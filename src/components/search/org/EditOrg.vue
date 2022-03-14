@@ -21,7 +21,7 @@
       <el-form-item required label="КПП" prop="kpp">
         <el-input v-model="formData.kpp" />
       </el-form-item>
-      <contact-list></contact-list>
+      <contact-list ref="contactListRef"></contact-list>
     </template>
   </edit-element-page>
 </template>
@@ -43,11 +43,12 @@ import { ElInput } from 'element-plus';
 import { reactive, ref, watch } from 'vue';
 import EditElementPage from '../EditElementPage.vue';
 import { OrganisationView } from '../types';
-import ContactList from '@/components/helpers/ContactList.vue';
+import ContactList, { ContactType } from '@/components/helpers/ContactList.vue';
 
 const editElemPageRef = ref<InstanceType<typeof EditElementPage>>();
+const contactListRef = ref<InstanceType<typeof ContactList>>();
 const formData = reactive({
-  contacts: [],
+  contacts: [] as ContactType[],
   id: -1,
   name: '',
   inn: '',
@@ -56,14 +57,16 @@ const formData = reactive({
 
 function applyFormData(source: OrganisationView) {
   Object.assign(formData, updateEntry(source));
-  editElemPageRef.value?.setModified(false);
+  contactListRef.value?.parseData(formData.contacts);
+  watch(formData, () => {
+    editElemPageRef.value?.setModified(true);
+  });
 }
 
-watch(formData, () => {
-  editElemPageRef.value?.setModified(true);
-});
-
 function applyRequestData() {
+  formData.contacts = contactListRef.value?.getData(
+    'organisation'
+  ) as ContactType[];
   return formData;
 }
 </script>

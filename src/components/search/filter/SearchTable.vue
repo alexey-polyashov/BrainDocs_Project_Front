@@ -53,7 +53,6 @@ function selectionChange(selection: Id[]) {
   selectedViews = selection;
 }
 
-// eslint-disable-next-line @typescript-eslint/no-empty-function
 function deleteSelected(onFinished?: () => void) {
   if (selectedViews.length === 0) {
     ElMessage.info('Нет выбранных елементов');

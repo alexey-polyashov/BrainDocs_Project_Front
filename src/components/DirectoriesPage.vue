@@ -35,15 +35,15 @@
 </template>
 
 <script setup lang="ts">
-import { IndexedType } from '@/types';
-import { markRaw, onMounted, reactive, ref } from 'vue';
+import { IndexedStrType, IndexedType } from '@/types';
+import { onMounted, reactive, ref } from 'vue';
 import { useRouter } from 'vue-router';
 import CheckTagWrapper from './helpers/CheckTagWrapper.vue';
 import SearchDocType from './search/doc-type/SearchDocType.vue';
 import SearchOrg from './search/org/SearchOrg.vue';
 import TheHome from './TheHome.vue';
 
-const tabs: { [p: string]: any } = {
+const tabs: IndexedStrType<any> = {
   docTypes: SearchDocType,
   orgs: SearchOrg,
   deletion: TheHome,
@@ -52,23 +52,21 @@ const tabs: { [p: string]: any } = {
 
 const router = useRouter();
 const checkedKey = ref('');
-const tagRefs = reactive<IndexedType<string, typeof CheckTagWrapper>>({});
-
-type KeyOfTabs = keyof typeof tabs;
+const tagRefs = reactive<IndexedStrType<typeof CheckTagWrapper>>({});
 
 onMounted(() => {
-  let routeString: KeyOfTabs = 'docTypes';
+  let routeString = 'docTypes';
   if (router.currentRoute.value.hash) {
     routeString = router.currentRoute.value.hash.slice(1);
   }
   setActiveComponent(routeString);
 });
 
-function initTag(type: KeyOfTabs, el: typeof CheckTagWrapper) {
+function initTag(type: string, el: typeof CheckTagWrapper) {
   tagRefs[type] = el;
 }
 
-function setActiveComponent(key: KeyOfTabs) {
+function setActiveComponent(key: string) {
   if (key === checkedKey.value) return;
   if (checkedKey.value) tagRefs[checkedKey.value].checked = false;
   tagRefs[key].checked = true;

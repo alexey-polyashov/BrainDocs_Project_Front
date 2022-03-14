@@ -83,7 +83,7 @@ const formData = reactive({
 function applyFormData(source: DocFilterResponseContent) {
   Object.assign(formData, updateEntry(source));
   watch(formData, () => {
-    if (editElemPageRef.value) editElemPageRef.value.modified = true;
+    editElemPageRef.value?.setModified(true);
   });
 }
 

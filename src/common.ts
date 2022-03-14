@@ -1,5 +1,8 @@
 import axios from 'axios';
+import { ElMessage } from 'element-plus';
+import { useRouter } from 'vue-router';
 import { updateUserData } from './net/common-requests';
+import { RouteNames } from './router';
 import { useStore } from './store';
 
 export function convertDate(date: Date) {
@@ -26,4 +29,25 @@ export function installAuthHeader() {
     axios.defaults.headers.common['Authorization'] =
       'Bearer ' + store.getUserInfo.token;
   }
+}
+
+export function useAuthGuard() {
+  const router = useRouter();
+  const store = useStore();
+  router.beforeEach((to, from, next) => {
+    if (
+      routeAllowedForUnauthorized(to.name as RouteNames) ||
+      store.getUserInfo.authorized
+    ) {
+      next();
+    } else {
+      ElMessage.info('Вы не авторизованы');
+      next({ name: 'login' });
+    }
+  });
+}
+
+export function routeAllowedForUnauthorized(name: RouteNames) {
+  const allowedRoutes: RouteNames[] = ['login', 'register'];
+  return allowedRoutes.indexOf(name) !== -1;
 }
