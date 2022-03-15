@@ -64,9 +64,7 @@ function applyFormData(source: OrganisationView) {
 }
 
 function applyRequestData() {
-  formData.contacts = contactListRef.value?.getData(
-    'organisation'
-  ) as ContactType[];
+  formData.contacts = contactListRef.value?.getData() as ContactType[];
   return formData;
 }
 </script>

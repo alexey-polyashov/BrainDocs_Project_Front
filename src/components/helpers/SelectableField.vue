@@ -35,9 +35,9 @@ const props = defineProps<{
 
 const selectableOptions = ref<NamedSelectionType[]>([]);
 
-initArrays();
+verifyProps();
 
-function initArrays() {
+function verifyProps() {
   if (props.options && props.selectType) {
     throw new Error('only 1 option should be set');
   } else if (props.selectType) {
