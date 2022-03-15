@@ -1,4 +1,4 @@
-import { defineConfig } from 'vite';
+import { defineConfig } from 'vitest/config';
 import vue from '@vitejs/plugin-vue';
 import path from 'path';
 
@@ -8,4 +8,8 @@ export default defineConfig({
     alias: [{ find: '@', replacement: path.resolve(__dirname, 'src') }],
   },
   plugins: [vue()],
+  test: {
+    globals: true,
+    environment: 'happy-dom',
+  },
 });

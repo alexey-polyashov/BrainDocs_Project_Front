@@ -152,11 +152,13 @@ async function initSelectableArraysAsync() {
   const promises: Promise<void>[] = [];
   for (const key in selectableTypes) {
     promises.push(
-      getSelectableArray(key as SelectableTypesAlias).then((data) => {
-        selectableData.value[
-          selectableKeysMapping[key as SelectableTypesAlias]
-        ] = data;
-      })
+      getSelectableArray(key as keyof typeof selectableKeysMapping).then(
+        (data) => {
+          selectableData.value[
+            selectableKeysMapping[key as keyof typeof selectableKeysMapping]
+          ] = data;
+        }
+      )
     );
   }
   return Promise.all(promises);
@@ -171,7 +173,7 @@ function openFilesDialog(event: Event, row: DocumentView) {
 
 <style scoped>
 .filter-box-item {
-  border: 2px solid var(--el-border-color-base);
+  border: 2px solid var(--el-border-color);
   border-radius: 8px;
   border-left: none;
   border-bottom-left-radius: 0;

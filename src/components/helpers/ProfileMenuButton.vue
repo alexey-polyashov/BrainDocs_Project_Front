@@ -48,11 +48,7 @@ function dropDownClick(command: string) {
   }
 
   function logOut() {
-    store.$patch((state) => {
-      state.userInfo.authorized = false;
-      state.userInfo.token = '';
-      delete state.userInfo.userExtra;
-    });
+    store.clearUserInfo();
     ElMessage.info('Вы вышли из системы');
   }
 }

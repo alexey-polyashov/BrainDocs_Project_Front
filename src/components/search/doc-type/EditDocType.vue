@@ -43,7 +43,7 @@ const formData = reactive({
 function applyFormData(source: DocTypeView) {
   Object.assign(formData, updateEntry(source));
   watch(formData, () => {
-    if (editElemPageRef.value) editElemPageRef.value.modified = true;
+    editElemPageRef.value?.setModified(true);
   });
 }
 

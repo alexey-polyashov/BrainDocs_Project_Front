@@ -50,7 +50,7 @@
 
 <script lang="ts" setup>
 import { provide, ref } from 'vue';
-import { installAuthHeader } from './common';
+import { installAuthHeader, useAuthGuard, verifyAuth } from './common';
 import ProfileMenuButton from './components/helpers/ProfileMenuButton.vue';
 import useServerCheck from './net/server-check';
 
@@ -58,12 +58,13 @@ export type MenuBarValues = 'search-doc' | 'directories' | '';
 export type SetActiveMenuItemType = (item: MenuBarValues) => void;
 
 useServerCheck();
-installAuthHeader();
+verifyAuth();
+//useAuthGuard();
 
 const activeMenu = ref('');
 const setActiveMenuItem = (item: MenuBarValues) => (activeMenu.value = item);
 
-provide('setActiveMenuItem', setActiveMenuItem);
+provide<SetActiveMenuItemType>('setActiveMenuItem', setActiveMenuItem);
 
 const menuClicked = (index: string) => {
   activeMenu.value = index as MenuBarValues;
@@ -87,7 +88,7 @@ body {
 
 .content-box {
   border-radius: 4px;
-  border: 2px solid var(--el-border-color-base);
+  border: 2px solid var(--el-border-color);
   padding: 16px;
   width: 70%;
   margin: 10% auto;
@@ -107,7 +108,7 @@ body {
 
 .page-header {
   height: auto;
-  background: #311587;
+  background: #585ed6;
 }
 
 .main-logo {

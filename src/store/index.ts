@@ -21,5 +21,11 @@ export const useStore = defineStore('main', {
   getters: {
     getUserInfo: (state) => state.userInfo,
   },
-  actions: {},
+  actions: {
+    clearUserInfo() {
+      this.userInfo.authorized = false;
+      this.userInfo.token = '';
+      delete this.userInfo.userExtra;
+    },
+  },
 });

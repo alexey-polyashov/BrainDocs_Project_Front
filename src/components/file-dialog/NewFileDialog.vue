@@ -108,16 +108,6 @@ function save() {
   }
 
   if (fileForm.fileRaw || fileForm.id) {
-    // if (props.shouldSendRequestsOnChange) {
-    //   uploadFileToExistingElement(props.elemId, fileForm).then((res) => {
-    //     ElMessage.success('Загрузка прошла успешно!');
-    //     props.updateView(props.elemId);
-    //     uploadCleanUp();
-    //   });
-    // } else {
-    //   emit('fileSaved', fileForm);
-    //   uploadCleanUp();
-    // }
     emit('fileSaved', fileForm);
     uploadCleanUp();
   } else {

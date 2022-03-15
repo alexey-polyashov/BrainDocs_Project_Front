@@ -1,7 +1,7 @@
 @forward 'element-plus/theme-chalk/src/common/var.scss' with (
   $colors: (
     'primary': (
-      'base': #5c30e3,
+      'base': #585ed6,
     ),
   ),
   $text-color: (
@@ -11,7 +11,7 @@
   )
 );
 
-@use "element-plus/theme-chalk/src/index.scss" as *;
+@use 'element-plus/theme-chalk/src/index.scss' as *;
 
 .el-table__row:hover {
   color: #5c30e3;
