@@ -66,6 +66,7 @@ function addContactRow() {
 }
 
 function parseData(contacts: ContactType[]) {
+  fields.value = [];
   contacts.forEach((el) => {
     fields.value.push({
       contactType: {
@@ -78,7 +79,7 @@ function parseData(contacts: ContactType[]) {
   });
 }
 
-function getData(type: 'organisation' | 'user') {
+function getData() {
   return fields.value.map((el) => {
     return {
       id: el.id,

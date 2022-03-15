@@ -88,7 +88,7 @@ body {
 
 .content-box {
   border-radius: 4px;
-  border: 2px solid var(--el-border-color-base);
+  border: 2px solid var(--el-border-color);
   padding: 16px;
   width: 70%;
   margin: 10% auto;
