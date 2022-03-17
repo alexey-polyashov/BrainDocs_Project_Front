@@ -11,7 +11,7 @@
             <SelectableField
               v-if="isInSelectableKeys(field.key)"
               v-model="filterData[field.key]"
-              :options="() => selectableDataLocal[field.key]"
+              :select-type="(getSelectableAlias(field.key) as any)"
             />
             <div v-else-if="field.type === 'Date'">
               <el-date-picker
@@ -104,31 +104,27 @@
 </template>
 
 <script setup lang="ts">
-import axios from 'axios';
-import { computed, reactive, ref, toRef } from 'vue';
 import { convertDate } from '@/common';
-import {
-  DirectoryTypesAlias,
-  getUrlByDirectoryType,
-  SelectableTypesAlias,
-} from '@/net/common-requests';
 import LoadingButton from '@/components/helpers/LoadingButton.vue';
 import SelectableField from '@/components/helpers/SelectableField.vue';
 import {
+  DirectoryTypesAlias,
+  getUrlByDirectoryType,
+} from '@/net/common-requests';
+import axios from 'axios';
+import { computed, reactive, ref } from 'vue';
+import {
   DocFilterRequestType,
-  DocFilterResponse,
   FilterDataType,
   FilterFieldsType,
   FilterFieldsViewType,
   FilterType,
-  SelectableDataType,
 } from '../types';
 
 const props = withDefaults(
   defineProps<{
     saveFiltersInSession?: boolean;
-    filterType: string;
-    selectableData?: SelectableDataType;
+    filterType: DirectoryTypesAlias;
     applyOnReady?: boolean;
   }>(),
   {
@@ -148,7 +144,7 @@ const applyFiltersButton = ref<InstanceType<typeof LoadingButton> | null>(null);
 const filterData = reactive<FilterDataType>({});
 const filterFields = ref<FilterFieldsType[]>([]);
 const activeFilterFieldIndices = ref<number[]>([]);
-const selectableDataLocal = toRef(props, 'selectableData', {});
+const filterTypeUrl = getUrlByDirectoryType(props.filterType);
 const filterPagingInfo = {
   page: '0',
   recordsOnPage: '10',
@@ -211,6 +207,14 @@ async function initFilterFieldsAsync() {
 
 function isInSelectableKeys(fieldKey: string) {
   return Object.values(selectableKeysMapping).indexOf(fieldKey) !== -1;
+}
+
+function getSelectableAlias(fieldKey: string) {
+  for (const [key, val] of Object.entries(selectableKeysMapping)) {
+    if (val === fieldKey) {
+      return key;
+    }
+  }
 }
 
 const nonActiveFields = computed<FilterFieldsType[]>(() => {
@@ -283,7 +287,7 @@ function processDate(filterRequest: DocFilterRequestType) {
 
 async function getFieldsRequest() {
   await axios
-    .get<FilterFieldsType[]>(`/${props.filterType}/fields`)
+    .get<FilterFieldsType[]>(`/${filterTypeUrl}/fields`)
     .then((res) => {
       filterFields.value = res.data;
       if (res.data.length === 1) {
@@ -297,7 +301,7 @@ async function applyFilters(filterTempData: FilterDataType = filterData) {
   const filterRequest = initFilters(filterTempData);
   processDate(filterRequest);
   await axios
-    .post<any>(`/${props.filterType}/search`, filterRequest)
+    .post<any>(`/${filterTypeUrl}/search`, filterRequest)
     .then((res) => {
       emit('filtersApplied', res.data);
       if (props.saveFiltersInSession) {

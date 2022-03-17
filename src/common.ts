@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { ElMessage } from 'element-plus';
 import { useRouter } from 'vue-router';
-import { updateUserData } from './net/common-requests';
+import { DirectoryTypesAlias, updateUserData } from './net/common-requests';
 import { RouteNames } from './router';
 import { useStore } from './store';
 

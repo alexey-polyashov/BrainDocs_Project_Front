@@ -2,6 +2,10 @@ export type IndexedType<T extends number | string, U> = {
   [id in T]: U;
 };
 
+export type Vref<T> = {
+  value: T;
+};
+
 export type IndexedStrType<T> = {
   [id: string]: T;
 };

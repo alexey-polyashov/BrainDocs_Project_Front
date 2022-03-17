@@ -65,9 +65,11 @@ export const directoryTypes = Object.freeze({
   docTypes: 'documents/types',
   orgs: 'organisations',
   docs: 'documents',
-});
+  tasks: 'tasks',
+} as const);
 
 export type DirectoryTypesAlias = keyof typeof directoryTypes;
+export type DirectoryTypesValues = typeof directoryTypes[DirectoryTypesAlias];
 
 export function getUrlByDirectoryType(type: DirectoryTypesAlias) {
   return directoryTypes[type];

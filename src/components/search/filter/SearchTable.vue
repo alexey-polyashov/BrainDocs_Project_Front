@@ -22,6 +22,10 @@
 </template>
 
 <script setup lang="ts">
+import {
+  DirectoryTypesAlias,
+  getUrlByDirectoryType,
+} from '@/net/common-requests';
 import { Id } from '@/types';
 import axios from 'axios';
 import { ElMessage, ElMessageBox } from 'element-plus';
@@ -32,7 +36,7 @@ import { SearchDefaultResponse } from '../types';
 const props = defineProps<{
   tableDataView: unknown[];
   filterData?: SearchDefaultResponse;
-  filterType: string;
+  filterType: DirectoryTypesAlias;
 }>();
 
 const emit = defineEmits<{
@@ -62,7 +66,9 @@ function deleteSelected(onFinished?: () => void) {
     }).then(() => {
       const promises: Promise<any>[] = [];
       selectedViews.forEach((val) => {
-        promises.push(axios.delete(`/${props.filterType}/${val.id}`));
+        promises.push(
+          axios.delete(`/${getUrlByDirectoryType(props.filterType)}/${val.id}`)
+        );
       });
       selectedViews = [];
       Promise.all(promises)
