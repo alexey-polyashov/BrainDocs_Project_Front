@@ -77,7 +77,7 @@ const menuClicked = (index: string) => {
 @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400&display=swap');
 
 body {
-  min-width: 768px;
+  min-width: 700px;
   margin: 0;
   background-color: #f4eeff;
 }
