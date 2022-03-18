@@ -8,8 +8,7 @@ import {
 
 type CachedType = {
   [p in SelectableTypesAlias]?: {
-    ready: boolean;
-    pending: boolean;
+    shouldSendRequest: boolean;
     data: Ref<NamedSelectionType[]>;
   };
 };
@@ -19,19 +18,16 @@ const cached: CachedType = {};
 export default function useSelectableArray(selectType: SelectableTypesAlias) {
   if (!cached[selectType]) {
     cached[selectType] = {
-      ready: false,
-      pending: false,
+      shouldSendRequest: true,
       data: ref<NamedSelectionType[]>([]),
     };
   }
   const entry = cached[selectType] as NonNullable<
     typeof cached[SelectableTypesAlias]
   >;
-  if (!entry.pending && !entry.ready) {
-    entry.pending = true;
+  if (entry.shouldSendRequest) {
+    entry.shouldSendRequest = false;
     getSelectableArray(selectType).then((data) => {
-      entry.ready = true;
-      entry.pending = false;
       entry.data.value = data;
     });
   }
