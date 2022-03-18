@@ -1,46 +1,40 @@
-import { NamedSelectionType, Vref } from '@/types';
-import { computed, ComputedRef, reactive, ref, Ref, watch } from 'vue';
-import { getSelectableArray, SelectableTypesAlias } from './common-requests';
+import { NamedSelectionType } from '@/types';
+import { computed, reactive, ref, Ref, shallowReactive, watch } from 'vue';
+import {
+  getSelectableArray,
+  selectableTypes,
+  SelectableTypesAlias,
+} from './common-requests';
 
-const cached = reactive<{
+type CachedType = {
   [p in SelectableTypesAlias]?: {
-    pending?: boolean;
-    data?: NamedSelectionType[];
+    ready: boolean;
+    pending: boolean;
+    data: Ref<NamedSelectionType[]>;
   };
-}>({});
+};
 
-export default async function useSelectableArray(
-  selectType: SelectableTypesAlias,
-  waitForResultIfStartedAlready = true
-) {
-  return new Promise<NamedSelectionType[]>((resolve, reject) => {
-    if (cached[selectType]?.data) {
-      resolve(cached[selectType]?.data as any);
-    } else if (!cached[selectType]?.pending) {
-      cached[selectType] = {
-        pending: true,
-      };
-      getSelectableArray(selectType)
-        .then((data) => {
-          cached[selectType] = {
-            data,
-            pending: false,
-          };
-          resolve(data);
-        })
-        .catch((err) => reject(err));
-    } else if (waitForResultIfStartedAlready) {
-      const watchStopHandle = watch(
-        () => cached[selectType],
-        (newVal, oldVal) => {
-          if (newVal?.pending === false && newVal.data) {
-            resolve(newVal.data);
-            watchStopHandle();
-          }
-        }
-      );
-    } else {
-      resolve([]);
-    }
-  });
+const cached: CachedType = {};
+
+export default function useSelectableArray(selectType: SelectableTypesAlias) {
+  if (!cached[selectType]) {
+    cached[selectType] = {
+      ready: false,
+      pending: false,
+      data: ref<NamedSelectionType[]>([]),
+    };
+  }
+  const entry = cached[selectType] as NonNullable<
+    typeof cached[SelectableTypesAlias]
+  >;
+  if (!entry.pending && !entry.ready) {
+    entry.pending = true;
+    getSelectableArray(selectType).then((data) => {
+      entry.ready = true;
+      entry.pending = false;
+      entry.data.value = data;
+    });
+  }
+
+  return entry.data;
 }

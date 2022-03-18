@@ -50,6 +50,11 @@ const routes = [
     path: '/new-org',
     component: () => import('../components/search/org/EditOrg.vue'),
   },
+  {
+    name: 'tasks',
+    path: '/tasks',
+    component: () => import('../components/tasks/TaskPage.vue'),
+  },
 ] as const;
 
 export default createRouter({

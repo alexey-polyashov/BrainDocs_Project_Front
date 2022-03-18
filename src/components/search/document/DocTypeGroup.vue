@@ -3,7 +3,7 @@
     <h3>Группировка по виду документа</h3>
     <el-scrollbar height="100%">
       <CheckTagWrapper
-        v-for="docType in docTypeOptions"
+        v-for="docType in useSelectableArray('docTypes').value"
         :key="docType.id"
         :ref="(el: any) => groupTagInit(docType.id, el)"
         style="margin-bottom: 8px; display: block"
@@ -25,13 +25,10 @@ const emit = defineEmits<{
   (event: 'tagChecked', id: number, isOn: boolean): void;
 }>();
 
-const docTypeOptions = ref<NamedSelectionType[]>([]);
 const doctypeGroupTags = reactive<IndexedType<number, typeof CheckTagWrapper>>(
   {}
 );
 let doctypeGroupTagCheckedId = -1;
-
-useSelectableArray('docTypes').then((data) => (docTypeOptions.value = data));
 
 function groupTagInit(id: number, el: typeof CheckTagWrapper) {
   doctypeGroupTags[id] = el;

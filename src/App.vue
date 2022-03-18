@@ -32,6 +32,9 @@
             <el-menu-item index="directories" class="menu-item">
               Справочники
             </el-menu-item>
+            <el-menu-item index="tasks" class="menu-item">
+              Задачи
+            </el-menu-item>
           </el-menu>
         </el-col>
         <el-col :span="7" style="text-align: end">
