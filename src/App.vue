@@ -32,6 +32,9 @@
             <el-menu-item index="directories" class="menu-item">
               Справочники
             </el-menu-item>
+            <el-menu-item index="tasks" class="menu-item">
+              Задачи
+            </el-menu-item>
           </el-menu>
         </el-col>
         <el-col :span="7" style="text-align: end">
@@ -77,7 +80,7 @@ const menuClicked = (index: string) => {
 @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400&display=swap');
 
 body {
-  min-width: 768px;
+  min-width: 700px;
   margin: 0;
   background-color: #f4eeff;
 }

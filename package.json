@@ -13,7 +13,7 @@
   "dependencies": {
     "@tinymce/tinymce-vue": "^4.0.5",
     "axios": "^0.26.0",
-    "element-plus": "^2.1.2",
+    "element-plus": "^2.1.4",
     "lodash-es": "^4.17.21",
     "pinia": "^2.0.11",
     "vue": "^3.2.31",

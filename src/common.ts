@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { ElMessage } from 'element-plus';
 import { useRouter } from 'vue-router';
-import { updateUserData } from './net/common-requests';
+import { DirectoryTypesAlias, updateUserData } from './net/common-requests';
 import { RouteNames } from './router';
 import { useStore } from './store';
 
@@ -11,15 +11,12 @@ export function convertDate(date: Date) {
 
 export function verifyAuth() {
   const store = useStore();
+  installAuthHeader();
   if (store.getUserInfo.authorized) {
-    updateUserData()
-      .then(() => {
-        installAuthHeader();
-      })
-      .catch((err) => {
-        console.log('not authorized, deleting stored user info');
-        store.clearUserInfo();
-      });
+    updateUserData().catch((err) => {
+      console.log('not authorized, deleting stored user info');
+      store.clearUserInfo();
+    });
   }
 }
 
@@ -47,7 +44,8 @@ export function useAuthGuard() {
   });
 }
 
+const allowedRoutes: RouteNames[] = ['login', 'register'];
+
 export function routeAllowedForUnauthorized(name: RouteNames) {
-  const allowedRoutes: RouteNames[] = ['login', 'register'];
   return allowedRoutes.indexOf(name) !== -1;
 }

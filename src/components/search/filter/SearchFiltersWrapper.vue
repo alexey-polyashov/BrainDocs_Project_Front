@@ -1,9 +1,8 @@
 <template>
   <SearchFilters
     ref="searchFiltersRef"
-    :filter-type="filterTypeLocal"
+    :filter-type="filterType"
     :apply-on-ready="true"
-    :selectable-data="selectableData"
     @filters-applied="onFiltersApplied"
     @delete-selected-click="onDeleteSelectedClick"
     @create-click="$emit('createClick')"
@@ -12,7 +11,7 @@
     <template #table>
       <SearchTable
         ref="searchTableRef"
-        :filter-type="filterTypeLocal"
+        :filter-type="filterType"
         :filter-data="entryResponseData"
         :table-data-view="shownEntries"
         class="filter-box-item filter-box-table"
@@ -48,7 +47,6 @@ const props = withDefaults(
     filterType: DirectoryTypesAlias;
     applyOnReady?: boolean;
     updateEntry: (data: any) => any;
-    selectableData?: SelectableDataType;
   }>(),
   {
     applyOnReady: true,
@@ -65,7 +63,6 @@ const shownEntries = ref<any[]>([]);
 const entryResponseData = ref<SearchDefaultResponse>();
 const searchFiltersRef = ref<InstanceType<typeof SearchFilters> | null>(null);
 const searchTableRef = ref<InstanceType<typeof SearchTable> | null>(null);
-const filterTypeLocal = ref(getUrlByDirectoryType(props.filterType));
 
 function onPageChange(num: number) {
   searchFiltersRef.value?.onPageChange(num);

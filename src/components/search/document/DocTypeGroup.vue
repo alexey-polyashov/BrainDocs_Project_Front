@@ -3,7 +3,7 @@
     <h3>Группировка по виду документа</h3>
     <el-scrollbar height="100%">
       <CheckTagWrapper
-        v-for="docType in docTypes()"
+        v-for="docType in useSelectableArray('docTypes').value"
         :key="docType.id"
         :ref="(el: any) => groupTagInit(docType.id, el)"
         style="margin-bottom: 8px; display: block"
@@ -16,13 +16,10 @@
 </template>
 
 <script setup lang="ts">
-import { reactive } from 'vue';
+import { reactive, ref } from 'vue';
 import CheckTagWrapper from '@/components/helpers/CheckTagWrapper.vue';
+import useSelectableArray from '@/net/selectables';
 import { IndexedType, NamedSelectionType } from '@/types';
-
-const props = defineProps<{
-  docTypes: () => NamedSelectionType[];
-}>();
 
 const emit = defineEmits<{
   (event: 'tagChecked', id: number, isOn: boolean): void;
