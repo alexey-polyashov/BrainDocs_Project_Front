@@ -27,7 +27,7 @@ const routes = [
   },
   {
     name: 'edit-doc',
-    path: '/edit-doc/:id',
+    path: '/edit-doc/:id?',
     component: () => import('../components/EditDocument.vue'),
   },
   {
@@ -42,12 +42,12 @@ const routes = [
   },
   {
     name: 'new-doc-type',
-    path: '/new-doc-type/:id',
+    path: '/new-doc-type/:id?',
     component: () => import('../components/search/doc-type/EditDocType.vue'),
   },
   {
     name: 'new-org',
-    path: '/new-org/:id',
+    path: '/new-org/:id?',
     component: () => import('../components/search/org/EditOrg.vue'),
   },
   {
@@ -57,7 +57,7 @@ const routes = [
   },
   {
     name: 'edit-task',
-    path: '/edit-task/:id',
+    path: '/edit-task/:id?',
     component: () => import('../components/tasks/EditTaskPage.vue'),
   },
   {
