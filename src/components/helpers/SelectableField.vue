@@ -5,7 +5,7 @@
         ? options()
         : useSelectableArray(selectType as any).value"
       :key="option.id"
-      :label="option.name"
+      :label="labelName ? option[labelName] : option.name"
       :value="valueIsObject ? option : option.id"
     />
   </el-select>
@@ -20,6 +20,7 @@ const props = defineProps<{
   selectType?: SelectableTypesAlias;
   options?: () => NamedSelectionType[];
   valueIsObject?: boolean;
+  labelName?: string;
 }>();
 
 verifyProps();

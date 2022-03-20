@@ -10,7 +10,13 @@ export interface Id {
   id: number;
 }
 
+export interface UserShortname {
+  id: number;
+  shortname: string;
+}
+
 export interface NamedSelectionType {
+  [p: string]: string | number;
   id: number;
   name: string;
 }

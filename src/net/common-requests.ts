@@ -57,6 +57,7 @@ export const selectableTypes = Object.freeze({
   users: 'users',
   docTypes: 'documents/types',
   orgs: 'organisations',
+  taskTypes: 'tasks/types',
 });
 
 export type SelectableTypesAlias = keyof typeof selectableTypes;

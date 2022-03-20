@@ -27,20 +27,12 @@
 </template>
 
 <script setup lang="ts">
+import { DirectoryTypesAlias } from '@/net/common-requests';
+import { Id } from '@/types';
+import { ref } from 'vue';
+import { SearchDefaultResponse } from '../types';
 import SearchFilters from './SearchFilters.vue';
 import SearchTable from './SearchTable.vue';
-import { ref } from 'vue';
-import {
-  DocTypeFilterResponse,
-  DocTypeView,
-  SearchDefaultResponse,
-  SelectableDataType,
-} from '../types';
-import {
-  DirectoryTypesAlias,
-  getUrlByDirectoryType,
-} from '@/net/common-requests';
-import { Id } from '@/types';
 
 const props = withDefaults(
   defineProps<{

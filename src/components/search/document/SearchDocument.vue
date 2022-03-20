@@ -105,7 +105,7 @@ const searchWrapperRef = ref<InstanceType<typeof SearchFiltersWrapper> | null>(
 );
 
 function onCreateClick() {
-  router.push({ name: 'new-doc' });
+  router.push({ name: 'edit-doc' });
   window.scrollTo({
     top: 0,
     left: 0,
@@ -140,7 +140,7 @@ function onFiltersInit() {
 }
 
 function tableRowClick(row: Id) {
-  router.push({ name: 'new-doc', params: { id: row.id } });
+  router.push({ name: 'edit-doc', params: { id: row.id } });
   window.scrollTo({
     top: 0,
     left: 0,

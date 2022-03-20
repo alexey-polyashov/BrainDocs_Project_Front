@@ -8,7 +8,7 @@ import '@/assets/my-styles.scss';
 import axios from 'axios';
 
 const url = 'https://brain-docs.herokuapp.com/api/v1';
-const urlLocal = 'http://localhost:8181/braindocs/api/v1';
+const urlLocal = 'http://localhost:8181/api/v1';
 
 axios.defaults.baseURL = url;
 axios.defaults.timeout = 10000;
