@@ -3,6 +3,7 @@
     <SearchFiltersWrapper
       :update-entry="updateEntry"
       filter-type="tasks"
+      @create-click="$router.push({ name: 'edit-task' })"
       @row-click="
         (idObj) => $router.push({ name: 'edit-task', params: { id: idObj.id } })
       "

@@ -117,6 +117,7 @@ function sendComment() {
         comment: addCommentField.value,
       })
       .then((res) => {
+        addCommentField.value = '';
         fetchComments();
       });
   }
