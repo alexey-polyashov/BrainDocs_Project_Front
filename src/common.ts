@@ -6,7 +6,18 @@ import { RouteNames } from './router';
 import { useStore } from './store';
 
 export function convertDate(date: Date) {
-  return `${date.getFullYear()}-${date.getMonth()}-${date.getDate()}`;
+  const monthString = date.getMonth().toString();
+  const dayString = date.getDate().toString();
+  const month = monthString.length === 1 ? '0' + monthString : monthString;
+  const day = dayString.length === 1 ? '0' + dayString : dayString;
+  return `${date.getFullYear()}-${month}-${day}`;
+}
+
+export function convertDateTime(date: Date) {
+  const dateString = convertDate(date);
+  const hoursString = date.getHours();
+  const minutesString = date.getMinutes();
+  return `${dateString} ${hoursString}:${minutesString}`;
 }
 
 export function verifyAuth() {
@@ -49,3 +60,11 @@ const allowedRoutes: RouteNames[] = ['login', 'register'];
 export function routeAllowedForUnauthorized(name: RouteNames) {
   return allowedRoutes.indexOf(name) !== -1;
 }
+
+export const getTime = (obj: string) => {
+  return obj.split(' ')[1];
+};
+
+export const getDate = (obj: string) => {
+  return obj.split(' ')[0];
+};

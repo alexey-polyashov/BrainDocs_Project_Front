@@ -1,5 +1,5 @@
 <template>
-  <el-card class="content-box" @click="modified = false">
+  <el-card class="content-box">
     <slot name="header"></slot>
     <el-form ref="formRef" :model="formData" label-width="auto">
       <slot name="form-items" :form-data="formData"></slot>
@@ -30,6 +30,7 @@
           :should-send-requests-on-change="shouldSendRequestsOnChange"
         />
       </div>
+      <slot name="extra"></slot>
     </el-form>
   </el-card>
 </template>

@@ -26,14 +26,17 @@
             router
             @select="menuClicked"
           >
-            <el-menu-item index="search-doc" class="menu-item">
+            <el-menu-item index="/search-doc" class="menu-item">
               Поиск
             </el-menu-item>
-            <el-menu-item index="directories" class="menu-item">
+            <el-menu-item index="/directories" class="menu-item">
               Справочники
             </el-menu-item>
-            <el-menu-item index="tasks" class="menu-item">
+            <el-menu-item index="/tasks" class="menu-item">
               Задачи
+            </el-menu-item>
+            <el-menu-item index="/history" class="menu-item">
+              История
             </el-menu-item>
           </el-menu>
         </el-col>

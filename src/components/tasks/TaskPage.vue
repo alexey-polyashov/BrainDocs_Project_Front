@@ -1,15 +1,21 @@
 <template>
   <el-card>
-    <SearchFiltersWrapper :update-entry="updateEntry" filter-type="tasks">
+    <SearchFiltersWrapper
+      :update-entry="updateEntry"
+      filter-type="tasks"
+      @row-click="
+        (idObj) => $router.push({ name: 'edit-task', params: { id: idObj.id } })
+      "
+    >
       <template #columns>
         <el-table-column type="selection" width="55" />
-        <el-table-column label="Заголовок" sortable width="100" />
-        <el-table-column label="Автор" sortable width="120" />
-        <el-table-column label="Предмет" sortable width="120" />
-        <el-table-column label="Срок выполнения" sortable width="120" />
-        <el-table-column label="Дата получения" sortable width="120" />
-        <el-table-column label="Исполнитель" sortable width="120" />
-        <el-table-column label="Результат" sortable width="120" />
+        <el-table-column prop="heading" label="Заголовок" />
+        <el-table-column prop="author.shortname" label="Автор" />
+        <el-table-column prop="" label="Предмет" />
+        <el-table-column label="Срок выполнения" />
+        <el-table-column prop="createTime" label="Дата получения" />
+        <el-table-column label="Исполнитель" />
+        <el-table-column label="Результат" />
       </template>
     </SearchFiltersWrapper>
   </el-card>
@@ -19,7 +25,7 @@
 import SearchFiltersWrapper from '../search/filter/SearchFiltersWrapper.vue';
 
 function updateEntry(data: any) {
-  return {};
+  return data;
 }
 </script>
 

@@ -26,8 +26,8 @@ const routes = [
     component: () => import('../components/UserProfile.vue'),
   },
   {
-    name: 'new-doc',
-    path: '/create-doc',
+    name: 'edit-doc',
+    path: '/edit-doc/:id',
     component: () => import('../components/EditDocument.vue'),
   },
   {
@@ -42,18 +42,28 @@ const routes = [
   },
   {
     name: 'new-doc-type',
-    path: '/new-doc-type',
+    path: '/new-doc-type/:id',
     component: () => import('../components/search/doc-type/EditDocType.vue'),
   },
   {
     name: 'new-org',
-    path: '/new-org',
+    path: '/new-org/:id',
     component: () => import('../components/search/org/EditOrg.vue'),
   },
   {
     name: 'tasks',
     path: '/tasks',
     component: () => import('../components/tasks/TaskPage.vue'),
+  },
+  {
+    name: 'edit-task',
+    path: '/edit-task/:id',
+    component: () => import('../components/tasks/EditTaskPage.vue'),
+  },
+  {
+    name: 'history',
+    path: '/history',
+    component: () => import('../components/history-page/HistoryPage.vue'),
   },
 ] as const;
 
