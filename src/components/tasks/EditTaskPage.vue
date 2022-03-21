@@ -119,7 +119,10 @@
         </SelectableField
       ></el-form-item>
       <el-form-item label="Дата выполнения">
-        <el-date-picker v-model="addExecutorForm.planedDate"></el-date-picker>
+        <el-date-picker
+          v-model="addExecutorForm.planedDate"
+          type="datetime"
+        ></el-date-picker>
       </el-form-item>
     </el-form>
     <template #footer>
