@@ -100,6 +100,11 @@ body {
   margin: 10% auto;
 }
 
+:root {
+  --m-date-color: #508d8d;
+  --m-time-color: #787e3f;
+}
+
 @media only screen and (max-width: 1024px) {
   .content-box {
     width: 95%;

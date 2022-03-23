@@ -9,7 +9,12 @@
               comment.author.shortname
             }}</span>
             написал
-            {{ comment.createTime }}
+            <span style="color: var(--m-date-color)">{{
+              getDate(comment.createTime)
+            }}</span
+            >&nbsp;<span style="color: var(--m-time-color)">{{
+              getTime(comment.createTime)
+            }}</span>
           </p>
           <p style="margin-left: 8px; font-size: 1.1rem">
             {{ comment.comment }}
@@ -37,6 +42,7 @@ import { UserShortname } from '@/types';
 import axios from 'axios';
 import { ElMessage } from 'element-plus';
 import { ref } from 'vue';
+import { convertDate, convertDateTime, getDate, getTime } from '@/common';
 
 interface CommentType {
   author: UserShortname;
@@ -52,50 +58,7 @@ const props = defineProps<{
 
 const addCommentField = ref('');
 const elemTypeUrl = getUrlByDirectoryType(props.elemType);
-const commentData = ref<CommentType[]>([
-  {
-    author: { id: 1, shortname: 'asd' },
-    comment: 'asdasdasd',
-    createTime: '2022-03-20',
-    id: 1,
-  },
-  {
-    author: { id: 1, shortname: 'asd' },
-    comment: 'basd',
-    createTime: '2022-03-20',
-    id: 2,
-  },
-  {
-    author: { id: 1, shortname: 'asd' },
-    comment: 'zxc3wqrewt',
-    createTime: '2022-03-19',
-    id: 3,
-  },
-  {
-    author: { id: 1, shortname: 'asd' },
-    comment: 'tjhtdyjntdyjdtyj',
-    createTime: '2022-03-18',
-    id: 4,
-  },
-  {
-    author: { id: 1, shortname: 'asd' },
-    comment: 'tjhtdyjntdyjdtyj',
-    createTime: '2022-03-18',
-    id: 4,
-  },
-  {
-    author: { id: 1, shortname: 'asd' },
-    comment: 'tjhtdyjntdyjdtyj',
-    createTime: '2022-03-18',
-    id: 4,
-  },
-  {
-    author: { id: 1, shortname: 'asd' },
-    comment: 'tjhtdyjntdyjdtyj',
-    createTime: '2022-03-18',
-    id: 4,
-  },
-]);
+const commentData = ref<CommentType[]>([]);
 
 fetchComments();
 

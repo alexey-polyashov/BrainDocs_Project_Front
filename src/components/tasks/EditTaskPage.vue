@@ -1,11 +1,12 @@
 <template>
   <EditElementPage
+    ref="editElemPageRef"
     :form-data="formData"
-    :use-files-dialog="false"
+    :use-files-dialog="true"
     elem-type="tasks"
     :apply-form-data="applyFormData"
     :apply-request-data="applyRequestData"
-    @on-close-click="$router.push({ name: 'tasks' })"
+    @on-close-click="onClose"
   >
     <template #header>
       <h2>{{ formData.id ? 'Редактирование задачи' : 'Новая задача' }}</h2>
@@ -41,7 +42,7 @@
           <el-input v-model="formData.content" type="textarea"></el-input>
           <div v-if="formData.id">
             <h4>Исполнители</h4>
-            <div class="exec-box">
+            <el-scrollbar height="100px" class="exec-box">
               <div
                 v-for="executor in executorsData"
                 :key="executor.id"
@@ -64,10 +65,17 @@
                 <span style="color: var(--el-color-primary)">{{
                   executor.executor.shortname
                 }}</span
-                >, срок - {{ executor.planedDate }},&nbsp;
+                >, срок -&nbsp;
+                <span style="color: var(--m-date-color)">{{
+                  getDate(executor.planedDate)
+                }}</span
+                >&nbsp;<span style="color: var(--m-time-color)">{{
+                  getTime(executor.planedDate)
+                }}</span
+                >,&nbsp;
                 <span>{{ executor.result.resultName }}</span>
               </div>
-            </div>
+            </el-scrollbar>
             <el-button @click="executorsDialogVisible = true">
               Добавить
             </el-button>
@@ -82,10 +90,11 @@
           />
         </div>
         <div style="width: 50%">
-          <div>
-            <h4>Предметы</h4>
-            <div class="exec-box"></div>
-          </div>
+          <SubjectField
+            v-if="primarySubjectId"
+            :subject="(primarySubjectInfo as any)"
+          >
+          </SubjectField>
         </div>
       </div>
     </template>
@@ -135,46 +144,18 @@
 </template>
 
 <script setup lang="ts">
-import { Id, UserShortname } from '@/types';
-import { ref } from 'vue';
+import { ref, watch } from 'vue';
 import SelectableField from '../helpers/SelectableField.vue';
 import EditElementPage from '../search/EditElementPage.vue';
 import CommentList from '../helpers/CommentList.vue';
-import { convertDate, convertDateTime } from '@/common';
+import { convertDate, convertDateTime, getDate, getTime } from '@/common';
 import _ from 'lodash-es';
 import axios from 'axios';
 import { ElMessage } from 'element-plus';
-
-export interface TaskDataType {
-  author: UserShortname;
-  content: string;
-  createTime: string;
-  heading: string;
-  id?: number;
-  subjects: Subject[];
-  taskType: Id;
-}
-
-export interface Subject {
-  date: string;
-  id: number;
-  name: string;
-  number: string;
-  subjectType: string;
-}
-
-interface ExecutorInfo {
-  comment: string;
-  createdAt: string;
-  dateOfCompletion: string;
-  executor: UserShortname;
-  id: number;
-  planedDate: string;
-  result: {
-    resultName: string;
-  };
-  status: number;
-}
+import { useRoute, useRouter } from 'vue-router';
+import { TaskDataType, ExecutorInfo } from './types';
+import { DocFilterResponseContent } from '../search/types';
+import SubjectField from './SubjectField.vue';
 
 const readonly = ref(false);
 const executorsDialogVisible = ref(false);
@@ -183,6 +164,7 @@ const formData = ref<TaskDataType>({
     id: 1,
     shortname: '',
   },
+  status: -1,
   content: '',
   createTime: convertDate(new Date()),
   heading: '',
@@ -192,6 +174,13 @@ const formData = ref<TaskDataType>({
   },
 });
 
+const router = useRouter();
+const route = useRoute();
+
+// don't wait for request to update the id value, so the page loades with no delay
+formData.value.id = +(route.params.id as string);
+
+const editElemPageRef = ref<InstanceType<typeof EditElementPage>>();
 const executorsData = ref<ExecutorInfo[]>([]);
 const addExecutorForm = ref({
   executor: {
@@ -200,13 +189,28 @@ const addExecutorForm = ref({
   planedDate: '',
 });
 
+const primarySubjectId: number = +route.params.primarySubjectId;
+const primarySubjectType: string = route.params.primarySubjectType as string;
+const primarySubjectInfo = ref<Partial<DocFilterResponseContent>>({});
+console.log(route.params);
+
+if (primarySubjectId) {
+  axios.get(`documents/${primarySubjectId}`).then((res) => {
+    primarySubjectInfo.value = res.data;
+  });
+}
+
 function applyFormData(source: TaskDataType) {
   formData.value = source;
   fetchExecutorsList();
+  watch(formData, () => {
+    editElemPageRef.value?.setModified(true);
+  });
 }
 function applyRequestData() {
   const clonedData: Partial<TaskDataType> = _.cloneDeep(formData.value);
   delete clonedData.createTime;
+  clonedData.subjects?.push({ id: primarySubjectId } as any);
   return clonedData;
 }
 
@@ -215,6 +219,12 @@ function addExecutor() {
     .post(`tasks/${formData.value.id}/executors`, addExecutorForm.value)
     .then((res) => {
       fetchExecutorsList();
+      addExecutorForm.value = {
+        executor: {
+          id: '',
+        },
+        planedDate: '',
+      };
     });
   executorsDialogVisible.value = false;
 }
@@ -232,16 +242,29 @@ function fetchExecutorsList() {
   axios
     .get<ExecutorInfo[]>(`tasks/${formData.value.id}/executors`)
     .then((res) => {
-      console.log(res.data);
       executorsData.value = res.data;
     });
+}
+
+function onClose() {
+  if (primarySubjectId) {
+    router.push({ name: 'edit-doc', params: { id: primarySubjectId } });
+  } else {
+    router.push({ name: 'tasks' });
+  }
 }
 </script>
 
 <style scoped>
 h4 {
-  margin-top: 16px;
+  margin-top: 32px;
   margin-bottom: 4px;
+}
+
+.subject-text {
+  margin: 0;
+  margin-bottom: 8px;
+  font-size: 0.95rem;
 }
 
 .exec-box {

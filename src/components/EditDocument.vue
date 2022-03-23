@@ -38,6 +38,9 @@
         api-key="r8zqd3nkvkfr7t0s0r4qo107guk38q9xpact4xap39t1p0pe"
       />
     </template>
+    <template #extra>
+      <TaskList v-if="formData.id" :id="(formData.id as any)"></TaskList>
+    </template>
   </edit-element-page>
 </template>
 
@@ -62,6 +65,7 @@ import EditElementPage from '@/components/search/EditElementPage.vue';
 import { DocFilterResponseContent } from './search/types';
 import Editor from '@tinymce/tinymce-vue';
 import SelectableField from './helpers/SelectableField.vue';
+import TaskList from './helpers/TaskList.vue';
 
 const editElemPageRef = ref<InstanceType<typeof EditElementPage>>();
 const formData = reactive({

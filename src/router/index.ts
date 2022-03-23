@@ -61,6 +61,11 @@ const routes = [
     component: () => import('../components/tasks/EditTaskPage.vue'),
   },
   {
+    name: 'exec-task',
+    path: '/exec-task/:id',
+    component: () => import('../components/tasks/TaskExecutionPage.vue'),
+  },
+  {
     name: 'history',
     path: '/history',
     component: () => import('../components/history-page/HistoryPage.vue'),
