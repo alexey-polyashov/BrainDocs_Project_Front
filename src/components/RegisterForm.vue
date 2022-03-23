@@ -69,15 +69,15 @@ const loadingButton = ref();
 
 type FormInstance = InstanceType<typeof ElForm>;
 const formData = reactive({
-  fullName: 'asd',
-  shortName: 'asd',
-  password: 'asd',
-  passwordRepeated: 'asd',
+  fullName: '',
+  shortName: '',
+  password: '',
+  passwordRepeated: '',
   organisationId: {
     id: 1,
   },
-  email: 'asd@gmail.com',
-  login: 'asd',
+  email: '',
+  login: '',
 });
 const formRules = reactive({
   passwordRepeated: [
@@ -102,6 +102,7 @@ const onSubmit = () => {
         //birthday: new Date().toISOString()
       }).then(() => {
         loadingButton.value.loading = false;
+        resetForm();
       });
     } else {
       ElMessage.warning({

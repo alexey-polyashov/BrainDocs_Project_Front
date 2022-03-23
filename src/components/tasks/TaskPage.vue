@@ -5,7 +5,7 @@
       filter-type="tasks"
       @create-click="$router.push({ name: 'edit-task' })"
       @row-click="
-        (idObj) => $router.push({ name: 'edit-task', params: { id: idObj.id } })
+        (idObj) => $router.push({ name: 'exec-task', params: { id: idObj.id } })
       "
     >
       <template #columns>

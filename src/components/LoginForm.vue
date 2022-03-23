@@ -37,8 +37,8 @@ const loadingButton = ref();
 const router = useRouter();
 const store = useStore();
 const form = reactive({
-  username: 'user',
-  password: '100',
+  username: '',
+  password: '',
 });
 const formRef = ref<FormInstance>();
 const resetForm = (formEl?: FormInstance) => {
