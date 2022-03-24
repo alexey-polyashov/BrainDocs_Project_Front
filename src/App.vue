@@ -15,6 +15,7 @@
             >
           </div>
           <el-menu
+            v-if="store.getUserInfo.authorized"
             :default-active="activeMenu"
             background-color="transparent"
             text-color="white"
@@ -58,14 +59,19 @@
 import { provide, ref } from 'vue';
 import { installAuthHeader, useAuthGuard, verifyAuth } from './common';
 import ProfileMenuButton from './components/helpers/ProfileMenuButton.vue';
+import { getTaskExecutorStatuses } from './net/common-requests';
 import useServerCheck from './net/server-check';
+import { useStore } from './store';
 
 export type MenuBarValues = 'search-doc' | 'directories' | '';
 export type SetActiveMenuItemType = (item: MenuBarValues) => void;
 
+const store = useStore();
+
+getTaskExecutorStatuses();
 useServerCheck();
 verifyAuth();
-//useAuthGuard();
+useAuthGuard();
 
 const activeMenu = ref('');
 const setActiveMenuItem = (item: MenuBarValues) => (activeMenu.value = item);

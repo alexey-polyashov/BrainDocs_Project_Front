@@ -29,19 +29,32 @@
         <p>{{ formData.heading }}</p>
         <h4>Содержание</h4>
         <p type="textarea">{{ formData.content }}</p>
-        <h4>Комментарий к выполнению</h4>
-        <el-input v-model="resultComment" :rows="4" type="textarea"></el-input>
-        <el-button
-          v-for="result in executionResults"
-          :key="result.resultType"
-          :type="(executorResultColors[result.resultType] as any)"
-          plain
-          :style="{
-            marginTop: '8px',
-          }"
-          @click="supplyResult(result.id)"
-          >{{ result.resultName }}</el-button
-        >
+        <div v-if="isTaskActive()">
+          <h4>Комментарий к выполнению</h4>
+          <el-input
+            v-model="resultComment"
+            :rows="4"
+            type="textarea"
+          ></el-input>
+          <el-button
+            v-for="result in executionResults"
+            :key="result.resultType"
+            :type="(executorResultColors[result.resultType].type as any)"
+            plain
+            :style="{
+              marginTop: '8px',
+            }"
+            @click="supplyResult(result.id)"
+            >{{ result.resultName }}</el-button
+          >
+        </div>
+        <h4 v-else>
+          Статус:
+          <span
+            :style="{ color: executorStatusColors[formData.status].color }"
+            >{{ taskExecutorStatuses[formData.status] }}</span
+          >
+        </h4>
       </div>
       <div style="width: 50%"></div>
     </div>
@@ -62,11 +75,16 @@ import { convertDate } from '@/common';
 import { useStore } from '@/store';
 import axios from 'axios';
 import { ref } from 'vue';
-import { useRoute } from 'vue-router';
+import { useRoute, useRouter } from 'vue-router';
 import CommentList from '../helpers/CommentList.vue';
 import { TaskDataType } from './types';
 import SubjectField from './SubjectField.vue';
 import { ElMessage } from 'element-plus';
+import { executorResultColors, executorStatusColors } from './common';
+import {
+  getTaskExecutorStatuses,
+  taskExecutorStatuses,
+} from '@/net/common-requests';
 
 interface ExecutionResultType {
   id: number;
@@ -89,12 +107,8 @@ const formData = ref<TaskDataType>({
   },
 });
 const resultComment = ref('');
-const executorResultColors: { [p: number]: string } = {
-  1: 'success',
-  2: 'warning',
-  3: 'danger',
-  4: 'primary',
-};
+const router = useRouter();
+getTaskExecutorStatuses();
 
 // don't wait for request to update the id value, so the page loades with no delay
 formData.value.id = +(useRoute().params.id as string);
@@ -121,15 +135,25 @@ function supplyResult(resultId: number) {
     ElMessage.warning('Напишите комментарий к выполнению');
     return;
   }
+
   const store = useStore();
   const userId = store.getUserInfo.authorized
     ? store.getUserInfo.userExtra?.id
     : 1;
-  axios.post(`tasks/${formData.value.id}/executors/${userId}/result`, {
-    resultId,
-    resultComment: resultComment.value,
-    executor: userId,
-  });
+  axios
+    .post(`tasks/${formData.value.id}/executors/${userId}/result`, {
+      resultId,
+      resultComment: resultComment.value,
+      executor: userId,
+    })
+    .then((res) => {
+      router.push({ name: 'tasks' });
+    });
+}
+
+function isTaskActive() {
+  const status = formData.value.status;
+  return status !== 3 && status !== 4;
 }
 </script>
 

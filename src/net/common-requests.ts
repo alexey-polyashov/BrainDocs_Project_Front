@@ -1,12 +1,13 @@
 import axios from 'axios';
 import { ElMessage } from 'element-plus';
+import { ref } from 'vue';
 import {
   FileDescriptionType,
   FullFileType,
 } from '../components/file-dialog/types';
 import router from '../router';
 import { useStore } from '../store';
-import { NamedSelectionType, UserInfoType } from '../types';
+import { IndexedType, NamedSelectionType, UserInfoType } from '../types';
 
 export async function uploadFileToExistingElement(
   elemType: DirectoryTypesAlias,
@@ -103,4 +104,13 @@ export async function updateUserData() {
   return axios.get<UserInfoType>('/users/authorized').then((res) => {
     useStore().$state.userInfo.userExtra = res.data;
   });
+}
+
+export const taskExecutorStatuses = ref<IndexedType<number, string>>({});
+
+export async function getTaskExecutorStatuses() {
+  await axios.get('tasks/executors/statuses').then((res) => {
+    taskExecutorStatuses.value = res.data;
+  });
+  return taskExecutorStatuses;
 }

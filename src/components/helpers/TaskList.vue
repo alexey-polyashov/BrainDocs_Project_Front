@@ -32,7 +32,15 @@
             task.author.shortname
           }}</span>
         </p>
-        <p>Статус - {{ statuses[task.status] }}</p>
+        <p>
+          Статус -
+          <span
+            :style="{
+              color: executorStatusColors[task.status].color,
+            }"
+            >{{ taskExecutorStatuses[task.status] }}</span
+          >
+        </p>
       </div>
     </el-scrollbar>
     <el-button
@@ -54,17 +62,17 @@ import { IndexedStrType } from '@/types';
 import axios from 'axios';
 import { ref } from 'vue';
 import { TaskDataType } from '../tasks/types';
+import {
+  getTaskExecutorStatuses,
+  taskExecutorStatuses,
+} from '@/net/common-requests';
+import { executorStatusColors } from '../tasks/common';
 
 const props = defineProps<{
   id: number | string;
 }>();
 
 const taskList = ref<TaskDataType[]>([]);
-const statuses = ref<IndexedStrType<string>>({});
-
-axios.get('tasks/statuses').then((res) => {
-  statuses.value = res.data;
-});
 
 axios.get<TaskDataType[]>(`documents/${props.id}/tasks`).then((res) => {
   taskList.value = res.data;

@@ -46,9 +46,13 @@
               <div
                 v-for="executor in executorsData"
                 :key="executor.id"
-                style="margin-bottom: 4px; display: flex"
+                style="margin-bottom: 4px; display: flex; align-items: center"
               >
-                <el-tooltip content="Удалить" placement="top">
+                <el-tooltip
+                  v-if="couldBeDeleted(executor.status)"
+                  content="Удалить"
+                  placement="top"
+                >
                   <span
                     style="
                       font-size: 1.3rem;
@@ -128,7 +132,10 @@
         </SelectableField
       ></el-form-item>
       <el-form-item label="Дата выполнения">
-        <el-date-picker v-model="addExecutorForm.planedDate"></el-date-picker>
+        <el-date-picker
+          v-model="addExecutorForm.planedDate"
+          type="datetime"
+        ></el-date-picker>
       </el-form-item>
     </el-form>
     <template #footer>
@@ -141,7 +148,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch } from 'vue';
+import { h, ref, watch } from 'vue';
 import SelectableField from '../helpers/SelectableField.vue';
 import EditElementPage from '../search/EditElementPage.vue';
 import CommentList from '../helpers/CommentList.vue';
@@ -153,6 +160,7 @@ import { useRoute, useRouter } from 'vue-router';
 import { TaskDataType, ExecutorInfo } from './types';
 import { DocFilterResponseContent } from '../search/types';
 import SubjectField from './SubjectField.vue';
+import { executorResultColors } from './common';
 
 const readonly = ref(false);
 const executorsDialogVisible = ref(false);
@@ -188,8 +196,9 @@ const addExecutorForm = ref({
 
 const primarySubjectId: number = +route.params.primarySubjectId;
 const primarySubjectType: string = route.params.primarySubjectType as string;
-const primarySubjectInfo = ref<Partial<DocFilterResponseContent>>({});
-console.log(route.params);
+const primarySubjectInfo = ref<Partial<DocFilterResponseContent>>({
+  id: primarySubjectId,
+});
 
 if (primarySubjectId) {
   axios.get(`documents/${primarySubjectId}`).then((res) => {
@@ -204,11 +213,16 @@ function applyFormData(source: TaskDataType) {
     editElemPageRef.value?.setModified(true);
   });
 }
+
 function applyRequestData() {
   const clonedData: Partial<TaskDataType> = _.cloneDeep(formData.value);
   delete clonedData.createTime;
   clonedData.subjects?.push({ id: primarySubjectId } as any);
   return clonedData;
+}
+
+function couldBeDeleted(status: number) {
+  return status != 3 && status != 4;
 }
 
 function addExecutor() {
@@ -257,13 +271,6 @@ h4 {
   margin-top: 32px;
   margin-bottom: 4px;
 }
-
-.subject-text {
-  margin: 0;
-  margin-bottom: 8px;
-  font-size: 0.95rem;
-}
-
 .exec-box {
   min-height: 100px;
   border: 1px solid var(--el-border-color);
