@@ -41,12 +41,6 @@
           :disabled="!fieldsEditable"
         />
       </el-descriptions-item>
-      <el-descriptions-item label="Адрес">
-        <el-input v-model="userInfoForm.address" :readonly="!fieldsEditable" />
-      </el-descriptions-item>
-      <el-descriptions-item label="Телефон">
-        <el-input v-model="userInfoForm.phone" :readonly="!fieldsEditable" />
-      </el-descriptions-item>
     </el-descriptions>
     <el-button
       type="primary"

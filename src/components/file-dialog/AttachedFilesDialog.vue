@@ -35,6 +35,7 @@
   </el-dialog>
   <NewFileDialog
     ref="newFileDialog"
+    :elem-type="elemType"
     :elem-id="elemId"
     :update-view="updateView"
     :should-send-requests-on-change="shouldSendRequestsOnChange"

@@ -22,8 +22,8 @@
 <script setup lang="ts">
 import { ElMessage } from 'element-plus';
 import { computed, inject, Ref } from 'vue';
+import { useRouter } from 'vue-router';
 import { MenuBarValues, SetActiveMenuItemType } from '../../App.vue';
-import router from '../../router';
 import { useStore } from '../../store';
 
 const store = useStore();
@@ -31,6 +31,8 @@ const userInfo = computed(() => store.getUserInfo);
 const setActiveMenuItem = inject<SetActiveMenuItemType>(
   'setActiveMenuItem'
 ) as SetActiveMenuItemType;
+
+const router = useRouter();
 
 const profileClick = () => {
   setActiveMenuItem('');
@@ -50,6 +52,7 @@ function dropDownClick(command: string) {
   function logOut() {
     store.clearUserInfo();
     ElMessage.info('Вы вышли из системы');
+    router.push({ name: 'login' });
   }
 }
 </script>

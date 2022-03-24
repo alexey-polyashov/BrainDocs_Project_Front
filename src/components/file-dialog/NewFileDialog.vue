@@ -15,7 +15,7 @@
       </el-form-item>
       <el-form-item v-if="shouldSendRequestsOnChange" label="Просмотр файла">
         <el-link
-          :href="`https://brain-docs.herokuapp.com/api/v1/documents/${$props.elemId}/files/${fileForm.id}/data`"
+          :href="`https://brain-docs.herokuapp.com/api/v1/${elemTypeUrl}/${$props.elemId}/files/${fileForm.id}/data`"
           type="primary"
           target="_blank"
         >
@@ -24,7 +24,7 @@
       </el-form-item>
       <el-form-item v-if="shouldSendRequestsOnChange" label="Ссылка файла">
         <el-link
-          :href="`https://brain-docs.herokuapp.com/api/v1/documents/${$props.elemId}/files/${fileForm.id}/download`"
+          :href="`https://brain-docs.herokuapp.com/api/v1/${elemTypeUrl}/${$props.elemId}/files/${fileForm.id}/download`"
           type="primary"
           target="_blank"
           :download="fileForm.name"
@@ -63,13 +63,17 @@
 import { reactive, ref } from 'vue';
 import { ElMessage, ElUpload } from 'element-plus';
 import { FileDescriptionType, FullFileType } from './types';
-import { uploadFileToExistingElement } from '../../net/common-requests';
+import {
+  DirectoryTypesAlias,
+  getUrlByDirectoryType,
+  uploadFileToExistingElement,
+} from '../../net/common-requests';
 import { LocalFileDescriptionType } from './AttachedFilesDialog.vue';
 
 const props = defineProps<{
   shouldSendRequestsOnChange: boolean;
   elemId: number;
-
+  elemType: DirectoryTypesAlias;
   updateView: (id: number) => void;
 }>();
 
@@ -77,6 +81,7 @@ const emit = defineEmits<{
   (event: 'fileSaved', fileInfo: LocalFileDescriptionType): void;
 }>();
 
+const elemTypeUrl = getUrlByDirectoryType(props.elemType);
 const uploadRef = ref<InstanceType<typeof ElUpload>>();
 const dialogVisible = ref(false);
 const fileForm = reactive<LocalFileDescriptionType>({

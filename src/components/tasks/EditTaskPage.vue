@@ -46,9 +46,13 @@
               <div
                 v-for="executor in executorsData"
                 :key="executor.id"
-                style="margin-bottom: 4px; display: flex"
+                style="margin-bottom: 4px; display: flex; align-items: center"
               >
-                <el-tooltip content="Удалить" placement="top">
+                <el-tooltip
+                  v-if="couldBeDeleted(executor.status)"
+                  content="Удалить"
+                  placement="top"
+                >
                   <span
                     style="
                       font-size: 1.3rem;
@@ -62,18 +66,19 @@
                     close
                   </span>
                 </el-tooltip>
-                <span style="color: var(--el-color-primary)">{{
-                  executor.executor.shortname
-                }}</span
-                >, срок -&nbsp;
-                <span style="color: var(--m-date-color)">{{
-                  getDate(executor.planedDate)
-                }}</span
-                >&nbsp;<span style="color: var(--m-time-color)">{{
-                  getTime(executor.planedDate)
-                }}</span
-                >,&nbsp;
-                <span>{{ executor.result.resultName }}</span>
+                <p>
+                  <span style="color: var(--el-color-primary)">{{
+                    executor.executor.shortname
+                  }}</span
+                  >, срок -&nbsp;
+                  <span style="color: var(--m-date-color)">{{
+                    getDate(executor.planedDate)
+                  }}</span
+                  >&nbsp;<span style="color: var(--m-time-color)">{{
+                    getTime(executor.planedDate)
+                  }}</span
+                  >,&nbsp; <span>{{ executor.result.resultName }}</span>
+                </p>
               </div>
             </el-scrollbar>
             <el-button @click="executorsDialogVisible = true">
@@ -144,7 +149,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch } from 'vue';
+import { h, ref, watch } from 'vue';
 import SelectableField from '../helpers/SelectableField.vue';
 import EditElementPage from '../search/EditElementPage.vue';
 import CommentList from '../helpers/CommentList.vue';
@@ -156,6 +161,7 @@ import { useRoute, useRouter } from 'vue-router';
 import { TaskDataType, ExecutorInfo } from './types';
 import { DocFilterResponseContent } from '../search/types';
 import SubjectField from './SubjectField.vue';
+import { executorResultColors } from './common';
 
 const readonly = ref(false);
 const executorsDialogVisible = ref(false);
@@ -191,8 +197,9 @@ const addExecutorForm = ref({
 
 const primarySubjectId: number = +route.params.primarySubjectId;
 const primarySubjectType: string = route.params.primarySubjectType as string;
-const primarySubjectInfo = ref<Partial<DocFilterResponseContent>>({});
-console.log(route.params);
+const primarySubjectInfo = ref<Partial<DocFilterResponseContent>>({
+  id: primarySubjectId,
+});
 
 if (primarySubjectId) {
   axios.get(`documents/${primarySubjectId}`).then((res) => {
@@ -207,11 +214,16 @@ function applyFormData(source: TaskDataType) {
     editElemPageRef.value?.setModified(true);
   });
 }
+
 function applyRequestData() {
   const clonedData: Partial<TaskDataType> = _.cloneDeep(formData.value);
   delete clonedData.createTime;
   clonedData.subjects?.push({ id: primarySubjectId } as any);
   return clonedData;
+}
+
+function couldBeDeleted(status: number) {
+  return status != 3 && status != 4;
 }
 
 function addExecutor() {
@@ -261,12 +273,9 @@ h4 {
   margin-bottom: 4px;
 }
 
-.subject-text {
+p {
   margin: 0;
-  margin-bottom: 8px;
-  font-size: 0.95rem;
 }
-
 .exec-box {
   min-height: 100px;
   border: 1px solid var(--el-border-color);

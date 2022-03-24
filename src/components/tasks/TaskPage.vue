@@ -26,6 +26,8 @@
 import SearchFiltersWrapper from '../search/filter/SearchFiltersWrapper.vue';
 
 function updateEntry(data: any) {
+  console.log(data);
+
   return data;
 }
 </script>
