@@ -66,18 +66,19 @@
                     close
                   </span>
                 </el-tooltip>
-                <span style="color: var(--el-color-primary)">{{
-                  executor.executor.shortname
-                }}</span
-                >, срок -&nbsp;
-                <span style="color: var(--m-date-color)">{{
-                  getDate(executor.planedDate)
-                }}</span
-                >&nbsp;<span style="color: var(--m-time-color)">{{
-                  getTime(executor.planedDate)
-                }}</span
-                >,&nbsp;
-                <span>{{ executor.result.resultName }}</span>
+                <p>
+                  <span style="color: var(--el-color-primary)">{{
+                    executor.executor.shortname
+                  }}</span
+                  >, срок -&nbsp;
+                  <span style="color: var(--m-date-color)">{{
+                    getDate(executor.planedDate)
+                  }}</span
+                  >&nbsp;<span style="color: var(--m-time-color)">{{
+                    getTime(executor.planedDate)
+                  }}</span
+                  >,&nbsp; <span>{{ executor.result.resultName }}</span>
+                </p>
               </div>
             </el-scrollbar>
             <el-button @click="executorsDialogVisible = true">
@@ -270,6 +271,10 @@ function onClose() {
 h4 {
   margin-top: 32px;
   margin-bottom: 4px;
+}
+
+p {
+  margin: 0;
 }
 .exec-box {
   min-height: 100px;
