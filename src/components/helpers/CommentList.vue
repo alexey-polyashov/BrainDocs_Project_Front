@@ -26,7 +26,12 @@
         <div style="display: flex">
           <el-input v-model="addCommentField" style="margin-right: 8px">
           </el-input>
-          <el-button @click="sendComment">Ответить</el-button>
+          <loading-button
+            ref="supplyCommentButtonRef"
+            type=""
+            button-text="Ответить"
+            @click="sendComment"
+          />
         </div>
       </div>
     </div>
@@ -43,6 +48,7 @@ import axios from 'axios';
 import { ElMessage } from 'element-plus';
 import { ref } from 'vue';
 import { convertDate, convertDateTime, getDate, getTime } from '@/common';
+import LoadingButton from './LoadingButton.vue';
 
 interface CommentType {
   author: UserShortname;
@@ -57,6 +63,7 @@ const props = defineProps<{
 }>();
 
 const addCommentField = ref('');
+const supplyCommentButtonRef = ref<InstanceType<typeof LoadingButton>>();
 const elemTypeUrl = getUrlByDirectoryType(props.elemType);
 const commentData = ref<CommentType[]>([]);
 
@@ -74,12 +81,14 @@ function sendComment() {
   if (!addCommentField.value) {
     ElMessage.warning('Комментарий не может быть пустым');
   } else {
+    supplyCommentButtonRef.value?.setLoading(true);
     axios
       .post(`${elemTypeUrl}/${props.id}/comments`, {
         author: { id: 1 },
         comment: addCommentField.value,
       })
       .then((res) => {
+        supplyCommentButtonRef.value?.setLoading(false);
         addCommentField.value = '';
         fetchComments();
       });

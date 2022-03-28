@@ -19,15 +19,20 @@ export interface Subject {
   subjectType: string;
 }
 
-export interface ExecutorInfo {
-  comment: string;
-  createdAt: string;
-  dateOfCompletion: string;
-  executor: UserShortname;
+export interface ExecutorInfoType {
   id: number;
+  taskId: number;
+  executor: UserShortname;
+  createdAt: string;
   planedDate: string;
-  result: {
-    resultName: string;
-  };
+  dateOfCompletion: string;
+  comment: string;
+  result: ExecutionResultType;
   status: number;
+}
+
+export interface ExecutionResultType {
+  id: number;
+  resultName: string;
+  resultType: number;
 }

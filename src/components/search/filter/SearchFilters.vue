@@ -206,7 +206,8 @@ async function initFilterFieldsAsync() {
 }
 
 function isInSelectableKeys(fieldKey: string) {
-  return Object.values(selectableKeysMapping).indexOf(fieldKey) !== -1;
+  const index = filterFields.value.findIndex((val) => val.key === fieldKey);
+  return index !== -1 && filterFields.value[index].endPoint;
 }
 
 function getSelectableAlias(fieldKey: string) {
@@ -293,6 +294,7 @@ async function getFieldsRequest() {
       if (res.data.length === 1) {
         res.data[0].defaultOn = true;
       }
+      console.log(res.data);
     });
 }
 

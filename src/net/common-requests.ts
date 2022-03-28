@@ -68,6 +68,7 @@ export const directoryTypes = Object.freeze({
   orgs: 'organisations',
   docs: 'documents',
   tasks: 'tasks',
+  taskExecutors: 'tasks/executors',
 } as const);
 
 export type DirectoryTypesAlias = keyof typeof directoryTypes;
@@ -107,10 +108,18 @@ export async function updateUserData() {
 }
 
 export const taskExecutorStatuses = ref<IndexedType<number, string>>({});
+export const taskStatuses = ref<IndexedType<number, string>>({});
 
 export async function getTaskExecutorStatuses() {
   await axios.get('tasks/executors/statuses').then((res) => {
     taskExecutorStatuses.value = res.data;
   });
   return taskExecutorStatuses;
+}
+
+export async function getTaskStatuses() {
+  await axios.get('tasks/statuses').then((res) => {
+    taskStatuses.value = res.data;
+  });
+  return taskStatuses;
 }

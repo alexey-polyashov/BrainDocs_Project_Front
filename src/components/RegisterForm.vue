@@ -8,22 +8,42 @@
       label-position="right"
     >
       <h2>Регистрация</h2>
-      <el-form-item required label="Полное имя" prop="fullName">
+      <el-form-item
+        required
+        label="Полное имя"
+        prop="fullName"
+        :error="errors.fullName"
+      >
         <el-input v-model="formData.fullName" />
       </el-form-item>
-      <el-form-item required label="Короткое имя" prop="shortName">
+      <el-form-item
+        required
+        label="Короткое имя"
+        prop="shortName"
+        :error="errors.shortName"
+      >
         <el-input v-model="formData.shortName" />
       </el-form-item>
-      <el-form-item required label="Организация" prop="organisationId">
+      <el-form-item
+        required
+        label="Организация"
+        prop="organisationId"
+        :error="errors.organisationId"
+      >
         <SelectableField v-model="formData.organisationId" select-type="orgs" />
       </el-form-item>
-      <el-form-item required label="Логин" prop="login">
+      <el-form-item required label="Логин" prop="login" :error="errors.login">
         <el-input v-model="formData.login" />
       </el-form-item>
-      <el-form-item required label="Почта" prop="email">
+      <el-form-item required label="Почта" prop="email" :error="errors.email">
         <el-input v-model="formData.email" />
       </el-form-item>
-      <el-form-item required label="Пароль" prop="password">
+      <el-form-item
+        required
+        label="Пароль"
+        prop="password"
+        :error="errors.password"
+      >
         <el-input v-model="formData.password" type="password" />
       </el-form-item>
       <el-form-item required label="Повтор пароля" prop="passwordRepeated">
@@ -51,6 +71,7 @@ import LoadingButton from './helpers/LoadingButton.vue';
 import axios from 'axios';
 import SelectableField from './helpers/SelectableField.vue';
 import _ from 'lodash-es';
+import { IndexedStrType } from '@/types';
 
 export interface UserRegistrationRequest {
   email: string;
@@ -66,6 +87,14 @@ export interface UserRegistrationRequest {
 const router = useRouter();
 const store = useStore();
 const loadingButton = ref();
+const errors = reactive<IndexedStrType<string>>({
+  fullName: '',
+  shortName: '',
+  password: '',
+  organisationId: '',
+  email: '',
+  login: '',
+});
 
 type FormInstance = InstanceType<typeof ElForm>;
 const formData = reactive({
@@ -100,10 +129,20 @@ const onSubmit = () => {
         fullname: formData.fullName,
         //male: 'm',
         //birthday: new Date().toISOString()
-      }).then(() => {
-        loadingButton.value.loading = false;
-        resetForm();
-      });
+      })
+        .then(() => {
+          loadingButton.value.loading = false;
+          resetForm();
+        })
+        .catch((err) => {
+          if (err.response.data) {
+            err.response.data.forEach(
+              (el: { fieldName: string; message: string }) => {
+                errors[el.fieldName] = el.message;
+              }
+            );
+          }
+        });
     } else {
       ElMessage.warning({
         message: 'Некоторые поля заполнены неверно',
@@ -127,8 +166,8 @@ function validatePasswordRepeated(rule: any, value: any, callback: any) {
   }
 }
 
-async function sendRegistrationRequest(data: UserRegistrationRequest) {
-  await axios.post<number>('users', data).then((res) => {
+function sendRegistrationRequest(data: UserRegistrationRequest) {
+  return axios.post<number>('users', data).then((res) => {
     ElMessageBox.alert(
       'Запрос на регистрацию успешно отправлен! Ожидайте подтверждения.',
       {

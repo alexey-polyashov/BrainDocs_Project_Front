@@ -32,6 +32,7 @@ export interface FilterFieldsType {
   validOperations: string[];
   type: string;
   defaultOn: boolean;
+  endPoint: string;
 }
 
 export interface UserResponseType {

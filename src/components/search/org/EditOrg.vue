@@ -28,13 +28,7 @@
 
 <script lang="ts">
 export function updateEntry(data: OrganisationView) {
-  return {
-    id: data.id,
-    name: data.name,
-    inn: data.inn,
-    kpp: data.kpp,
-    contacts: data.contacts,
-  };
+  return data;
 }
 </script>
 
@@ -44,6 +38,7 @@ import { reactive, ref, watch } from 'vue';
 import EditElementPage from '../EditElementPage.vue';
 import { OrganisationView } from '../types';
 import ContactList, { ContactType } from '@/components/helpers/ContactList.vue';
+import _ from 'lodash-es';
 
 const editElemPageRef = ref<InstanceType<typeof EditElementPage>>();
 const contactListRef = ref<InstanceType<typeof ContactList>>();
@@ -64,8 +59,9 @@ function applyFormData(source: OrganisationView) {
 }
 
 function applyRequestData() {
-  formData.contacts = contactListRef.value?.getData() as ContactType[];
-  return formData;
+  const clonedData = _.cloneDeep(formData);
+  clonedData.contacts = contactListRef.value?.getData() as ContactType[];
+  return clonedData;
 }
 </script>
 

@@ -62,7 +62,7 @@ const routes = [
   },
   {
     name: 'exec-task',
-    path: '/exec-task/:id',
+    path: '/exec-task/:id/executor/:executorId',
     component: () => import('../components/tasks/TaskExecutionPage.vue'),
   },
   {

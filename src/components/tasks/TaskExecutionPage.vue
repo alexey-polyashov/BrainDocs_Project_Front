@@ -29,34 +29,45 @@
         <p>{{ formData.heading }}</p>
         <h4>Содержание</h4>
         <p type="textarea">{{ formData.content }}</p>
-        <div v-if="isTaskActive()">
+        <div>
           <h4>Комментарий к выполнению</h4>
           <el-input
             v-model="resultComment"
+            :readonly="!isTaskExecutorActive(taskExecutor.status)"
             :rows="4"
             type="textarea"
           ></el-input>
-          <el-button
-            v-for="result in executionResults"
-            :key="result.resultType"
-            :type="(executorResultColors[result.resultType].type as any)"
-            plain
-            :style="{
-              marginTop: '8px',
-            }"
-            @click="supplyResult(result.id)"
-            >{{ result.resultName }}</el-button
-          >
+          <div v-if="isTaskExecutorActive(taskExecutor.status)">
+            <LoadingButton
+              v-for="result in executionResults"
+              :key="result.resultType"
+              :type="(executorResultColors[result.resultType].type as any)"
+              plain
+              :style="{
+                marginTop: '8px',
+              }"
+              :button-text="result.resultName"
+              @click="supplyResult(result.id)"
+            ></LoadingButton>
+          </div>
+          <p v-else style="margin-top: 16px">
+            Задача выполнена пользователем
+            <span style="color: var(--el-color-primary)">{{
+              taskExecutor.executor?.shortname
+            }}</span
+            >,
+            <span style="color: var(--m-date-color)">{{
+              getDate(taskExecutor.dateOfCompletion as string)
+            }}</span
+            >&nbsp;<span style="color: var(--m-time-color)">{{
+              getTime(taskExecutor.dateOfCompletion as string)
+            }}</span>
+          </p>
         </div>
-        <h4 v-else>
-          Статус:
-          <span
-            :style="{ color: executorStatusColors[formData.status].color }"
-            >{{ taskExecutorStatuses[formData.status] }}</span
-          >
-        </h4>
       </div>
-      <div style="width: 50%"></div>
+      <div style="width: 50%">
+        <SubjectField :subject="(subject as any)"> </SubjectField>
+      </div>
     </div>
     <el-divider></el-divider>
     <div style="text-align: end">
@@ -71,26 +82,17 @@
 </template>
 
 <script setup lang="ts">
-import { convertDate } from '@/common';
+import { convertDate, getDate, getTime } from '@/common';
 import { useStore } from '@/store';
 import axios from 'axios';
+import { ElMessage } from 'element-plus';
 import { ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import CommentList from '../helpers/CommentList.vue';
-import { TaskDataType } from './types';
+import { executorResultColors } from './common';
 import SubjectField from './SubjectField.vue';
-import { ElMessage } from 'element-plus';
-import { executorResultColors, executorStatusColors } from './common';
-import {
-  getTaskExecutorStatuses,
-  taskExecutorStatuses,
-} from '@/net/common-requests';
-
-interface ExecutionResultType {
-  id: number;
-  resultName: string;
-  resultType: number;
-}
+import { ExecutionResultType, ExecutorInfoType, TaskDataType } from './types';
+import LoadingButton from '../helpers/LoadingButton.vue';
 
 const formData = ref<TaskDataType>({
   author: {
@@ -106,12 +108,14 @@ const formData = ref<TaskDataType>({
     id: -1,
   },
 });
+const subject = ref({});
+const taskExecutor = ref<Partial<ExecutorInfoType>>({});
+const route = useRoute();
 const resultComment = ref('');
 const router = useRouter();
-getTaskExecutorStatuses();
-
 // don't wait for request to update the id value, so the page loades with no delay
-formData.value.id = +(useRoute().params.id as string);
+const executorId = +(route.params.executorId as string);
+formData.value.id = +(route.params.id as string);
 
 const executionResults = ref<ExecutionResultType[]>([]);
 
@@ -119,8 +123,16 @@ axios.get(`tasks/${formData.value.id}`).then((res) => {
   applyFormData(res.data);
 });
 
+axios
+  .get<ExecutorInfoType>(`tasks/${formData.value.id}/executors/${executorId}`)
+  .then((res) => {
+    taskExecutor.value = res.data;
+    resultComment.value = res.data.comment;
+  });
+
 function applyFormData(source: TaskDataType) {
   formData.value = source;
+  subject.value = source.subjects[0];
   axios
     .get<ExecutionResultType[]>(
       `tasks/types/${formData.value.taskType.id}/results`
@@ -141,18 +153,18 @@ function supplyResult(resultId: number) {
     ? store.getUserInfo.userExtra?.id
     : 1;
   axios
-    .post(`tasks/${formData.value.id}/executors/${userId}/result`, {
+    .post(`tasks/${formData.value.id}/executors/${executorId}/result`, {
       resultId,
       resultComment: resultComment.value,
       executor: userId,
     })
     .then((res) => {
+      ElMessage.success('Задача выполнена');
       router.push({ name: 'tasks' });
     });
 }
 
-function isTaskActive() {
-  const status = formData.value.status;
+function isTaskExecutorActive(status = formData.value.status) {
   return status !== 3 && status !== 4;
 }
 </script>

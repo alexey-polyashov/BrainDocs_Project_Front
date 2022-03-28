@@ -34,11 +34,10 @@
         </p>
         <p>
           Статус -
-          <span
-            :style="{
-              color: executorStatusColors[task.status].color,
-            }"
-            >{{ taskExecutorStatuses[task.status] }}</span
+          <el-tag
+            style="font-size: 1rem"
+            :type="(taskStatusColors[task.status].type as any)"
+            >{{ taskStatuses[task.status] }}</el-tag
           >
         </p>
       </div>
@@ -58,15 +57,11 @@
 
 <script setup lang="ts">
 import { getDate } from '@/common';
-import { IndexedStrType } from '@/types';
+import { taskStatuses } from '@/net/common-requests';
 import axios from 'axios';
 import { ref } from 'vue';
+import { taskStatusColors } from '../tasks/common';
 import { TaskDataType } from '../tasks/types';
-import {
-  getTaskExecutorStatuses,
-  taskExecutorStatuses,
-} from '@/net/common-requests';
-import { executorStatusColors } from '../tasks/common';
 
 const props = defineProps<{
   id: number | string;
