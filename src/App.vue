@@ -59,16 +59,25 @@
 import { provide, ref } from 'vue';
 import { installAuthHeader, useAuthGuard, verifyAuth } from './common';
 import ProfileMenuButton from './components/helpers/ProfileMenuButton.vue';
-import { getTaskExecutorStatuses } from './net/common-requests';
+import {
+  getTaskExecutorStatuses,
+  getTaskStatuses,
+} from './net/common-requests';
 import useServerCheck from './net/server-check';
 import { useStore } from './store';
 
-export type MenuBarValues = 'search-doc' | 'directories' | '';
+export type MenuBarValues =
+  | 'search-doc'
+  | 'directories'
+  | 'tasks'
+  | 'history'
+  | '';
 export type SetActiveMenuItemType = (item: MenuBarValues) => void;
 
 const store = useStore();
 
 getTaskExecutorStatuses();
+getTaskStatuses();
 useServerCheck();
 verifyAuth();
 useAuthGuard();

@@ -36,6 +36,9 @@
       <editor
         v-model="formData.content"
         api-key="r8zqd3nkvkfr7t0s0r4qo107guk38q9xpact4xap39t1p0pe"
+        :init="{
+          height: 400,
+        }"
       />
     </template>
     <template #extra>

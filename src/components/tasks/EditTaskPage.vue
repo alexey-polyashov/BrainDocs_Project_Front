@@ -158,7 +158,7 @@ import _ from 'lodash-es';
 import axios from 'axios';
 import { ElMessage } from 'element-plus';
 import { useRoute, useRouter } from 'vue-router';
-import { TaskDataType, ExecutorInfo } from './types';
+import { TaskDataType, ExecutorInfoType } from './types';
 import { DocFilterResponseContent } from '../search/types';
 import SubjectField from './SubjectField.vue';
 import { executorResultColors } from './common';
@@ -187,7 +187,7 @@ const route = useRoute();
 formData.value.id = +(route.params.id as string);
 
 const editElemPageRef = ref<InstanceType<typeof EditElementPage>>();
-const executorsData = ref<ExecutorInfo[]>([]);
+const executorsData = ref<ExecutorInfoType[]>([]);
 const addExecutorForm = ref({
   executor: {
     id: '',
@@ -243,7 +243,7 @@ function addExecutor() {
 
 function removeExecutor(id: number) {
   axios
-    .delete<ExecutorInfo[]>(`tasks/${formData.value.id}/executors/${id}`)
+    .delete<ExecutorInfoType[]>(`tasks/${formData.value.id}/executors/${id}`)
     .then((res) => {
       ElMessage.info('Исполнитель удален');
       fetchExecutorsList();
@@ -252,7 +252,7 @@ function removeExecutor(id: number) {
 
 function fetchExecutorsList() {
   axios
-    .get<ExecutorInfo[]>(`tasks/${formData.value.id}/executors`)
+    .get<ExecutorInfoType[]>(`tasks/${formData.value.id}/executors`)
     .then((res) => {
       executorsData.value = res.data;
     });

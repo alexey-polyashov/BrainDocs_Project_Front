@@ -40,8 +40,6 @@
       action="blank"
       :auto-upload="false"
       :on-change="fileSelected"
-      :on-exceed="onLimitExceed"
-      :limit="1"
     >
       <span class="material-icons-round upload-icon">cloud_upload</span>
       <div class="el-upload__text">
@@ -91,18 +89,19 @@ const fileForm = reactive<LocalFileDescriptionType>({
   author: { id: 1, name: '' },
 });
 
-function fileSelected(file: any) {
-  console.log(file);
+function fileSelected(file: any, uploadFiles: any[]) {
   fileForm.fileRaw = file.raw;
   fileForm.name = file.name;
   fileForm.fileType = fileForm.name.slice(fileForm.name.lastIndexOf('.') + 1);
 }
 
 function clearFormData() {
+  delete fileForm.id;
+  delete fileForm.localId;
+  delete fileForm.fileRaw;
   fileForm.name = '';
   fileForm.description = '';
   fileForm.fileType = '';
-  delete fileForm.fileRaw;
   uploadRef.value?.clearFiles();
 }
 
@@ -125,10 +124,6 @@ function editMode(fileInfo: FullFileType | LocalFileDescriptionType) {
   fileForm.id = fileInfo.id;
   if ((fileInfo as any).localId) fileForm.localId = (fileInfo as any).localId;
   fileForm.description = fileInfo.description;
-}
-
-function onLimitExceed(files: any, fileList: any) {
-  fileList[0] = files[0];
 }
 
 defineExpose({

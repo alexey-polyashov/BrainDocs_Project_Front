@@ -22,11 +22,14 @@ export function convertDateTime(date: Date) {
 
 export function verifyAuth() {
   const store = useStore();
+  const router = useRouter();
   installAuthHeader();
   if (store.getUserInfo.authorized) {
     updateUserData().catch((err) => {
+      ElMessage.info('Вы не авторизованы');
       console.log('not authorized, deleting stored user info');
       store.clearUserInfo();
+      router.push({ name: 'login' });
     });
   }
 }

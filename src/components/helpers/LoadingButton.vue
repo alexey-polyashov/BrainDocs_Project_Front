@@ -1,12 +1,7 @@
 <template>
-  <transition name="el-fade-in-linear" mode="out-in">
-    <el-button v-if="!loading" type="primary" @click="$emit('click')">
-      {{ buttonText }}
-    </el-button>
-    <el-button v-else type="primary" loading>
-      {{ buttonText }}
-    </el-button>
-  </transition>
+  <el-button :type="(type as any)" :loading="loading" @click="$emit('click')">
+    {{ buttonText }}
+  </el-button>
 </template>
 
 <script lang="ts" setup>
@@ -19,9 +14,13 @@ defineExpose({
   setLoading,
 });
 
-defineProps<{
-  buttonText: string;
-}>();
+withDefaults(
+  defineProps<{
+    type?: string;
+    buttonText: string;
+  }>(),
+  { type: 'primary' }
+);
 
 defineEmits<{
   (event: 'click'): void;
