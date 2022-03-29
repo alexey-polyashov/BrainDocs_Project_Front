@@ -2,7 +2,7 @@
   <el-card class="content-box">
     <slot name="header"></slot>
     <el-form ref="formRef" :model="formData" label-width="auto">
-      <slot name="form-items" :form-data="formData"></slot>
+      <slot name="form-items"></slot>
       <div class="button-group">
         <el-button
           size="large"
@@ -43,7 +43,8 @@ import {
 } from '@/net/common-requests';
 import axios from 'axios';
 import { ElForm, ElMessage, ElMessageBox } from 'element-plus';
-import { onMounted, reactive, ref, toRef, watch } from 'vue';
+import _ from 'lodash-es';
+import { isReactive, onMounted, reactive, ref, toRef, watch } from 'vue';
 import { onBeforeRouteLeave, useRouter } from 'vue-router';
 
 const props = defineProps<{
@@ -66,16 +67,21 @@ const modified = ref(false);
 const setModified = (mod: boolean) => {
   modified.value = mod;
 };
+const getModified = () => {
+  return modified.value;
+};
 const filterTypeLocal = ref(getUrlByDirectoryType(props.elemType));
+// eslint-disable-next-line @typescript-eslint/no-empty-function
+let watchStopHandle = () => {};
 
 const toggleFileAttachDialog = () => {
   filesDialog.value?.toggleVisible();
 };
 
-onMounted(() => {
-  const id = router.currentRoute.value.params.id;
-  if (id) editMode(+(id as string));
-});
+let id = router.currentRoute.value.params.id
+  ? +(router.currentRoute.value.params.id as string)
+  : -1;
+if (id !== -1) editMode(id);
 
 onBeforeRouteLeave(async (to, from) => {
   if (modified.value) {
@@ -108,20 +114,24 @@ function saveClick() {
 }
 
 async function sendSaveRequest(data: any) {
+  let clonedData = _.cloneDeep(data);
   ElMessage.info('Идет сохранение...');
-  if (data.id < 0) {
-    delete data.id;
+  if (id >= 0) {
+    clonedData.id = id;
+  }
+  if (clonedData.id < 0) {
+    delete clonedData.id;
   }
   await axios
     .post<number>(
-      `/${filterTypeLocal.value}` + (data.id ? `/${data.id}` : ''),
-      data
+      `/${filterTypeLocal.value}` + (clonedData.id ? `/${clonedData.id}` : ''),
+      clonedData
     )
     .then((res) => {
+      id = res.data;
       ElMessage.success('Сохранение успешно!');
       filesDialog.value?.sendStoredFilesToElement(res.data);
-      editMode(res.data);
-      modified.value = false;
+      editMode(res.data, false);
     })
     .catch((error) => {
       console.log(error);
@@ -134,21 +144,33 @@ function clearForms() {
   filesDialog.value?.resetState();
 }
 
-// if formData.id is present and is not less than 0, edit mode is on
-function editMode(elemId: number) {
-  function fetchElementById(elemId: number) {
-    axios.get<any>(`/${filterTypeLocal.value}/${elemId}`).then((res) => {
+function beginWatch() {
+  watchStopHandle();
+  modified.value = false;
+  watchStopHandle = watch(props.formData, (newVal) => {
+    modified.value = true;
+    watchStopHandle();
+  });
+}
+
+// if id is present and is not less than 0, edit mode is on
+async function editMode(elemId: number, shouldFetch = true) {
+  async function fetchElementById(elemId: number) {
+    return axios.get<any>(`/${filterTypeLocal.value}/${elemId}`).then((res) => {
       props.applyFormData(res.data);
     });
   }
-  fetchElementById(elemId);
+
+  if (shouldFetch) await fetchElementById(elemId);
   shouldSendRequestsOnChange.value = true;
   filesDialog.value?.updateView(elemId);
+  beginWatch();
 }
 
 defineExpose({
   editMode,
   setModified,
+  getModified,
 });
 </script>
 

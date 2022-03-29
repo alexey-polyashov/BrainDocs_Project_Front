@@ -89,9 +89,6 @@ const formData = reactive({
 
 function applyFormData(source: DocFilterResponseContent) {
   Object.assign(formData, updateEntry(source));
-  watch(formData, () => {
-    editElemPageRef.value?.setModified(true);
-  });
 }
 
 function applyRequestData() {

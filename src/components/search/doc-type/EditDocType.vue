@@ -42,9 +42,6 @@ const formData = reactive({
 
 function applyFormData(source: DocTypeView) {
   Object.assign(formData, updateEntry(source));
-  watch(formData, () => {
-    editElemPageRef.value?.setModified(true);
-  });
 }
 
 function applyRequestData() {

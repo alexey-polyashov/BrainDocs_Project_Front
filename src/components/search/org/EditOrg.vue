@@ -53,9 +53,6 @@ const formData = reactive({
 function applyFormData(source: OrganisationView) {
   Object.assign(formData, updateEntry(source));
   contactListRef.value?.parseData(formData.contacts);
-  watch(formData, () => {
-    editElemPageRef.value?.setModified(true);
-  });
 }
 
 function applyRequestData() {

@@ -71,12 +71,9 @@
                     executor.executor.shortname
                   }}</span
                   >, срок -&nbsp;
-                  <span style="color: var(--m-date-color)">{{
-                    getDate(executor.planedDate)
-                  }}</span
-                  >&nbsp;<span style="color: var(--m-time-color)">{{
-                    getTime(executor.planedDate)
-                  }}</span
+                  <DateTimeColored
+                    :date="(executor.planedDate as string)"
+                  ></DateTimeColored
                   >,&nbsp; <span>{{ executor.result.resultName }}</span>
                 </p>
               </div>
@@ -162,6 +159,7 @@ import { TaskDataType, ExecutorInfoType } from './types';
 import { DocFilterResponseContent } from '../search/types';
 import SubjectField from './SubjectField.vue';
 import { executorResultColors } from './common';
+import DateTimeColored from '../helpers/DateTimeColored.vue';
 
 const readonly = ref(false);
 const executorsDialogVisible = ref(false);
@@ -210,9 +208,6 @@ if (primarySubjectId) {
 function applyFormData(source: TaskDataType) {
   formData.value = source;
   fetchExecutorsList();
-  watch(formData, () => {
-    editElemPageRef.value?.setModified(true);
-  });
 }
 
 function applyRequestData() {

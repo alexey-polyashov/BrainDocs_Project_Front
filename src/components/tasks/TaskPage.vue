@@ -3,6 +3,7 @@
     <SearchFiltersWrapper
       :update-entry="updateEntry"
       filter-type="taskExecutors"
+      :row-class-name="rowClassNames"
       @create-click="$router.push({ name: 'edit-task' })"
       @row-click="(idObj) => rowClick(idObj)"
     >
@@ -18,22 +19,12 @@
         </el-table-column>
         <el-table-column label="Срок выполнения">
           <template #default="scope">
-            <span style="color: var(--m-date-color)">{{
-              getDate(scope.row.planedDate)
-            }}</span
-            >&nbsp;<span style="color: var(--m-time-color)">{{
-              getTime(scope.row.planedDate)
-            }}</span>
+            <DateTimeColored :date="scope.row.planedDate"></DateTimeColored>
           </template>
         </el-table-column>
         <el-table-column label="Дата получения">
           <template #default="scope">
-            <span style="color: var(--m-date-color)">{{
-              getDate(scope.row.createdAt)
-            }}</span
-            >&nbsp;<span style="color: var(--m-time-color)">{{
-              getTime(scope.row.createdAt)
-            }}</span>
+            <DateTimeColored :date="scope.row.createdAt"></DateTimeColored>
           </template>
         </el-table-column>
         <el-table-column label="Исполнитель">
@@ -62,6 +53,7 @@ import { useRouter } from 'vue-router';
 import SearchFiltersWrapper from '../search/filter/SearchFiltersWrapper.vue';
 import { executorResultColors } from './common';
 import { convertDate, convertDateTime, getDate, getTime } from '@/common';
+import DateTimeColored from '../helpers/DateTimeColored.vue';
 
 const router = useRouter();
 
@@ -74,6 +66,13 @@ function rowClick(obj: any) {
     name: 'exec-task',
     params: { id: obj.task.id, executorId: obj.id },
   });
+}
+
+function rowClassNames(row: any) {
+  if (row.result.resultType !== 2) {
+    return 'row-inactive';
+  }
+  return '';
 }
 </script>
 

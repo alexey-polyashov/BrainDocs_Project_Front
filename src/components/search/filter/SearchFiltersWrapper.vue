@@ -14,6 +14,7 @@
         :filter-type="filterType"
         :filter-data="entryResponseData"
         :table-data-view="shownEntries"
+        :row-class-name="rowClassName"
         class="filter-box-item filter-box-table"
         @row-click="(id) => $emit('rowClick', id)"
         @current-page-change="onPageChange"
@@ -36,6 +37,7 @@ import SearchTable from './SearchTable.vue';
 
 const props = withDefaults(
   defineProps<{
+    rowClassName?: (row: any) => string;
     filterType: DirectoryTypesAlias;
     applyOnReady?: boolean;
     updateEntry: (data: any) => any;
