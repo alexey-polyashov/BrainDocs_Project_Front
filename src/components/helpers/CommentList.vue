@@ -9,12 +9,7 @@
               comment.author.shortname
             }}</span>
             написал
-            <span style="color: var(--m-date-color)">{{
-              getDate(comment.createTime)
-            }}</span
-            >&nbsp;<span style="color: var(--m-time-color)">{{
-              getTime(comment.createTime)
-            }}</span>
+            <date-time-colored :date="comment.createTime"></date-time-colored>
           </p>
           <p style="margin-left: 8px; font-size: 1.1rem">
             {{ comment.comment }}
@@ -49,6 +44,7 @@ import { ElMessage } from 'element-plus';
 import { ref } from 'vue';
 import { convertDate, convertDateTime, getDate, getTime } from '@/common';
 import LoadingButton from './LoadingButton.vue';
+import DateTimeColored from './DateTimeColored.vue';
 
 interface CommentType {
   author: UserShortname;

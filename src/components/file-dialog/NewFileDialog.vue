@@ -39,7 +39,9 @@
       drag
       action="blank"
       :auto-upload="false"
+      :limit="1"
       :on-change="fileSelected"
+      :on-exceed="handleLimit"
     >
       <span class="material-icons-round upload-icon">cloud_upload</span>
       <div class="el-upload__text">
@@ -59,7 +61,7 @@
 
 <script lang="ts" setup>
 import { reactive, ref } from 'vue';
-import { ElMessage, ElUpload } from 'element-plus';
+import { ElMessage, ElUpload, genFileId, UploadRawFile } from 'element-plus';
 import { FileDescriptionType, FullFileType } from './types';
 import {
   DirectoryTypesAlias,
@@ -67,6 +69,7 @@ import {
   uploadFileToExistingElement,
 } from '../../net/common-requests';
 import { LocalFileDescriptionType } from './AttachedFilesDialog.vue';
+import upload from 'element-plus/es/components/upload';
 
 const props = defineProps<{
   shouldSendRequestsOnChange: boolean;
@@ -89,7 +92,9 @@ const fileForm = reactive<LocalFileDescriptionType>({
   author: { id: 1, name: '' },
 });
 
-function fileSelected(file: any, uploadFiles: any[]) {
+function fileSelected(file: any) {
+  if (file instanceof Event) return;
+
   fileForm.fileRaw = file.raw;
   fileForm.name = file.name;
   fileForm.fileType = fileForm.name.slice(fileForm.name.lastIndexOf('.') + 1);
@@ -124,6 +129,13 @@ function editMode(fileInfo: FullFileType | LocalFileDescriptionType) {
   fileForm.id = fileInfo.id;
   if ((fileInfo as any).localId) fileForm.localId = (fileInfo as any).localId;
   fileForm.description = fileInfo.description;
+}
+
+function handleLimit(files: any) {
+  uploadRef.value?.clearFiles();
+  const file = files[0] as UploadRawFile;
+  file.uid = genFileId();
+  uploadRef.value?.handleStart(file);
 }
 
 defineExpose({

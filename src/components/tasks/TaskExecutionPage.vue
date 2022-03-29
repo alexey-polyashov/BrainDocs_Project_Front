@@ -56,12 +56,9 @@
               taskExecutor.executor?.shortname
             }}</span
             >,
-            <span style="color: var(--m-date-color)">{{
-              getDate(taskExecutor.dateOfCompletion as string)
-            }}</span
-            >&nbsp;<span style="color: var(--m-time-color)">{{
-              getTime(taskExecutor.dateOfCompletion as string)
-            }}</span>
+            <DateTimeColored
+              :date="(taskExecutor.dateOfCompletion as string)"
+            ></DateTimeColored>
           </p>
         </div>
       </div>
@@ -93,6 +90,7 @@ import { executorResultColors } from './common';
 import SubjectField from './SubjectField.vue';
 import { ExecutionResultType, ExecutorInfoType, TaskDataType } from './types';
 import LoadingButton from '../helpers/LoadingButton.vue';
+import DateTimeColored from '../helpers/DateTimeColored.vue';
 
 const formData = ref<TaskDataType>({
   author: {
