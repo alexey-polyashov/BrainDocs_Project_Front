@@ -19,6 +19,7 @@ export async function uploadFileToExistingElement(
   fileInfo.author.id = store.getUserInfo.authorized
     ? (store.getUserInfo.userExtra?.id as number)
     : 1;
+  delete (fileInfo.author as any).name;
   const fileIdToSave = fileInfo.id;
   delete fileInfo.id;
   delete (fileInfo as any).localId;
