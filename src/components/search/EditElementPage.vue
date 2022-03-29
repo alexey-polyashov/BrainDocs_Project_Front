@@ -149,10 +149,10 @@ async function sendSaveRequest(data: any) {
     )
     .then((res) => {
       id = res.data;
+      if (props.setId) props.setId(id);
       ElMessage.success('Сохранение успешно!');
       filesDialog.value?.sendStoredFilesToElement(res.data);
       editMode(res.data, false);
-      if (props.setId) props.setId(id);
     })
     .catch((error) => {
       console.log(error);
