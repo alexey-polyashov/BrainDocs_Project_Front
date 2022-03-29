@@ -14,12 +14,11 @@ export async function uploadFileToExistingElement(
   elemId: number,
   fileInfo: FileDescriptionType
 ) {
+  const store = useStore();
   // replace name property with shortname as it is required for dto
-  if (fileInfo.author) {
-    const author = fileInfo.author as any;
-    author.shortname = author.name;
-    delete author.name;
-  }
+  fileInfo.author.id = store.getUserInfo.authorized
+    ? (store.getUserInfo.userExtra?.id as number)
+    : 1;
   const fileIdToSave = fileInfo.id;
   delete fileInfo.id;
   delete (fileInfo as any).localId;

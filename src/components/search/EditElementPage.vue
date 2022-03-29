@@ -46,6 +46,7 @@ import { ElForm, ElMessage, ElMessageBox } from 'element-plus';
 import _ from 'lodash-es';
 import { isReactive, onMounted, reactive, ref, toRef, watch } from 'vue';
 import { onBeforeRouteLeave, useRouter } from 'vue-router';
+import { ValidationRules } from './types';
 
 const props = defineProps<{
   formData: any;
@@ -53,6 +54,9 @@ const props = defineProps<{
   elemType: DirectoryTypesAlias;
   applyFormData: (source: any) => void;
   applyRequestData: () => any;
+  setId?: (id: number) => void;
+  validate?: () => boolean;
+  validationRules?: ValidationRules;
 }>();
 
 const emit = defineEmits<{
@@ -96,21 +100,37 @@ onBeforeRouteLeave(async (to, from) => {
   }
 });
 
-function saveClick() {
-  formRef.value?.validate((passed, failedFields) => {
-    if (passed) {
-      ElMessageBox.confirm('Сохранить?', {
-        type: 'warning',
-      }).then(() => {
-        sendSaveRequest(props.applyRequestData());
-      });
-    } else {
-      ElMessage.warning({
-        message: 'Некоторые поля заполнены неверно',
-        grouping: true,
-      });
+function processValidation() {
+  if (props.validationRules) {
+    for (const rule of props.validationRules) {
+      if (!rule.callback()) {
+        ElMessage.warning(rule.message);
+        return false;
+      }
     }
-  });
+  }
+  if (!props.validate) {
+    return true;
+  } else return props.validate();
+}
+
+function saveClick() {
+  if (processValidation()) {
+    formRef.value?.validate((passed, failedFields) => {
+      if (passed) {
+        ElMessageBox.confirm('Сохранить?', {
+          type: 'warning',
+        }).then(() => {
+          sendSaveRequest(props.applyRequestData());
+        });
+      } else {
+        ElMessage.warning({
+          message: 'Некоторые поля заполнены неверно',
+          grouping: true,
+        });
+      }
+    });
+  }
 }
 
 async function sendSaveRequest(data: any) {
@@ -122,7 +142,7 @@ async function sendSaveRequest(data: any) {
   if (clonedData.id < 0) {
     delete clonedData.id;
   }
-  await axios
+  return axios
     .post<number>(
       `/${filterTypeLocal.value}` + (clonedData.id ? `/${clonedData.id}` : ''),
       clonedData
@@ -132,6 +152,7 @@ async function sendSaveRequest(data: any) {
       ElMessage.success('Сохранение успешно!');
       filesDialog.value?.sendStoredFilesToElement(res.data);
       editMode(res.data, false);
+      if (props.setId) props.setId(id);
     })
     .catch((error) => {
       console.log(error);

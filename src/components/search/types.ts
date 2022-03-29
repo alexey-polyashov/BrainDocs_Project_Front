@@ -11,6 +11,12 @@ export interface DocFilterRequestType {
   filter: FilterType[];
 }
 
+export type ValidationRules = {
+  callback: () => boolean;
+  message: string;
+  type?: string;
+}[];
+
 export interface FilterType {
   key: string;
   operation: string;

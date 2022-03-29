@@ -3,9 +3,11 @@
     ref="editElemPageRef"
     :form-data="formData"
     :use-files-dialog="true"
+    :validation-rules="validation"
     elem-type="tasks"
     :apply-form-data="applyFormData"
     :apply-request-data="applyRequestData"
+    :set-id="(id) => (formData.id = id)"
     @on-close-click="onClose"
   >
     <template #header>
@@ -146,29 +148,32 @@
 </template>
 
 <script setup lang="ts">
-import { h, ref, watch } from 'vue';
-import SelectableField from '../helpers/SelectableField.vue';
-import EditElementPage from '../search/EditElementPage.vue';
-import CommentList from '../helpers/CommentList.vue';
-import { convertDate, convertDateTime, getDate, getTime } from '@/common';
-import _ from 'lodash-es';
+import { convertDate } from '@/common';
+import { useStore } from '@/store';
 import axios from 'axios';
 import { ElMessage } from 'element-plus';
+import _ from 'lodash-es';
+import { ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
-import { TaskDataType, ExecutorInfoType } from './types';
-import { DocFilterResponseContent } from '../search/types';
-import SubjectField from './SubjectField.vue';
-import { executorResultColors } from './common';
+import CommentList from '../helpers/CommentList.vue';
 import DateTimeColored from '../helpers/DateTimeColored.vue';
+import SelectableField from '../helpers/SelectableField.vue';
+import EditElementPage from '../search/EditElementPage.vue';
+import { DocFilterResponseContent, ValidationRules } from '../search/types';
+import SubjectField from './SubjectField.vue';
+import { ExecutorInfoType, TaskDataType } from './types';
 
+const store = useStore();
 const readonly = ref(false);
 const executorsDialogVisible = ref(false);
 const formData = ref<TaskDataType>({
   author: {
-    id: 1,
+    id: store.getUserInfo.authorized
+      ? (store.getUserInfo.userExtra?.id as number)
+      : 1,
     shortname: '',
   },
-  status: -1,
+  status: 1,
   content: '',
   createTime: convertDate(new Date()),
   heading: '',
@@ -180,6 +185,20 @@ const formData = ref<TaskDataType>({
 
 const router = useRouter();
 const route = useRoute();
+const validation: ValidationRules = [
+  {
+    callback: () => formData.value.content.length !== 0,
+    message: 'Укажите содержание',
+  },
+  {
+    callback: () => formData.value.heading.length !== 0,
+    message: 'Укажите заголовок',
+  },
+  {
+    callback: () => formData.value.taskType.id >= 0,
+    message: 'Выберите тип задачи',
+  },
+];
 
 // don't wait for request to update the id value, so the page loades with no delay
 formData.value.id = +(route.params.id as string);
