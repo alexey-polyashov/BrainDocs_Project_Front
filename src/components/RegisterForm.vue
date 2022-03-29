@@ -63,7 +63,7 @@
 </template>
 
 <script lang="ts" setup>
-import { reactive, ref, watch } from 'vue';
+import { nextTick, reactive, ref, watch } from 'vue';
 import { ElForm, ElMessage, ElMessageBox } from 'element-plus';
 import { useRouter } from 'vue-router';
 import { useStore } from '../store';
@@ -135,13 +135,7 @@ const onSubmit = () => {
           resetForm();
         })
         .catch((err) => {
-          if (err.response.data) {
-            err.response.data.forEach(
-              (el: { fieldName: string; message: string }) => {
-                errors[el.fieldName] = el.message;
-              }
-            );
-          }
+          validateResponse(err.response.data);
         });
     } else {
       ElMessage.warning({
@@ -157,6 +151,20 @@ const resetForm = () => {
 const switchToLogin = () => {
   router.push({ name: 'login' });
 };
+
+function validateResponse(data: { fieldName: string; message: string }[]) {
+  if (data) {
+    for (const key in errors) {
+      errors[key] = '';
+    }
+
+    nextTick(() => {
+      data.forEach((el) => {
+        errors[el.fieldName] = el.message;
+      });
+    });
+  }
+}
 
 function validatePasswordRepeated(rule: any, value: any, callback: any) {
   if (formData.password !== formData.passwordRepeated) {
