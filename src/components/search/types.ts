@@ -1,5 +1,9 @@
 import { FullFileType } from '../file-dialog/types';
 import { IndexedType, NamedSelectionType } from '../../types';
+import {
+  DirectoryTypesAlias,
+  SelectableTypesAlias,
+} from '@/net/common-requests';
 
 export interface DocFilterRequestType {
   page: string;
@@ -32,7 +36,7 @@ export interface FilterFieldsType {
   validOperations: string[];
   type: string;
   defaultOn: boolean;
-  endPoint: string;
+  selectType: SelectableTypesAlias;
 }
 
 export interface UserResponseType {

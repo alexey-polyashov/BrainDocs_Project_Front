@@ -2,70 +2,67 @@
   <el-form label-width="200px" label-position="left">
     <h3>Фильтры</h3>
     <TransitionGroup tag="div" name="list">
-      <template
+      <el-form-item
         v-for="(field, filterFieldsArrIndex) in activeFieldsObject"
         :key="field.key"
+        :label="field.name"
       >
-        <el-form-item :label="field.name">
-          <div class="filter-form-item">
-            <SelectableField
-              v-if="isInSelectableKeys(field.key)"
-              v-model="filterData[field.key]"
-              :select-type="(getSelectableAlias(field.key) as any)"
+        <div class="filter-form-item">
+          <SelectableField
+            v-if="field.selectType"
+            v-model="filterData[field.key]"
+            :select-type="field.selectType"
+          />
+          <div v-else-if="field.type === 'Date'">
+            <el-date-picker
+              v-model="filterData[field.key + 'Start']"
+              type="date"
+              style="display: block; width: 150px"
+              placeholder="Дата начала"
             />
-            <div v-else-if="field.type === 'Date'">
-              <el-date-picker
-                v-model="filterData[field.key + 'Start']"
-                type="date"
-                style="display: block; width: 150px"
-                placeholder="Дата начала"
-              />
-              <el-date-picker
-                v-model="filterData[field.key + 'End']"
-                type="date"
-                style="display: block; margin-top: 8px; width: 150px"
-                placeholder="Дата конца"
-              />
-            </div>
-            <el-input v-else v-model="filterData[field.key]" />
-            <el-tooltip
-              effect="dark"
-              content="Очистить поле"
-              placement="top-start"
-            >
-              <el-button
-                size="small"
-                style="margin-left: 16px"
-                @click="
-                  clearFilterField(filterFieldsArrIndex, field.type === 'Date')
-                "
-              >
-                <span style="font-size: 1rem" class="material-icons-round"
-                  >clear</span
-                >
-              </el-button>
-            </el-tooltip>
-            <el-tooltip
-              effect="dark"
-              content="Удалить поле"
-              placement="top-start"
-            >
-              <el-button
-                type="danger"
-                size="small"
-                style="margin-left: 16px"
-                @click="
-                  disableField(filterFieldsArrIndex, field.type === 'Date')
-                "
-              >
-                <span style="font-size: 1rem" class="material-icons-round"
-                  >delete</span
-                >
-              </el-button>
-            </el-tooltip>
+            <el-date-picker
+              v-model="filterData[field.key + 'End']"
+              type="date"
+              style="display: block; margin-top: 8px; width: 150px"
+              placeholder="Дата конца"
+            />
           </div>
-        </el-form-item>
-      </template>
+          <el-input v-else v-model="filterData[field.key]" />
+          <el-tooltip
+            effect="dark"
+            content="Очистить поле"
+            placement="top-start"
+          >
+            <el-button
+              size="small"
+              style="margin-left: 16px"
+              @click="
+                clearFilterField(filterFieldsArrIndex, field.type === 'Date')
+              "
+            >
+              <span style="font-size: 1rem" class="material-icons-round"
+                >clear</span
+              >
+            </el-button>
+          </el-tooltip>
+          <el-tooltip
+            effect="dark"
+            content="Удалить поле"
+            placement="top-start"
+          >
+            <el-button
+              type="danger"
+              size="small"
+              style="margin-left: 16px"
+              @click="disableField(filterFieldsArrIndex, field.type === 'Date')"
+            >
+              <span style="font-size: 1rem" class="material-icons-round"
+                >delete</span
+              >
+            </el-button>
+          </el-tooltip>
+        </div>
+      </el-form-item>
       <div key="optionsSection">
         <LoadingButton
           ref="applyFiltersButton"
@@ -149,11 +146,6 @@ const filterPagingInfo = {
   page: '0',
   recordsOnPage: '10',
 };
-const selectableKeysMapping = {
-  users: 'author',
-  docTypes: 'documentType',
-  orgs: 'organisation',
-};
 
 initFilterFieldsAsync().then(() => {
   emit('initReady');
@@ -203,19 +195,6 @@ async function initFilterFieldsAsync() {
       resolve();
     }
   });
-}
-
-function isInSelectableKeys(fieldKey: string) {
-  const index = filterFields.value.findIndex((val) => val.key === fieldKey);
-  return index !== -1 && filterFields.value[index].endPoint;
-}
-
-function getSelectableAlias(fieldKey: string) {
-  for (const [key, val] of Object.entries(selectableKeysMapping)) {
-    if (val === fieldKey) {
-      return key;
-    }
-  }
 }
 
 const nonActiveFields = computed<FilterFieldsType[]>(() => {
@@ -294,7 +273,6 @@ async function getFieldsRequest() {
       if (res.data.length === 1) {
         res.data[0].defaultOn = true;
       }
-      console.log(res.data);
     });
 }
 
